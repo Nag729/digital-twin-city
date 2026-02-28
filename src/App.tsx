@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import AgentDetailPanel from './components/AgentDetailPanel';
 import CityCanvas from './components/CityCanvas';
-import Footer from './components/Footer';
 import Header from './components/Header';
 import HintBar from './components/HintBar';
-import PhaseNav from './components/PhaseNav';
 import StatusPanel from './components/StatusPanel';
+import VisionModal from './components/VisionModal';
 import {
   getMetricsForPhase,
   INITIAL_AGENTS,
@@ -139,6 +138,7 @@ export default function App() {
   });
 
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
+  const [visionModalOpen, setVisionModalOpen] = useState(false);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
 
@@ -192,8 +192,16 @@ export default function App() {
     dispatch({ type: 'SELECT_AGENT', agentId: null });
   }, []);
 
+  const handleOpenVision = useCallback(() => {
+    setVisionModalOpen(true);
+  }, []);
+
+  const handleCloseVision = useCallback(() => {
+    setVisionModalOpen(false);
+  }, []);
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-bg-primary">
+    <div className="relative w-screen h-screen overflow-hidden bg-bg-primary flex flex-col">
       {/* Phase transition flash — soft mint glow */}
       {phaseTransitioning && (
         <div
@@ -205,16 +213,20 @@ export default function App() {
         />
       )}
 
-      {/* Header */}
-      <Header currentPhase={state.currentPhase} />
+      {/* Header with Phase Navigation */}
+      <Header
+        currentPhase={state.currentPhase}
+        onPhaseChange={handlePhaseChange}
+        maxReachedPhase={state.maxReachedPhase}
+      />
 
-      {/* Hint Bar */}
-      <HintBar currentPhase={state.currentPhase} hints={currentPhaseConfig.hints} />
-
-      {/* Main content area */}
-      <div className="flex h-full pt-12">
+      {/* Main content area — fills remaining space */}
+      <div className="flex flex-1 min-h-0 relative">
         {/* Map area */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-w-0">
+          {/* Hint Bar — overlaid on map */}
+          <HintBar currentPhase={state.currentPhase} hints={currentPhaseConfig.hints} />
+
           <CityCanvas
             buildings={state.buildings}
             agents={state.agents}
@@ -223,14 +235,31 @@ export default function App() {
             elapsedTime={state.phaseElapsed}
             onAgentClick={handleAgentClick}
           />
+
+          {/* Vision button — bottom-left of map */}
+          <button
+            type="button"
+            onClick={handleOpenVision}
+            className="absolute bottom-5 left-5 z-10 flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: 'rgba(255, 255, 255, 0.92)',
+              backdropFilter: 'blur(8px)',
+              border: '1.5px solid #E9D5FF',
+              boxShadow: '0 2px 16px rgba(196, 181, 253, 0.15)',
+            }}
+          >
+            <span className="text-lg">🧭</span>
+            <span className="text-sm font-medium" style={{ color: '#7C3AED' }}>
+              ヒューマンビジョン
+            </span>
+          </button>
         </div>
 
         {/* Status Panel */}
-        <div className="flex-shrink-0 border-l border-border-warm bg-bg-primary/90 backdrop-blur-sm">
+        <div className="flex-shrink-0 border-l border-border-warm bg-bg-primary/90 backdrop-blur-sm z-20">
           <StatusPanel
             currentPhase={state.currentPhase}
             metrics={metrics}
-            vision={state.vision}
             skills={state.skills}
             feedbacks={state.feedbacks}
             agents={state.agents}
@@ -239,22 +268,20 @@ export default function App() {
         </div>
       </div>
 
-      {/* Phase Navigation */}
-      <PhaseNav
-        currentPhase={state.currentPhase}
-        onPhaseChange={handlePhaseChange}
-        maxReachedPhase={state.maxReachedPhase}
-      />
-
-      {/* Footer */}
-      <Footer description={currentPhaseConfig.description} />
-
       {/* Agent Detail Panel */}
       <AgentDetailPanel
         agent={selectedAgent}
         onClose={handleCloseDetail}
         feedbacks={state.feedbacks}
         skills={state.skills}
+      />
+
+      {/* Vision Modal */}
+      <VisionModal
+        open={visionModalOpen}
+        onClose={handleCloseVision}
+        vision={MOCK_VISION}
+        currentPhase={state.currentPhase}
       />
     </div>
   );

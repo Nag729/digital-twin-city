@@ -45,10 +45,10 @@ export default function Footer({ description }: FooterProps) {
   }, [description, displayedText]);
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
-      <div className="flex items-center justify-center px-6 py-3">
+    <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
+      <div className="flex items-center justify-center">
         <div
-          className="max-w-2xl text-center px-5 py-2.5 rounded-2xl animate-fade-in"
+          className="max-w-2xl text-center px-6 py-3 rounded-2xl animate-fade-in"
           style={{
             background: 'rgba(255, 248, 240, 0.92)',
             backdropFilter: 'blur(8px)',
@@ -65,6 +65,6 @@ export default function Footer({ description }: FooterProps) {
           </p>
         </div>
       </div>
-    </footer>
+    </div>
   );
 }
