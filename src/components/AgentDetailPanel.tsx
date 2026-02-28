@@ -202,7 +202,10 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
           </div>
 
           {/* Current state */}
-          <div className="mt-4 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm" style={{ background: accentBg }}>
+          <div
+            className="mt-5 flex items-center gap-2.5 rounded-xl px-4 py-3.5 text-sm"
+            style={{ background: accentBg }}
+          >
             <span
               className="inline-block h-2.5 w-2.5 rounded-full animate-pulse"
               style={{ backgroundColor: accentColor }}
@@ -346,7 +349,7 @@ function Section({
 
   return (
     <div>
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3.5 flex items-center gap-2">
         {icons[icon]}
         <h3 className="text-sm font-medium uppercase tracking-wider text-text-secondary">{title}</h3>
         {count !== undefined && (

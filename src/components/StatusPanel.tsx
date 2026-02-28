@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Agent, AgentRole, AgentSkill, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
+import type { Agent, AgentRole, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
 
 // ─── Role icon helper ───────────────────────────────────────────
 const ROLE_ICONS: Record<AgentRole, string> = {
@@ -138,13 +138,13 @@ function FeedbackBreakdown({ feedbacks }: { feedbacks: Feedback[] }) {
   for (const f of feedbacks) counts[f.type]++;
 
   return (
-    <div className="flex gap-2 mt-2">
+    <div className="flex gap-2 mt-2.5">
       {(Object.keys(counts) as FeedbackType[]).map((type) => {
         const cfg = FB_CONFIG[type];
         return (
           <span
             key={type}
-            className="text-xs font-medium px-2.5 py-1 rounded-full"
+            className="text-xs font-medium px-3 py-1.5 rounded-full"
             style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label}: {counts[type]}
@@ -173,14 +173,14 @@ function AgentRoleBreakdown({ agents }: { agents: Agent[] }) {
   for (const a of agents) counts[a.role]++;
 
   return (
-    <div className="flex flex-wrap gap-2 mt-2">
+    <div className="flex flex-wrap gap-2 mt-2.5">
       {(Object.keys(counts) as AgentRole[]).map((role) => {
         if (counts[role] === 0) return null;
         const cfg = ROLE_CONFIG[role];
         return (
           <span
             key={role}
-            className="text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1"
+            className="text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1"
             style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             <span>{ROLE_ICONS[role]}</span>
@@ -208,13 +208,13 @@ function AgentStateSummary({ agents }: { agents: Agent[] }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 mt-2">
+    <div className="flex flex-wrap gap-2 mt-2.5">
       {Object.entries(stateCounts).map(([state, count]) => {
         const cfg = STATE_LABELS[state] || { label: state, color: '#8B7355', bg: '#F5F0EB' };
         return (
           <span
             key={state}
-            className="text-xs font-medium px-2.5 py-1 rounded-full"
+            className="text-xs font-medium px-3 py-1.5 rounded-full"
             style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label}: {count}
@@ -225,64 +225,10 @@ function AgentStateSummary({ agents }: { agents: Agent[] }) {
   );
 }
 
-// ─── External Knowledge item ─────────────────────────────────────
-const SOURCE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  user_feedback: { label: '現場FB', color: '#FF8FAB', bg: '#FFF0F5' },
-  usage_analytics: { label: '利用データ', color: '#87CEEB', bg: '#F0F8FF' },
-  domain_expert: { label: '専門家', color: '#C4B5FD', bg: '#F5F3FF' },
-};
-
-function KnowledgeItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  if (!visible) return null;
-
-  const srcCfg = SOURCE_LABELS[skill.source] || SOURCE_LABELS.usage_analytics;
-
-  return (
-    <div
-      className="animate-fade-in border-l-2 pl-4 py-2 rounded-r-xl"
-      style={{
-        borderColor: '#87CEEB',
-        background: 'rgba(135, 206, 235, 0.04)',
-      }}
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <span
-          className="text-[11px] font-medium px-2 py-0.5 rounded-full"
-          style={{ color: srcCfg.color, backgroundColor: srcCfg.bg }}
-        >
-          {srcCfg.label}
-        </span>
-        <span className="text-sm font-medium text-text-primary">{skill.name}</span>
-      </div>
-      <p className="text-xs text-text-secondary leading-relaxed mb-2">{skill.description}</p>
-      <div className="flex items-center gap-2">
-        <span className="text-[11px] text-text-muted shrink-0">信頼度</span>
-        <div className="h-2 flex-1 rounded-full bg-border-warm/50 overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-1000"
-            style={{
-              width: `${skill.confidence * 100}%`,
-              background: 'linear-gradient(90deg, #6ECFB0, #87CEEB)',
-            }}
-          />
-        </div>
-        <span className="text-xs font-medium text-text-muted">{Math.round(skill.confidence * 100)}%</span>
-      </div>
-    </div>
-  );
-}
-
 // ─── Section title ──────────────────────────────────────────────
 function SectionTitle({ label, color }: { label: string; color: string }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
+    <div className="flex items-center gap-2 mb-3.5">
       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
       <span className="text-xs font-medium uppercase tracking-wider" style={{ color }}>
         {label}
@@ -295,7 +241,6 @@ function SectionTitle({ label, color }: { label: string; color: string }) {
 interface StatusPanelProps {
   currentPhase: PhaseNumber;
   metrics: PhaseMetrics;
-  skills: AgentSkill[];
   feedbacks: Feedback[];
   agents?: Agent[];
   qualityHistory?: number[];
@@ -304,7 +249,6 @@ interface StatusPanelProps {
 export default function StatusPanel({
   currentPhase,
   metrics,
-  skills,
   feedbacks,
   agents = [],
   qualityHistory = [],
@@ -314,7 +258,7 @@ export default function StatusPanel({
 
   return (
     <div
-      className="w-96 h-full flex flex-col gap-4 p-5 overflow-y-auto"
+      className="w-[400px] h-full flex flex-col gap-5 p-5 overflow-y-auto"
       style={{ background: 'rgba(255, 248, 240, 0.6)' }}
     >
       {/* Core metrics */}
@@ -339,7 +283,7 @@ export default function StatusPanel({
           <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />
         )}
         {currentPhase >= 4 && chartScores.length > 1 && (
-          <div className="mt-3 pt-3 border-t border-border-warm/40">
+          <div className="mt-4 pt-4 border-t border-border-warm/40">
             <span className="text-xs text-text-secondary font-medium">品質スコア推移</span>
             <QualityChart scores={chartScores} />
           </div>
@@ -351,7 +295,7 @@ export default function StatusPanel({
         <PaperCard accentColor="#87CEEB">
           <SectionTitle label="エージェント" color="#87CEEB" />
           <AgentRoleBreakdown agents={agents} />
-          <div className="mt-3 pt-3 border-t border-border-warm/30">
+          <div className="mt-4 pt-4 border-t border-border-warm/30">
             <span className="text-xs text-text-secondary font-medium">ステータス</span>
             <AgentStateSummary agents={agents} />
           </div>
@@ -363,7 +307,7 @@ export default function StatusPanel({
         <PaperCard accentColor="#FFB347">
           <SectionTitle label="フィードバック" color="#FFB347" />
           <FeedbackBreakdown feedbacks={feedbacks} />
-          <div className="mt-3 space-y-2 max-h-44 overflow-y-auto">
+          <div className="mt-4 space-y-3.5 max-h-48 overflow-y-auto">
             {feedbacks.slice(0, 5).map((fb, i) => {
               const cfg = FB_CONFIG[fb.type];
               return (
@@ -388,21 +332,6 @@ export default function StatusPanel({
                 </div>
               );
             })}
-          </div>
-        </PaperCard>
-      )}
-
-      {/* External Knowledge (Phase 3+) — formerly "Skills" */}
-      {currentPhase >= 3 && skills.length > 0 && (
-        <PaperCard accentColor="#87CEEB">
-          <SectionTitle label="外部ナレッジ" color="#87CEEB" />
-          <p className="text-xs text-text-muted mb-3 leading-relaxed">
-            AIだけでは知り得ない現実世界の知識。プロダクト改善の判断基準として外部から注入されます。
-          </p>
-          <div className="space-y-3">
-            {skills.map((skill, i) => (
-              <KnowledgeItem key={skill.id} skill={skill} delay={i * 400} />
-            ))}
           </div>
         </PaperCard>
       )}

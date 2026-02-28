@@ -84,7 +84,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
         className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)] animate-[slideUp_0.3s_ease-out]"
       >
         {/* Header */}
-        <div className="px-8 pt-8 pb-6" style={{ borderBottom: '1.5px solid #F5E6D3' }}>
+        <div className="px-7 pt-7 pb-5" style={{ borderBottom: '1.5px solid #F5E6D3' }}>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -110,10 +110,10 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
           </div>
         </div>
 
-        <div className="px-8 py-6 space-y-6">
+        <div className="px-7 py-6 space-y-6">
           {/* Vision Statement */}
           <div className="rounded-2xl p-5" style={{ border: '1.5px solid #E9D5FF', backgroundColor: '#FAF5FF' }}>
-            <p className="text-xs font-medium uppercase tracking-wider mb-2" style={{ color: '#C4B5FD' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: '#C4B5FD' }}>
               ビジョンステートメント
             </p>
             <p className="text-lg font-medium leading-relaxed" style={{ color: '#7C3AED' }}>
@@ -123,10 +123,10 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
 
           {/* Priorities */}
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-text-secondary mb-3">優先事項</p>
-            <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wider text-text-secondary mb-3.5">優先事項</p>
+            <div className="space-y-3.5">
               {vision.priorities.map((p, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-xl p-3" style={{ background: '#FAF5FF' }}>
+                <div key={i} className="flex items-start gap-3 rounded-xl p-4" style={{ background: '#FAF5FF' }}>
                   <span
                     className="font-medium text-xs rounded-full w-6 h-6 flex items-center justify-center shrink-0"
                     style={{ color: '#C4B5FD', background: '#F0EAFF' }}
@@ -141,7 +141,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
 
           {/* Semi-Closed Loop */}
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-text-secondary mb-3">
+            <p className="text-xs font-medium uppercase tracking-wider text-text-secondary mb-3.5">
               セミクローズドループ
             </p>
             <div className="space-y-0">
@@ -150,7 +150,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
                   {/* Timeline */}
                   <div className="flex flex-col items-center w-8 shrink-0">
                     <div
-                      className="w-3 h-3 rounded-full shrink-0 mt-4 transition-all duration-500"
+                      className="w-3 h-3 rounded-full shrink-0 mt-3.5 transition-all duration-500"
                       style={{
                         background: step.active ? step.color : '#E8DDD0',
                         boxShadow: step.active ? `0 0 0 3px ${step.color}25` : 'none',
@@ -173,13 +173,13 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
 
                   {/* Content */}
                   <div
-                    className="flex-1 rounded-xl p-3 mb-1.5 transition-all duration-500"
+                    className="flex-1 rounded-xl px-4 py-3.5 mb-2 transition-all duration-500"
                     style={{
                       background: step.active ? `${step.color}08` : 'transparent',
                       opacity: step.active ? 1 : 0.5,
                     }}
                   >
-                    <div className="flex items-center gap-2 mb-0.5">
+                    <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm">{step.icon}</span>
                       <span className="text-sm font-medium text-text-primary">{step.label}</span>
                       {!step.active && (
@@ -188,7 +188,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-text-secondary leading-relaxed ml-6">{step.desc}</p>
+                    <p className="text-xs text-text-secondary leading-relaxed ml-[22px]">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -223,7 +223,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
 
           {/* Key insight */}
           <div
-            className="rounded-2xl p-4 text-center"
+            className="rounded-2xl p-5 text-center"
             style={{ background: 'linear-gradient(135deg, #FAF5FF, #F0F8FF)', border: '1px solid #E9D5FF' }}
           >
             <p className="text-sm leading-relaxed" style={{ color: '#5D4E37' }}>

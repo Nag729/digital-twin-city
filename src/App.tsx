@@ -3,6 +3,7 @@ import AgentDetailPanel from './components/AgentDetailPanel';
 import CityCanvas from './components/CityCanvas';
 import Header from './components/Header';
 import HintBar from './components/HintBar';
+import KnowledgeModal from './components/KnowledgeModal';
 import StatusPanel from './components/StatusPanel';
 import VisionModal from './components/VisionModal';
 import {
@@ -139,6 +140,7 @@ export default function App() {
 
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
   const [visionModalOpen, setVisionModalOpen] = useState(false);
+  const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
 
@@ -200,6 +202,16 @@ export default function App() {
     setVisionModalOpen(false);
   }, []);
 
+  const handleOpenKnowledge = useCallback(() => {
+    setKnowledgeModalOpen(true);
+  }, []);
+
+  const handleCloseKnowledge = useCallback(() => {
+    setKnowledgeModalOpen(false);
+  }, []);
+
+  const isPhase5 = state.currentPhase >= 5;
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-bg-primary flex flex-col">
       {/* Phase transition flash — soft mint glow */}
@@ -236,23 +248,60 @@ export default function App() {
             onAgentClick={handleAgentClick}
           />
 
-          {/* Vision button — bottom-left of map */}
-          <button
-            type="button"
-            onClick={handleOpenVision}
-            className="absolute bottom-5 left-5 z-10 flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            style={{
-              background: 'rgba(255, 255, 255, 0.92)',
-              backdropFilter: 'blur(8px)',
-              border: '1.5px solid #E9D5FF',
-              boxShadow: '0 2px 16px rgba(196, 181, 253, 0.15)',
-            }}
-          >
-            <span className="text-lg">🧭</span>
-            <span className="text-sm font-medium" style={{ color: '#7C3AED' }}>
-              ヒューマンビジョン
-            </span>
-          </button>
+          {/* Action buttons — bottom-left of map */}
+          <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-3">
+            {/* Vision button */}
+            <button
+              type="button"
+              onClick={handleOpenVision}
+              className="relative flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.92)',
+                backdropFilter: 'blur(8px)',
+                border: isPhase5 ? '1.5px solid #C4B5FD' : '1.5px solid #E9D5FF',
+                boxShadow: isPhase5
+                  ? '0 2px 20px rgba(196, 181, 253, 0.3), 0 0 0 1px rgba(196, 181, 253, 0.1)'
+                  : '0 2px 16px rgba(196, 181, 253, 0.15)',
+              }}
+            >
+              <span className="text-lg">🧭</span>
+              <span className="text-sm font-medium" style={{ color: '#7C3AED' }}>
+                ヒューマンビジョン
+              </span>
+              {isPhase5 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center">
+                  <span
+                    className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
+                    style={{ backgroundColor: '#C4B5FD' }}
+                  />
+                  <span
+                    className="relative inline-flex h-3 w-3 rounded-full"
+                    style={{ backgroundColor: '#7C3AED', boxShadow: '0 0 6px rgba(124, 58, 237, 0.4)' }}
+                  />
+                </span>
+              )}
+            </button>
+
+            {/* Knowledge button (Phase 3+) */}
+            {state.currentPhase >= 3 && (
+              <button
+                type="button"
+                onClick={handleOpenKnowledge}
+                className="flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1.5px solid #BAE6FD',
+                  boxShadow: '0 2px 16px rgba(135, 206, 235, 0.15)',
+                }}
+              >
+                <span className="text-lg">📡</span>
+                <span className="text-sm font-medium" style={{ color: '#0EA5E9' }}>
+                  外部ナレッジ
+                </span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Status Panel */}
@@ -260,7 +309,6 @@ export default function App() {
           <StatusPanel
             currentPhase={state.currentPhase}
             metrics={metrics}
-            skills={state.skills}
             feedbacks={state.feedbacks}
             agents={state.agents}
             qualityHistory={state.qualityHistory}
@@ -283,6 +331,9 @@ export default function App() {
         vision={MOCK_VISION}
         currentPhase={state.currentPhase}
       />
+
+      {/* Knowledge Modal */}
+      <KnowledgeModal open={knowledgeModalOpen} onClose={handleCloseKnowledge} skills={MOCK_SKILLS} />
     </div>
   );
 }

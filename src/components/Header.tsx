@@ -15,7 +15,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
 
   return (
     <header
-      className="flex-shrink-0 z-40 flex items-center justify-between px-8 py-3"
+      className="flex-shrink-0 z-40 flex items-center justify-between px-7 py-3.5"
       style={{
         background: 'rgba(255, 248, 240, 0.95)',
         backdropFilter: 'blur(8px)',

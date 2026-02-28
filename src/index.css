@@ -35,21 +35,23 @@
   --color-bg-secondary: #FFF3E8;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  font-family: "Rounded Mplus 1c", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: "Rounded Mplus 1c", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
 }
 
 @keyframes fade-in {
