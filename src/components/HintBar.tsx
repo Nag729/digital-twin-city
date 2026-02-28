@@ -11,7 +11,6 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const [visible, setVisible] = useState(true);
   const [fadeKey, setFadeKey] = useState(0);
 
-  // Reset hint index when phase changes
   useEffect(() => {
     setCurrentHintIndex(0);
     setVisible(true);
@@ -42,19 +41,20 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
     <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl px-4">
       <div
         key={fadeKey}
-        className="relative flex items-start gap-3 px-5 py-3 rounded-xl border border-neon-cyan/20 animate-fade-in"
+        className="relative flex items-start gap-3 px-5 py-3 rounded-2xl animate-fade-in"
         style={{
-          background: 'rgba(15, 23, 42, 0.75)',
+          background: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          boxShadow: '0 0 20px rgba(6, 182, 212, 0.08), inset 0 1px 0 rgba(255,255,255,0.05)',
+          border: '1.5px solid #F5E6D3',
+          boxShadow: '0 2px 16px rgba(180, 140, 100, 0.1)',
         }}
       >
         {/* Pulse indicator */}
-        <div className="flex-shrink-0 mt-1">
+        <div className="flex-shrink-0 mt-1.5">
           <div
-            className="w-2 h-2 rounded-full bg-neon-cyan animate-[pulse-glow_2s_ease-in-out_infinite]"
-            style={{ boxShadow: '0 0 6px var(--color-neon-cyan)' }}
+            className="w-2 h-2 rounded-full bg-accent-coral animate-pulse"
+            style={{ boxShadow: '0 0 4px rgba(255, 143, 171, 0.4)' }}
           />
         </div>
 
@@ -70,22 +70,22 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
               <button
                 onClick={prevHint}
                 disabled={currentHintIndex === 0}
-                className="p-1 text-text-secondary hover:text-neon-cyan transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-1 text-text-muted hover:text-accent-coral transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
 
-              <span className="text-[10px] text-text-secondary tabular-nums min-w-[24px] text-center">
+              <span className="text-[10px] text-text-muted tabular-nums min-w-[24px] text-center font-medium">
                 {currentHintIndex + 1}/{hints.length}
               </span>
 
               <button
                 onClick={nextHint}
-                className="p-1 text-text-secondary hover:text-neon-cyan transition-colors"
+                className="p-1 text-text-muted hover:text-accent-coral transition-colors"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   {currentHintIndex < hints.length - 1 ? (
                     <polyline points="9 18 15 12 9 6" />
                   ) : (
@@ -102,9 +102,9 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
           {hints.length <= 1 && (
             <button
               onClick={() => setVisible(false)}
-              className="p-1 text-text-secondary hover:text-neon-cyan transition-colors"
+              className="p-1 text-text-muted hover:text-accent-coral transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -113,10 +113,10 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
         </div>
 
         {/* Decorative dotted arrow pointing down */}
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5">
-          <div className="w-px h-1.5 bg-neon-cyan/40" />
-          <div className="w-px h-1 bg-neon-cyan/25" />
-          <div className="w-px h-0.5 bg-neon-cyan/15" />
+        <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5">
+          <div className="w-1 h-1 rounded-full bg-accent-coral/30" />
+          <div className="w-1 h-1 rounded-full bg-accent-coral/20" />
+          <div className="w-1 h-1 rounded-full bg-accent-coral/10" />
         </div>
       </div>
     </div>

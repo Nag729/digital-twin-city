@@ -10,10 +10,17 @@ interface AgentDetailPanelProps {
 }
 
 const ROLE_COLORS: Record<AgentRole, string> = {
-  warehouse_worker: '#f59e0b',
-  sort_operator: '#fb923c',
-  delivery_driver: '#06b6d4',
-  recipient: '#a3e635',
+  warehouse_worker: '#FFB347',
+  sort_operator: '#FF8FAB',
+  delivery_driver: '#6ECFB0',
+  recipient: '#87CEEB',
+};
+
+const ROLE_BG: Record<AgentRole, string> = {
+  warehouse_worker: '#FFF8EE',
+  sort_operator: '#FFF0F5',
+  delivery_driver: '#F0FDF4',
+  recipient: '#F0F8FF',
 };
 
 const ROLE_LABELS: Record<AgentRole, string> = {
@@ -31,16 +38,16 @@ const STATE_LABELS: Record<string, string> = {
   communicating: '通信中',
 };
 
-const FEEDBACK_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  bug: { label: 'BUG', color: '#ef4444' },
-  ux_improvement: { label: 'UX', color: '#a78bfa' },
-  performance: { label: 'PERF', color: '#f59e0b' },
+const FEEDBACK_TYPE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+  bug: { label: 'BUG', color: '#FF6B6B', bg: '#FFF0F0' },
+  ux_improvement: { label: 'UX', color: '#C4B5FD', bg: '#F5F3FF' },
+  performance: { label: 'PERF', color: '#FFB347', bg: '#FFF8EE' },
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
-  low: '#10b981',
-  medium: '#f59e0b',
-  high: '#ef4444',
+  low: '#6ECFB0',
+  medium: '#FFB347',
+  high: '#FF6B6B',
 };
 
 export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: AgentDetailPanelProps) {
@@ -54,7 +61,6 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
   const agentFeedbacks = agent ? feedbacks.filter(f => f.agentId === agent.id) : [];
   const agentSkills = agent ? skills.filter(s => agent.skills.includes(s.id)) : [];
 
-  // Typewriter effect for operation logs
   useEffect(() => {
     if (!agent) {
       setVisibleLogLines(0);
@@ -62,7 +68,6 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
       setCurrentTypingLine(-1);
       return;
     }
-
     setVisibleLogLines(0);
     setTypingText('');
     setCurrentTypingLine(0);
@@ -70,11 +75,9 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
 
   useEffect(() => {
     if (currentTypingLine < 0 || currentTypingLine >= logs.length) return;
-
     const line = logs[currentTypingLine];
     let charIndex = 0;
     setTypingText('');
-
     const typeInterval = setInterval(() => {
       charIndex++;
       setTypingText(line.slice(0, charIndex));
@@ -87,25 +90,21 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
         }, 300);
       }
     }, 25);
-
     return () => clearInterval(typeInterval);
   }, [currentTypingLine, logs]);
 
-  // Auto-scroll log container
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [visibleLogLines, typingText]);
 
-  // Click outside to dismiss
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
     if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
       onClose();
     }
   }, [onClose]);
 
-  // ESC key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -119,6 +118,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
   if (!agent) return null;
 
   const accentColor = ROLE_COLORS[agent.role];
+  const accentBg = ROLE_BG[agent.role];
   const roleLabel = ROLE_LABELS[agent.role];
   const agentIndex = parseInt(agent.id.replace('a', ''), 10);
   const roleIndex = String(agentIndex).padStart(2, '0');
@@ -127,73 +127,53 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
     <div
       className="fixed inset-0 z-50 flex items-center justify-end"
       onClick={handleBackdropClick}
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(2px)' }}
+      style={{ backgroundColor: 'rgba(93, 78, 55, 0.3)', backdropFilter: 'blur(2px)' }}
     >
-      {/* Slide-in Panel */}
       <div
         ref={panelRef}
-        className="h-full w-[420px] max-w-[90vw] overflow-y-auto"
+        className="h-full w-[420px] max-w-[90vw] overflow-y-auto rounded-l-3xl"
         style={{
-          background: 'linear-gradient(180deg, #0d1117 0%, #0a0e1a 100%)',
-          borderLeft: `1px solid ${accentColor}33`,
-          boxShadow: `
-            -4px 0 30px ${accentColor}15,
-            inset 0 0 60px rgba(0, 0, 0, 0.5)
-          `,
+          background: '#FFFFFF',
+          boxShadow: '-4px 0 30px rgba(180, 140, 100, 0.15)',
           animation: 'slideIn 0.3s ease-out',
         }}
       >
         {/* Header */}
         <div
-          className="sticky top-0 z-10 px-6 pt-5 pb-4"
+          className="sticky top-0 z-10 px-6 pt-5 pb-4 rounded-tl-3xl"
           style={{
-            background: 'linear-gradient(180deg, #0d1117 80%, transparent)',
-            borderBottom: `1px solid ${accentColor}22`,
+            background: 'linear-gradient(180deg, #FFFFFF 80%, rgba(255,255,255,0.9))',
+            borderBottom: `1.5px solid #F5E6D3`,
           }}
         >
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              {/* Agent avatar circle */}
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-medium"
                 style={{
-                  background: `${accentColor}20`,
-                  border: `2px solid ${accentColor}`,
+                  background: accentBg,
                   color: accentColor,
-                  boxShadow: `0 0 15px ${accentColor}40`,
+                  boxShadow: `0 2px 8px ${accentColor}25`,
                 }}
               >
                 {agent.name[0]}
               </div>
               <div>
-                <h2 className="text-lg font-bold" style={{ color: '#f8fafc' }}>
+                <h2 className="text-lg font-medium" style={{ color: '#5D4E37' }}>
                   {agent.name}
                 </h2>
-                <p
-                  className="text-xs font-medium tracking-wider uppercase"
-                  style={{ color: accentColor }}
-                >
+                <p className="text-xs font-medium tracking-wider" style={{ color: accentColor }}>
                   {roleLabel} #{roleIndex}
                 </p>
               </div>
             </div>
 
-            {/* Close button */}
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-xl transition-colors"
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#94a3b8',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.color = '#f8fafc';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                e.currentTarget.style.color = '#94a3b8';
+                background: '#F5F0EB',
+                color: '#8B7355',
               }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -204,21 +184,14 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
 
           {/* Current state */}
           <div
-            className="mt-3 flex items-center gap-2 rounded-md px-3 py-2 text-sm"
-            style={{
-              background: `${accentColor}10`,
-              border: `1px solid ${accentColor}25`,
-            }}
+            className="mt-3 flex items-center gap-2 rounded-xl px-3 py-2 text-sm"
+            style={{ background: accentBg }}
           >
             <span
-              className="inline-block h-2 w-2 rounded-full"
-              style={{
-                backgroundColor: accentColor,
-                boxShadow: `0 0 6px ${accentColor}`,
-                animation: 'pulse-glow 2s ease-in-out infinite',
-              }}
+              className="inline-block h-2 w-2 rounded-full animate-pulse"
+              style={{ backgroundColor: accentColor }}
             />
-            <span style={{ color: '#94a3b8' }}>
+            <span style={{ color: '#5D4E37' }}>
               {STATE_LABELS[agent.state] || agent.state}
             </span>
           </div>
@@ -226,15 +199,14 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
 
         {/* Content */}
         <div className="space-y-5 px-6 py-4">
-          {/* Operation Log */}
+          {/* Operation Log - dark theme for contrast */}
           <Section title="Operation Log" accentColor={accentColor} icon="terminal">
             <div
               ref={logContainerRef}
-              className="max-h-[220px] overflow-y-auto rounded-md p-3"
+              className="max-h-[220px] overflow-y-auto rounded-xl p-3"
               style={{
-                background: '#000000',
-                border: '1px solid #1e293b',
-                fontFamily: "'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace",
+                background: '#1E1B2E',
+                fontFamily: "'Fira Code', 'SF Mono', 'Monaco', monospace",
               }}
             >
               {logs.slice(0, visibleLogLines).map((line, i) => (
@@ -243,10 +215,10 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
               {currentTypingLine < logs.length && (
                 <div className="flex items-start gap-1.5 text-xs leading-relaxed">
                   <span style={{ color: accentColor }} className="shrink-0 select-none">{'>'}</span>
-                  <span style={{ color: '#cbd5e1' }}>
+                  <span style={{ color: '#E2DDD5' }}>
                     {typingText}
                     <span
-                      className="ml-px inline-block h-3.5 w-1.5 align-middle"
+                      className="ml-px inline-block h-3.5 w-1.5 align-middle rounded-sm"
                       style={{
                         backgroundColor: accentColor,
                         animation: 'blink 0.8s step-end infinite',
@@ -259,7 +231,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
                 <div className="mt-1 flex items-center gap-1.5 text-xs">
                   <span style={{ color: accentColor }} className="select-none">{'>'}</span>
                   <span
-                    className="inline-block h-3.5 w-1.5"
+                    className="inline-block h-3.5 w-1.5 rounded-sm"
                     style={{
                       backgroundColor: accentColor,
                       animation: 'blink 0.8s step-end infinite',
@@ -273,47 +245,43 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
           {/* Feedbacks */}
           <Section title="Discovered Feedbacks" accentColor={accentColor} icon="alert" count={agentFeedbacks.length}>
             {agentFeedbacks.length === 0 ? (
-              <p className="text-xs italic" style={{ color: '#475569' }}>
+              <p className="text-xs italic" style={{ color: '#B8A590' }}>
                 No feedbacks discovered yet
               </p>
             ) : (
               <div className="space-y-2">
                 {agentFeedbacks.map(fb => {
-                  const typeInfo = FEEDBACK_TYPE_LABELS[fb.type] || { label: fb.type, color: '#94a3b8' };
-                  const sevColor = SEVERITY_COLORS[fb.severity] || '#94a3b8';
+                  const typeInfo = FEEDBACK_TYPE_LABELS[fb.type] || { label: fb.type, color: '#8B7355', bg: '#F5F0EB' };
+                  const sevColor = SEVERITY_COLORS[fb.severity] || '#8B7355';
                   return (
                     <div
                       key={fb.id}
-                      className="rounded-md p-2.5 text-xs"
+                      className="rounded-xl p-2.5 text-xs"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        background: '#FAFAF8',
+                        border: '1px solid #F5E6D3',
                       }}
                     >
                       <div className="mb-1 flex items-center gap-2">
                         <span
-                          className="rounded px-1.5 py-0.5 text-[10px] font-bold tracking-wider"
-                          style={{
-                            backgroundColor: `${typeInfo.color}20`,
-                            color: typeInfo.color,
-                            border: `1px solid ${typeInfo.color}40`,
-                          }}
+                          className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                          style={{ backgroundColor: typeInfo.bg, color: typeInfo.color }}
                         >
                           {typeInfo.label}
                         </span>
                         <span
-                          className="rounded px-1.5 py-0.5 text-[10px] font-medium uppercase"
+                          className="text-[10px] font-medium uppercase"
                           style={{ color: sevColor }}
                         >
                           {fb.severity}
                         </span>
                         {fb.resolved && (
-                          <span className="text-[10px]" style={{ color: '#10b981' }}>
+                          <span className="text-[10px] font-medium rounded-full px-1.5 py-0.5" style={{ color: '#6ECFB0', background: '#F0FDF4' }}>
                             RESOLVED
                           </span>
                         )}
                       </div>
-                      <p style={{ color: '#cbd5e1' }}>{fb.description}</p>
+                      <p style={{ color: '#5D4E37' }}>{fb.description}</p>
                     </div>
                   );
                 })}
@@ -324,7 +292,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
           {/* Skills */}
           <Section title="Held Skills" accentColor={accentColor} icon="skill" count={agentSkills.length}>
             {agentSkills.length === 0 ? (
-              <p className="text-xs italic" style={{ color: '#475569' }}>
+              <p className="text-xs italic" style={{ color: '#B8A590' }}>
                 No skills acquired yet
               </p>
             ) : (
@@ -332,28 +300,25 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
                 {agentSkills.map(skill => (
                   <div
                     key={skill.id}
-                    className="rounded-md p-2.5 text-xs"
+                    className="rounded-xl p-2.5 text-xs"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
+                      background: '#FAFAF8',
+                      border: '1px solid #F5E6D3',
                     }}
                   >
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="font-medium" style={{ color: '#f8fafc' }}>
+                      <span className="font-medium" style={{ color: '#5D4E37' }}>
                         {skill.name}
                       </span>
                       <span
-                        className="rounded px-1.5 py-0.5 text-[10px]"
-                        style={{
-                          backgroundColor: `${accentColor}15`,
-                          color: accentColor,
-                        }}
+                        className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                        style={{ backgroundColor: accentBg, color: accentColor }}
                       >
                         {Math.round(skill.confidence * 100)}%
                       </span>
                     </div>
-                    <p style={{ color: '#94a3b8' }}>{skill.description}</p>
-                    <p className="mt-1" style={{ color: '#475569' }}>
+                    <p style={{ color: '#8B7355' }}>{skill.description}</p>
+                    <p className="mt-1" style={{ color: '#B8A590' }}>
                       Source: {skill.source.replace('_', ' ')}
                     </p>
                   </div>
@@ -363,11 +328,9 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
           </Section>
         </div>
 
-        {/* Bottom padding */}
         <div className="h-6" />
       </div>
 
-      {/* Inline styles for animations */}
       <style>{`
         @keyframes slideIn {
           from { transform: translateX(100%); opacity: 0; }
@@ -387,7 +350,7 @@ function LogLine({ text, accentColor }: { text: string; accentColor: string }) {
   return (
     <div className="flex items-start gap-1.5 text-xs leading-relaxed">
       <span style={{ color: accentColor }} className="shrink-0 select-none">{'>'}</span>
-      <span style={{ color: isWarning ? '#fbbf24' : '#cbd5e1' }}>{text}</span>
+      <span style={{ color: isWarning ? '#FFD93D' : '#E2DDD5' }}>{text}</span>
     </div>
   );
 }
@@ -430,16 +393,13 @@ function Section({
     <div>
       <div className="mb-2 flex items-center gap-2">
         {icons[icon]}
-        <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#94a3b8' }}>
+        <h3 className="text-xs font-medium uppercase tracking-wider" style={{ color: '#8B7355' }}>
           {title}
         </h3>
         {count !== undefined && (
           <span
-            className="rounded-full px-1.5 py-0.5 text-[10px] font-bold"
-            style={{
-              backgroundColor: `${accentColor}20`,
-              color: accentColor,
-            }}
+            className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+            style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
           >
             {count}
           </span>

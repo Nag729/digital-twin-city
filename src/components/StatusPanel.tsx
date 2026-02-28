@@ -24,7 +24,6 @@ function useCountUp(target: number, duration = 1200): number {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(start + diff * eased));
       if (progress < 1) {
@@ -59,47 +58,43 @@ function QualityChart({ scores }: { scores: number[] }) {
     <svg width={w} height={h} className="mt-1">
       <defs>
         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-neon-green)" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="var(--color-neon-green)" stopOpacity="0.02" />
+          <stop offset="0%" stopColor="#6ECFB0" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#6ECFB0" stopOpacity="0.02" />
         </linearGradient>
-        <filter id="chartGlow">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
       </defs>
       <path d={area} fill="url(#chartGrad)" />
-      <path d={line} fill="none" stroke="var(--color-neon-green)" strokeWidth="2" filter="url(#chartGlow)" />
+      <path d={line} fill="none" stroke="#6ECFB0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       {pts.length > 0 && (
         <circle
           cx={pts[pts.length - 1].x}
           cy={pts[pts.length - 1].y}
-          r="3"
-          fill="var(--color-neon-green)"
-          className="animate-pulse"
+          r="3.5"
+          fill="#6ECFB0"
+          stroke="white"
+          strokeWidth="1.5"
         />
       )}
     </svg>
   );
 }
 
-// ─── Glow Card wrapper ──────────────────────────────────────────
-function GlowCard({
+// ─── Paper Card wrapper ──────────────────────────────────────────
+function PaperCard({
   children,
-  glowColor = 'var(--color-neon-blue)',
+  accentColor = '#6ECFB0',
   className = '',
 }: {
   children: React.ReactNode;
-  glowColor?: string;
+  accentColor?: string;
   className?: string;
 }) {
   return (
     <div
-      className={`relative rounded-lg border border-white/10 bg-bg-card/80 backdrop-blur-sm p-3 ${className}`}
+      className={`relative rounded-2xl p-3 ${className}`}
       style={{
-        boxShadow: `0 0 8px ${glowColor}22, inset 0 1px 0 ${glowColor}15`,
+        background: '#FFFFFF',
+        border: '1.5px solid #F5E6D3',
+        boxShadow: `0 2px 12px rgba(180, 140, 100, 0.06), 0 0 0 0 ${accentColor}00`,
       }}
     >
       {children}
@@ -112,7 +107,7 @@ function MetricRow({
   label,
   value,
   suffix = '',
-  color = 'var(--color-neon-blue)',
+  color = '#6ECFB0',
   placeholder,
 }: {
   label: string;
@@ -126,7 +121,7 @@ function MetricRow({
   return (
     <div className="flex items-center justify-between py-1">
       <span className="text-xs text-text-secondary">{label}</span>
-      <span className="text-sm font-mono font-semibold" style={{ color, textShadow: `0 0 8px ${color}66` }}>
+      <span className="text-sm font-mono font-medium" style={{ color }}>
         {placeholder !== undefined && value === 0 ? placeholder : `${displayed}${suffix}`}
       </span>
     </div>
@@ -134,10 +129,10 @@ function MetricRow({
 }
 
 // ─── Feedback category badge ────────────────────────────────────
-const FB_CONFIG: Record<FeedbackType, { label: string; color: string }> = {
-  bug: { label: 'Bug', color: 'var(--color-neon-red)' },
-  ux_improvement: { label: 'UX', color: 'var(--color-neon-amber)' },
-  performance: { label: 'Perf', color: 'var(--color-neon-orange)' },
+const FB_CONFIG: Record<FeedbackType, { label: string; color: string; bg: string }> = {
+  bug: { label: 'Bug', color: '#FF6B6B', bg: '#FFF0F0' },
+  ux_improvement: { label: 'UX', color: '#FFB347', bg: '#FFF8EE' },
+  performance: { label: 'Perf', color: '#FF8FAB', bg: '#FFF0F5' },
 };
 
 function FeedbackBreakdown({ feedbacks }: { feedbacks: Feedback[] }) {
@@ -151,12 +146,8 @@ function FeedbackBreakdown({ feedbacks }: { feedbacks: Feedback[] }) {
         return (
           <span
             key={type}
-            className="text-[10px] font-mono px-1.5 py-0.5 rounded border"
-            style={{
-              color: cfg.color,
-              borderColor: `${cfg.color}44`,
-              backgroundColor: `${cfg.color}11`,
-            }}
+            className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label}: {counts[type]}
           </span>
@@ -167,11 +158,11 @@ function FeedbackBreakdown({ feedbacks }: { feedbacks: Feedback[] }) {
 }
 
 // ─── Agent role badge ───────────────────────────────────────────
-const ROLE_CONFIG: Record<AgentRole, { label: string; color: string }> = {
-  warehouse_worker: { label: '倉庫', color: 'var(--color-neon-blue)' },
-  sort_operator: { label: '仕分', color: 'var(--color-neon-purple)' },
-  delivery_driver: { label: '配送', color: 'var(--color-neon-green)' },
-  recipient: { label: '受取', color: 'var(--color-neon-amber)' },
+const ROLE_CONFIG: Record<AgentRole, { label: string; color: string; bg: string }> = {
+  warehouse_worker: { label: '倉庫', color: '#87CEEB', bg: '#F0F8FF' },
+  sort_operator: { label: '仕分', color: '#C4B5FD', bg: '#F5F3FF' },
+  delivery_driver: { label: '配送', color: '#6ECFB0', bg: '#F0FDF4' },
+  recipient: { label: '受取', color: '#FFB347', bg: '#FFF8EE' },
 };
 
 function AgentRoleBreakdown({ agents }: { agents: Agent[] }) {
@@ -191,12 +182,8 @@ function AgentRoleBreakdown({ agents }: { agents: Agent[] }) {
         return (
           <span
             key={role}
-            className="text-[10px] font-mono px-1.5 py-0.5 rounded border"
-            style={{
-              color: cfg.color,
-              borderColor: `${cfg.color}44`,
-              backgroundColor: `${cfg.color}11`,
-            }}
+            className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label} x{counts[role]}
           </span>
@@ -213,23 +200,23 @@ function AgentStateSummary({ agents }: { agents: Agent[] }) {
     stateCounts[a.state] = (stateCounts[a.state] || 0) + 1;
   });
 
-  const STATE_LABELS: Record<string, { label: string; color: string }> = {
-    idle: { label: '待機', color: 'var(--color-text-secondary)' },
-    moving: { label: '移動中', color: 'var(--color-neon-blue)' },
-    working: { label: '作業中', color: 'var(--color-neon-green)' },
-    reporting: { label: '報告中', color: 'var(--color-neon-amber)' },
-    communicating: { label: '通信中', color: 'var(--color-neon-cyan)' },
+  const STATE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+    idle: { label: '待機', color: '#8B7355', bg: '#F5F0EB' },
+    moving: { label: '移動中', color: '#87CEEB', bg: '#F0F8FF' },
+    working: { label: '作業中', color: '#6ECFB0', bg: '#F0FDF4' },
+    reporting: { label: '報告中', color: '#FFB347', bg: '#FFF8EE' },
+    communicating: { label: '通信中', color: '#C4B5FD', bg: '#F5F3FF' },
   };
 
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
       {Object.entries(stateCounts).map(([state, count]) => {
-        const cfg = STATE_LABELS[state] || { label: state, color: 'var(--color-text-secondary)' };
+        const cfg = STATE_LABELS[state] || { label: state, color: '#8B7355', bg: '#F5F0EB' };
         return (
           <span
             key={state}
-            className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-            style={{ color: cfg.color, backgroundColor: `${cfg.color}15` }}
+            className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label}: {count}
           </span>
@@ -253,40 +240,42 @@ function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
   const sourceLabel =
     skill.source === 'user_feedback' ? 'FB' : skill.source === 'usage_analytics' ? 'DATA' : 'EXPERT';
 
+  const SOURCE_COLORS: Record<string, { color: string; bg: string }> = {
+    FB: { color: '#FF8FAB', bg: '#FFF0F5' },
+    DATA: { color: '#87CEEB', bg: '#F0F8FF' },
+    EXPERT: { color: '#C4B5FD', bg: '#F5F3FF' },
+  };
+  const srcCfg = SOURCE_COLORS[sourceLabel] || SOURCE_COLORS.DATA;
+
   return (
     <div
-      className="animate-fade-in border-l-2 pl-2 py-1"
+      className="animate-fade-in border-l-2 pl-2.5 py-1 rounded-r-xl"
       style={{
-        borderColor: 'var(--color-neon-cyan)',
-        animation: `fade-in 0.5s ease-out forwards, skill-glow 1.5s ease-out ${delay}ms`,
+        borderColor: '#6ECFB0',
+        background: 'rgba(110, 207, 176, 0.04)',
       }}
     >
       <div className="flex items-center gap-1.5">
         <span
-          className="text-[9px] font-mono px-1 py-0.5 rounded font-bold"
-          style={{
-            color: 'var(--color-neon-cyan)',
-            backgroundColor: 'var(--color-neon-cyan)11',
-            border: '1px solid var(--color-neon-cyan)33',
-          }}
+          className="text-[9px] font-medium px-1.5 py-0.5 rounded-full"
+          style={{ color: srcCfg.color, backgroundColor: srcCfg.bg }}
         >
           {sourceLabel}
         </span>
-        <span className="text-[11px] font-semibold text-text-primary">{skill.name}</span>
+        <span className="text-[11px] font-medium text-text-primary">{skill.name}</span>
       </div>
       <p className="text-[10px] text-text-secondary mt-0.5 leading-tight">{skill.description}</p>
-      <div className="flex items-center gap-1 mt-0.5">
-        <div className="h-1 flex-1 rounded-full bg-white/5 overflow-hidden">
+      <div className="flex items-center gap-1 mt-1">
+        <div className="h-1.5 flex-1 rounded-full bg-border-warm/50 overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-1000"
             style={{
               width: `${skill.confidence * 100}%`,
-              background: `linear-gradient(90deg, var(--color-neon-cyan)88, var(--color-neon-cyan))`,
-              boxShadow: '0 0 6px var(--color-neon-cyan)66',
+              background: 'linear-gradient(90deg, #6ECFB0, #87CEEB)',
             }}
           />
         </div>
-        <span className="text-[9px] font-mono text-text-secondary">{Math.round(skill.confidence * 100)}%</span>
+        <span className="text-[9px] font-medium text-text-muted">{Math.round(skill.confidence * 100)}%</span>
       </div>
     </div>
   );
@@ -306,38 +295,37 @@ function VisionPanel({ vision }: { vision: Vision }) {
   }, [vision.alignmentScore, circumference]);
 
   return (
-    <GlowCard glowColor="var(--color-neon-purple)" className="animate-fade-in">
+    <PaperCard accentColor="#C4B5FD" className="animate-fade-in">
       <div className="flex items-center gap-2 mb-2">
         <div
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: 'var(--color-neon-purple)', boxShadow: '0 0 6px var(--color-neon-purple)' }}
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: '#C4B5FD' }}
         />
-        <span className="text-[10px] font-mono uppercase tracking-wider text-neon-purple">Human Vision</span>
+        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#C4B5FD' }}>Human Vision</span>
       </div>
 
       {/* Vision statement */}
       <div
-        className="rounded-md p-2.5 mb-2 border"
+        className="rounded-xl p-2.5 mb-2"
         style={{
-          borderColor: 'var(--color-neon-purple)33',
-          backgroundColor: 'var(--color-neon-purple)08',
+          border: '1.5px solid #E9D5FF',
+          backgroundColor: '#FAF5FF',
         }}
       >
-        <p
-          className="text-sm font-semibold leading-snug"
-          style={{ color: 'var(--color-neon-purple)', textShadow: '0 0 12px var(--color-neon-purple)44' }}
-        >
+        <p className="text-sm font-medium leading-snug" style={{ color: '#7C3AED' }}>
           &ldquo;{vision.statement}&rdquo;
         </p>
       </div>
 
       {/* Priorities */}
       <div className="mb-2">
-        <span className="text-[10px] text-text-secondary uppercase tracking-wide">Priorities</span>
+        <span className="text-[10px] text-text-secondary uppercase tracking-wide font-medium">Priorities</span>
         <ul className="mt-1 space-y-1">
           {vision.priorities.map((p, i) => (
             <li key={i} className="flex items-start gap-1.5 text-[11px] text-text-primary">
-              <span className="text-neon-purple mt-px font-mono text-[9px]">{String(i + 1).padStart(2, '0')}</span>
+              <span className="font-medium mt-px text-[9px] rounded-full w-4 h-4 flex items-center justify-center" style={{ color: '#C4B5FD', background: '#F5F3FF' }}>
+                {i + 1}
+              </span>
               {p}
             </li>
           ))}
@@ -347,33 +335,30 @@ function VisionPanel({ vision }: { vision: Vision }) {
       {/* Alignment score gauge */}
       <div className="flex items-center gap-3">
         <svg width="68" height="68" viewBox="0 0 68 68">
-          <circle cx="34" cy="34" r="28" fill="none" stroke="var(--color-border-glow)" strokeWidth="4" />
+          <circle cx="34" cy="34" r="28" fill="none" stroke="#F5E6D3" strokeWidth="4" />
           <circle
             cx="34"
             cy="34"
             r="28"
             fill="none"
-            stroke="var(--color-neon-purple)"
+            stroke="url(#visionGrad)"
             strokeWidth="4"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
             transform="rotate(-90 34 34)"
-            style={{
-              transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
-              filter: 'drop-shadow(0 0 4px var(--color-neon-purple))',
-            }}
+            style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
           />
-          <text
-            x="34"
-            y="32"
-            textAnchor="middle"
-            className="text-sm font-mono font-bold"
-            fill="var(--color-neon-purple)"
-          >
+          <defs>
+            <linearGradient id="visionGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#C4B5FD" />
+              <stop offset="100%" stopColor="#FF8FAB" />
+            </linearGradient>
+          </defs>
+          <text x="34" y="32" textAnchor="middle" className="text-sm font-mono font-medium" fill="#7C3AED">
             {alignmentAnimated}%
           </text>
-          <text x="34" y="44" textAnchor="middle" className="text-[8px]" fill="var(--color-text-secondary)">
+          <text x="34" y="44" textAnchor="middle" className="text-[8px]" fill="#8B7355">
             Alignment
           </text>
         </svg>
@@ -381,7 +366,7 @@ function VisionPanel({ vision }: { vision: Vision }) {
           ビジョンとプロダクト進化の方向性が一致しているスコアです。人間の意思決定がAIの進化に方向性を与えます。
         </p>
       </div>
-    </GlowCard>
+    </PaperCard>
   );
 }
 
@@ -405,15 +390,14 @@ export default function StatusPanel({
   agents = [],
   qualityHistory = [],
 }: StatusPanelProps) {
-  // Build quality history from metrics if not provided
   const chartScores =
     qualityHistory.length > 0 ? qualityHistory : currentPhase >= 4 ? [12, 25, 38, 52, 65, metrics.qualityScore] : [];
 
   const sectionTitle = useCallback(
     (label: string, color: string) => (
       <div className="flex items-center gap-2 mb-1.5">
-        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}` }} />
-        <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color }}>
+        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color }}>
           {label}
         </span>
       </div>
@@ -422,104 +406,71 @@ export default function StatusPanel({
   );
 
   return (
-    <div className="w-72 h-full flex flex-col gap-2.5 p-3 overflow-y-auto">
-      {/* ── Phase indicator ─────────────────────────────────── */}
-      <GlowCard glowColor="var(--color-neon-blue)">
+    <div
+      className="w-72 h-full flex flex-col gap-2.5 p-3 overflow-y-auto"
+      style={{ background: 'rgba(255, 248, 240, 0.6)' }}
+    >
+      {/* Phase indicator */}
+      <PaperCard accentColor="#87CEEB">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono text-text-secondary uppercase tracking-wider">Phase</span>
-          <span
-            className="text-lg font-mono font-bold"
-            style={{ color: 'var(--color-neon-blue)', textShadow: '0 0 12px var(--color-neon-blue)66' }}
-          >
+          <span className="text-[10px] font-medium text-text-secondary uppercase tracking-wider">Phase</span>
+          <span className="text-lg font-mono font-medium" style={{ color: '#5D4E37' }}>
             {currentPhase}/5
           </span>
         </div>
-        {/* Phase progress dots */}
         <div className="flex gap-1.5 mt-1.5">
-          {[1, 2, 3, 4, 5].map((p) => (
-            <div
-              key={p}
-              className="flex-1 h-1 rounded-full transition-all duration-500"
-              style={{
-                backgroundColor:
-                  p <= currentPhase ? 'var(--color-neon-blue)' : 'var(--color-border-glow)',
-                boxShadow: p <= currentPhase ? '0 0 6px var(--color-neon-blue)66' : 'none',
-              }}
-            />
-          ))}
+          {[1, 2, 3, 4, 5].map((p) => {
+            const colors = ['#6ECFB0', '#87CEEB', '#FFD93D', '#FF8FAB', '#C4B5FD'];
+            return (
+              <div
+                key={p}
+                className="flex-1 h-1.5 rounded-full transition-all duration-500"
+                style={{
+                  backgroundColor: p <= currentPhase ? colors[p - 1] : '#F5E6D3',
+                }}
+              />
+            );
+          })}
         </div>
-      </GlowCard>
+      </PaperCard>
 
-      {/* ── Core metrics (all phases) ──────────────────────── */}
-      <GlowCard glowColor="var(--color-neon-green)">
-        {sectionTitle('Metrics', 'var(--color-neon-green)')}
-        <MetricRow
-          label="施設数"
-          value={12}
-          color="var(--color-neon-blue)"
-        />
-        <MetricRow
-          label="配送成功率"
-          value={metrics.deliverySuccessRate}
-          suffix="%"
-          color="var(--color-neon-green)"
-          placeholder="---%"
-        />
-        {currentPhase >= 2 && (
-          <MetricRow
-            label="エージェント数"
-            value={metrics.agentCount}
-            color="var(--color-neon-cyan)"
-          />
-        )}
+      {/* Core metrics */}
+      <PaperCard accentColor="#6ECFB0">
+        {sectionTitle('Metrics', '#6ECFB0')}
+        <MetricRow label="施設数" value={12} color="#87CEEB" />
+        <MetricRow label="配送成功率" value={metrics.deliverySuccessRate} suffix="%" color="#6ECFB0" placeholder="---%"  />
+        {currentPhase >= 2 && <MetricRow label="エージェント数" value={metrics.agentCount} color="#87CEEB" />}
         {currentPhase >= 3 && (
           <>
-            <MetricRow
-              label="フィードバック数"
-              value={metrics.totalFeedbacks}
-              color="var(--color-neon-amber)"
-            />
-            <MetricRow
-              label="解決済み"
-              value={metrics.resolvedIssues}
-              color="var(--color-neon-lime)"
-            />
+            <MetricRow label="フィードバック数" value={metrics.totalFeedbacks} color="#FFB347" />
+            <MetricRow label="解決済み" value={metrics.resolvedIssues} color="#6ECFB0" />
           </>
         )}
-        {currentPhase >= 4 && (
-          <MetricRow
-            label="品質スコア"
-            value={metrics.qualityScore}
-            suffix="/100"
-            color="var(--color-neon-green)"
-          />
-        )}
-
-        {/* Quality chart (Phase 4+) */}
+        {currentPhase >= 4 && <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />}
         {currentPhase >= 4 && chartScores.length > 1 && (
-          <div className="mt-1.5 pt-1.5 border-t border-white/5">
-            <span className="text-[10px] text-text-secondary">品質推移</span>
+          <div className="mt-1.5 pt-1.5 border-t border-border-warm/40">
+            <span className="text-[10px] text-text-secondary font-medium">品質推移</span>
             <QualityChart scores={chartScores} />
           </div>
         )}
-      </GlowCard>
+      </PaperCard>
 
-      {/* ── Agent roles (Phase 2+) ─────────────────────────── */}
+      {/* Agent roles (Phase 2+) */}
       {currentPhase >= 2 && agents.length > 0 && (
-        <GlowCard glowColor="var(--color-neon-cyan)">
-          {sectionTitle('Agents', 'var(--color-neon-cyan)')}
+        <PaperCard accentColor="#87CEEB">
+          {sectionTitle('Agents', '#87CEEB')}
           <AgentRoleBreakdown agents={agents} />
-          <div className="mt-1.5 pt-1.5 border-t border-white/5">
-            <span className="text-[10px] text-text-secondary">Status</span>
+          <div className="mt-1.5 pt-1.5 border-t border-border-warm/30">
+            <span className="text-[10px] text-text-secondary font-medium">Status</span>
             <AgentStateSummary agents={agents} />
           </div>
-        </GlowCard>
+        </PaperCard>
       )}
 
-      {/* ── Feedback breakdown (Phase 3+) ──────────────────── */}
+      {/* Feedback breakdown (Phase 3+) */}
       {currentPhase >= 3 && feedbacks.length > 0 && (
-        <GlowCard glowColor="var(--color-neon-amber)">
-          {sectionTitle('Feedbacks', 'var(--color-neon-amber)')}
+        <PaperCard accentColor="#FFB347">
+          {sectionTitle('Feedbacks', '#FFB347')}
           <FeedbackBreakdown feedbacks={feedbacks} />
           <div className="mt-2 space-y-1 max-h-28 overflow-y-auto">
             {feedbacks.slice(0, 5).map((fb, i) => {
@@ -527,7 +478,7 @@ export default function StatusPanel({
               return (
                 <div
                   key={fb.id}
-                  className="text-[10px] py-1 border-b border-white/5 last:border-0 animate-fade-in"
+                  className="text-[10px] py-1.5 border-b border-border-warm/30 last:border-0 animate-fade-in"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div className="flex items-center gap-1">
@@ -537,7 +488,7 @@ export default function StatusPanel({
                     />
                     <span className="text-text-secondary">{fb.agentName}</span>
                     {fb.resolved && (
-                      <span className="text-[8px] text-neon-lime ml-auto font-mono">RESOLVED</span>
+                      <span className="text-[8px] font-medium ml-auto rounded-full px-1.5 py-0.5" style={{ color: '#6ECFB0', background: '#F0FDF4' }}>RESOLVED</span>
                     )}
                   </div>
                   <p className="text-text-primary mt-0.5 leading-tight">{fb.description}</p>
@@ -545,22 +496,22 @@ export default function StatusPanel({
               );
             })}
           </div>
-        </GlowCard>
+        </PaperCard>
       )}
 
-      {/* ── Agent Skills (Phase 3+) ────────────────────────── */}
+      {/* Agent Skills (Phase 3+) */}
       {currentPhase >= 3 && skills.length > 0 && (
-        <GlowCard glowColor="var(--color-neon-cyan)">
-          {sectionTitle('Agent Skills', 'var(--color-neon-cyan-bright)')}
+        <PaperCard accentColor="#87CEEB">
+          {sectionTitle('Agent Skills', '#87CEEB')}
           <div className="space-y-2">
             {skills.map((skill, i) => (
               <SkillItem key={skill.id} skill={skill} delay={i * 400} />
             ))}
           </div>
-        </GlowCard>
+        </PaperCard>
       )}
 
-      {/* ── Human Vision (Phase 5) ─────────────────────────── */}
+      {/* Human Vision (Phase 5) */}
       {currentPhase >= 5 && vision && <VisionPanel vision={vision} />}
     </div>
   );

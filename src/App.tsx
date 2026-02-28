@@ -348,12 +348,12 @@ export default function App() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-bg-primary">
-      {/* Phase transition flash */}
+      {/* Phase transition flash — soft mint glow */}
       {phaseTransitioning && (
         <div
           className="fixed inset-0 z-[100] pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(6,182,212,0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at center, rgba(110,207,176,0.12) 0%, transparent 70%)',
             animation: 'fade-in 0.3s ease-out',
           }}
         />
@@ -380,7 +380,7 @@ export default function App() {
         </div>
 
         {/* Status Panel */}
-        <div className="flex-shrink-0 border-l border-border-glow/30 bg-bg-primary/80 backdrop-blur-sm">
+        <div className="flex-shrink-0 border-l border-border-warm bg-bg-primary/90 backdrop-blur-sm">
           <StatusPanel
             currentPhase={state.currentPhase}
             metrics={metrics}
