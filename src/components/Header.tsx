@@ -1,4 +1,4 @@
-import { PhaseNumber } from '../types';
+import type { PhaseNumber } from '../types';
 
 interface HeaderProps {
   currentPhase: PhaseNumber;
