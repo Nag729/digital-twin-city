@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AgentSkill } from '../types';
 
-const SOURCE_LABELS: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+const SOURCE_LABELS: Record<AgentSkill['source'], { label: string; color: string; bg: string; icon: string }> = {
   user_feedback: { label: '現場フィードバック', color: '#FF8FAB', bg: '#FFF0F5', icon: '🗣️' },
   usage_analytics: { label: '利用データ分析', color: '#87CEEB', bg: '#F0F8FF', icon: '📊' },
   domain_expert: { label: '専門家知見', color: '#C4B5FD', bg: '#F5F3FF', icon: '🎓' },

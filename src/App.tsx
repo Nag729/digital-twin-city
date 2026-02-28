@@ -317,12 +317,7 @@ export default function App() {
       </div>
 
       {/* Agent Detail Panel */}
-      <AgentDetailPanel
-        agent={selectedAgent}
-        onClose={handleCloseDetail}
-        feedbacks={state.feedbacks}
-        skills={state.skills}
-      />
+      <AgentDetailPanel agent={selectedAgent} onClose={handleCloseDetail} feedbacks={state.feedbacks} />
 
       {/* Vision Modal */}
       <VisionModal
@@ -333,7 +328,7 @@ export default function App() {
       />
 
       {/* Knowledge Modal */}
-      <KnowledgeModal open={knowledgeModalOpen} onClose={handleCloseKnowledge} skills={MOCK_SKILLS} />
+      <KnowledgeModal open={knowledgeModalOpen} onClose={handleCloseKnowledge} skills={state.skills} />
     </div>
   );
 }

@@ -193,19 +193,19 @@ function AgentRoleBreakdown({ agents }: { agents: Agent[] }) {
 }
 
 // ─── Agent state summary ────────────────────────────────────────
+const STATE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+  idle: { label: '待機', color: '#8B7355', bg: '#F5F0EB' },
+  moving: { label: '移動中', color: '#87CEEB', bg: '#F0F8FF' },
+  working: { label: '作業中', color: '#6ECFB0', bg: '#F0FDF4' },
+  reporting: { label: '報告中', color: '#FFB347', bg: '#FFF8EE' },
+  communicating: { label: '通信中', color: '#C4B5FD', bg: '#F5F3FF' },
+};
+
 function AgentStateSummary({ agents }: { agents: Agent[] }) {
   const stateCounts: Record<string, number> = {};
   agents.forEach((a) => {
     stateCounts[a.state] = (stateCounts[a.state] || 0) + 1;
   });
-
-  const STATE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-    idle: { label: '待機', color: '#8B7355', bg: '#F5F0EB' },
-    moving: { label: '移動中', color: '#87CEEB', bg: '#F0F8FF' },
-    working: { label: '作業中', color: '#6ECFB0', bg: '#F0FDF4' },
-    reporting: { label: '報告中', color: '#FFB347', bg: '#FFF8EE' },
-    communicating: { label: '通信中', color: '#C4B5FD', bg: '#F5F3FF' },
-  };
 
   return (
     <div className="flex flex-wrap gap-2 mt-2.5">

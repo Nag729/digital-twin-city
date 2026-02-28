@@ -6,7 +6,6 @@ interface AgentDetailPanelProps {
   agent: Agent | null;
   onClose: () => void;
   feedbacks: Feedback[];
-  skills: unknown[];
 }
 
 const ROLE_COLORS: Record<AgentRole, string> = {
