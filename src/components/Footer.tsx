@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface FooterProps {
   description: string;
@@ -42,7 +42,7 @@ export default function Footer({ description }: FooterProps) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [description]);
+  }, [description, displayedText]);
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">

@@ -1,14 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import type {
-  PhaseNumber,
-  PhaseMetrics,
-  Vision,
-  AgentSkill,
-  Feedback,
-  FeedbackType,
-  AgentRole,
-  Agent,
-} from '../types';
+import { useEffect, useRef, useState } from 'react';
+import type { Agent, AgentRole, AgentSkill, Feedback, FeedbackType, PhaseMetrics, PhaseNumber, Vision } from '../types';
 
 // ─── Count-up hook ───────────────────────────────────────────────
 function useCountUp(target: number, duration = 1200): number {
@@ -24,7 +15,7 @@ function useCountUp(target: number, duration = 1200): number {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - (1 - progress) ** 3;
       setValue(Math.round(start + diff * eased));
       if (progress < 1) {
         frameRef.current = requestAnimationFrame(step);
@@ -33,7 +24,7 @@ function useCountUp(target: number, duration = 1200): number {
     frameRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frameRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, duration]);
+  }, [target, duration, value]);
 
   return value;
 }
@@ -137,7 +128,7 @@ const FB_CONFIG: Record<FeedbackType, { label: string; color: string; bg: string
 
 function FeedbackBreakdown({ feedbacks }: { feedbacks: Feedback[] }) {
   const counts: Record<FeedbackType, number> = { bug: 0, ux_improvement: 0, performance: 0 };
-  feedbacks.forEach((f) => counts[f.type]++);
+  for (const f of feedbacks) counts[f.type]++;
 
   return (
     <div className="flex gap-2 mt-1">
@@ -172,7 +163,7 @@ function AgentRoleBreakdown({ agents }: { agents: Agent[] }) {
     delivery_driver: 0,
     recipient: 0,
   };
-  agents.forEach((a) => counts[a.role]++);
+  for (const a of agents) counts[a.role]++;
 
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
@@ -243,8 +234,7 @@ function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
 
   if (!visible) return null;
 
-  const sourceLabel =
-    skill.source === 'user_feedback' ? 'FB' : skill.source === 'usage_analytics' ? 'DATA' : 'EXPERT';
+  const sourceLabel = skill.source === 'user_feedback' ? 'FB' : skill.source === 'usage_analytics' ? 'DATA' : 'EXPERT';
   const srcCfg = SOURCE_COLORS[sourceLabel] || SOURCE_COLORS.DATA;
 
   return (
@@ -297,11 +287,10 @@ function VisionPanel({ vision }: { vision: Vision }) {
   return (
     <PaperCard accentColor="#C4B5FD" className="animate-fade-in">
       <div className="flex items-center gap-2 mb-2">
-        <div
-          className="w-2 h-2 rounded-full"
-          style={{ backgroundColor: '#C4B5FD' }}
-        />
-        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#C4B5FD' }}>ヒューマンビジョン</span>
+        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#C4B5FD' }} />
+        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#C4B5FD' }}>
+          ヒューマンビジョン
+        </span>
       </div>
 
       {/* Vision statement */}
@@ -323,7 +312,10 @@ function VisionPanel({ vision }: { vision: Vision }) {
         <ul className="mt-1 space-y-1">
           {vision.priorities.map((p, i) => (
             <li key={i} className="flex items-start gap-1.5 text-[11px] text-text-primary">
-              <span className="font-medium mt-px text-[9px] rounded-full w-4 h-4 flex items-center justify-center" style={{ color: '#C4B5FD', background: '#F5F3FF' }}>
+              <span
+                className="font-medium mt-px text-[9px] rounded-full w-4 h-4 flex items-center justify-center"
+                style={{ color: '#C4B5FD', background: '#F5F3FF' }}
+              >
                 {i + 1}
               </span>
               {p}
@@ -415,7 +407,8 @@ export default function StatusPanel({
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-medium text-text-secondary uppercase tracking-wider">フェーズ</span>
           <span className="text-lg font-mono font-medium" style={{ color: '#5D4E37' }}>
-            {currentPhase}<span className="text-xs text-text-muted ml-0.5">/5</span>
+            {currentPhase}
+            <span className="text-xs text-text-muted ml-0.5">/5</span>
           </span>
         </div>
         <div className="flex gap-1.5 mt-1.5">
@@ -438,7 +431,13 @@ export default function StatusPanel({
       <PaperCard accentColor="#6ECFB0">
         <SectionTitle label="メトリクス" color="#6ECFB0" />
         <MetricRow label="施設数" value={12} color="#87CEEB" />
-        <MetricRow label="配送成功率" value={metrics.deliverySuccessRate} suffix="%" color="#6ECFB0" placeholder="---%"  />
+        <MetricRow
+          label="配送成功率"
+          value={metrics.deliverySuccessRate}
+          suffix="%"
+          color="#6ECFB0"
+          placeholder="---%"
+        />
         {currentPhase >= 2 && <MetricRow label="エージェント数" value={metrics.agentCount} color="#87CEEB" />}
         {currentPhase >= 3 && (
           <>
@@ -446,7 +445,9 @@ export default function StatusPanel({
             <MetricRow label="解決済み" value={metrics.resolvedIssues} color="#6ECFB0" />
           </>
         )}
-        {currentPhase >= 4 && <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />}
+        {currentPhase >= 4 && (
+          <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />
+        )}
         {currentPhase >= 4 && chartScores.length > 1 && (
           <div className="mt-1.5 pt-1.5 border-t border-border-warm/40">
             <span className="text-[10px] text-text-secondary font-medium">品質スコア推移</span>
@@ -482,13 +483,15 @@ export default function StatusPanel({
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div className="flex items-center gap-1">
-                    <span
-                      className="w-1.5 h-1.5 rounded-full inline-block"
-                      style={{ backgroundColor: cfg.color }}
-                    />
+                    <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: cfg.color }} />
                     <span className="text-text-secondary">{fb.agentName}</span>
                     {fb.resolved && (
-                      <span className="text-[8px] font-medium ml-auto rounded-full px-1.5 py-0.5" style={{ color: '#6ECFB0', background: '#F0FDF4' }}>解決済</span>
+                      <span
+                        className="text-[8px] font-medium ml-auto rounded-full px-1.5 py-0.5"
+                        style={{ color: '#6ECFB0', background: '#F0FDF4' }}
+                      >
+                        解決済
+                      </span>
                     )}
                   </div>
                   <p className="text-text-primary mt-0.5 leading-tight">{fb.description}</p>

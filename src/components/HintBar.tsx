@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { PhaseNumber } from '../types';
 
 interface HintBarProps {
@@ -59,20 +59,28 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
         </div>
 
         {/* Hint text */}
-        <p className="flex-1 text-sm text-text-primary/90 leading-relaxed">
-          {hint}
-        </p>
+        <p className="flex-1 text-sm text-text-primary/90 leading-relaxed">{hint}</p>
 
         {/* Navigation controls */}
         <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
           {hints.length > 1 && (
             <>
               <button
+                type="button"
                 onClick={prevHint}
                 disabled={currentHintIndex === 0}
                 className="p-1 text-text-muted hover:text-accent-coral transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
@@ -82,10 +90,20 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
               </span>
 
               <button
+                type="button"
                 onClick={nextHint}
                 className="p-1 text-text-muted hover:text-accent-coral transition-colors"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   {currentHintIndex < hints.length - 1 ? (
                     <polyline points="9 18 15 12 9 6" />
                   ) : (
@@ -101,10 +119,20 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
 
           {hints.length <= 1 && (
             <button
+              type="button"
               onClick={() => setVisible(false)}
               className="p-1 text-text-muted hover:text-accent-coral transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>

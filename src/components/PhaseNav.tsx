@@ -1,5 +1,5 @@
-import type { PhaseNumber } from '../types';
 import { PHASES } from '../data/mockData';
+import type { PhaseNumber } from '../types';
 
 interface PhaseNavProps {
   currentPhase: PhaseNumber;
@@ -17,6 +17,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
     <nav className="fixed bottom-16 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2">
       {/* Prev arrow */}
       <button
+        type="button"
         onClick={() => canGoPrev && onPhaseChange((currentPhase - 1) as PhaseNumber)}
         disabled={!canGoPrev}
         className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -27,7 +28,16 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
           color: '#8B7355',
         }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
@@ -51,15 +61,20 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
             <div key={phaseNum} className="flex items-center">
               {/* Connecting line */}
               {i > 0 && (
-                <div className="w-10 h-0.5 mx-0.5 rounded-full" style={{
-                  background: phaseNum <= currentPhase
-                    ? `linear-gradient(90deg, ${DOT_COLORS[i - 1]}88, ${dotColor}88)`
-                    : '#F5E6D3',
-                }} />
+                <div
+                  className="w-10 h-0.5 mx-0.5 rounded-full"
+                  style={{
+                    background:
+                      phaseNum <= currentPhase
+                        ? `linear-gradient(90deg, ${DOT_COLORS[i - 1]}88, ${dotColor}88)`
+                        : '#F5E6D3',
+                  }}
+                />
               )}
 
               {/* Dot + label */}
               <button
+                type="button"
                 onClick={() => isReached && onPhaseChange(phaseNum)}
                 disabled={!isReached}
                 className="flex flex-col items-center gap-1 group relative disabled:cursor-not-allowed"
@@ -67,14 +82,8 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
                 <div
                   className="relative w-3.5 h-3.5 rounded-full transition-all duration-300"
                   style={{
-                    background: isCurrent
-                      ? dotColor
-                      : isReached
-                        ? `${dotColor}66`
-                        : '#E8DDD0',
-                    boxShadow: isCurrent
-                      ? `0 0 0 3px ${dotColor}30, 0 2px 6px ${dotColor}40`
-                      : 'none',
+                    background: isCurrent ? dotColor : isReached ? `${dotColor}66` : '#E8DDD0',
+                    boxShadow: isCurrent ? `0 0 0 3px ${dotColor}30, 0 2px 6px ${dotColor}40` : 'none',
                     transform: isCurrent ? 'scale(1.15)' : 'scale(1)',
                   }}
                 />
@@ -96,6 +105,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
 
       {/* Next arrow */}
       <button
+        type="button"
         onClick={() => canGoNext && onPhaseChange((currentPhase + 1) as PhaseNumber)}
         disabled={!canGoNext}
         className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -106,7 +116,16 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
           color: '#8B7355',
         }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </button>

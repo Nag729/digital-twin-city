@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import type { Agent, AgentRole, Feedback, AgentSkill } from '../types';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getAgentLogs } from '../data/mockData';
+import type { Agent, AgentRole, AgentSkill, Feedback } from '../types';
 
 interface AgentDetailPanelProps {
   agent: Agent | null;
@@ -58,8 +58,8 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   const logs = agent ? getAgentLogs(agent.id) : [];
-  const agentFeedbacks = agent ? feedbacks.filter(f => f.agentId === agent.id) : [];
-  const agentSkills = agent ? skills.filter(s => agent.skills.includes(s.id)) : [];
+  const agentFeedbacks = agent ? feedbacks.filter((f) => f.agentId === agent.id) : [];
+  const agentSkills = agent ? skills.filter((s) => agent.skills.includes(s.id)) : [];
 
   useEffect(() => {
     if (!agent) {
@@ -84,9 +84,9 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
       if (charIndex >= line.length) {
         clearInterval(typeInterval);
         setTimeout(() => {
-          setVisibleLogLines(prev => prev + 1);
+          setVisibleLogLines((prev) => prev + 1);
           setTypingText('');
-          setCurrentTypingLine(prev => prev + 1);
+          setCurrentTypingLine((prev) => prev + 1);
         }, 300);
       }
     }, 25);
@@ -97,13 +97,16 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  }, [visibleLogLines, typingText]);
+  }, []);
 
-  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
-    if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-      onClose();
-    }
-  }, [onClose]);
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -124,9 +127,11 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
   const roleIndex = String(agentIndex).padStart(2, '0');
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay
     <div
       className="fixed inset-0 z-50 flex items-center justify-end bg-[rgba(93,78,55,0.3)] backdrop-blur-sm"
       onClick={handleBackdropClick}
+      role="presentation"
     >
       <div
         ref={panelRef}
@@ -153,9 +158,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
                 {agent.name[0]}
               </div>
               <div>
-                <h2 className="text-lg font-medium text-text-primary">
-                  {agent.name}
-                </h2>
+                <h2 className="text-lg font-medium text-text-primary">{agent.name}</h2>
                 <p className="text-xs font-medium tracking-wider" style={{ color: accentColor }}>
                   {roleLabel} #{roleIndex}
                 </p>
@@ -163,6 +166,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
             </div>
 
             <button
+              type="button"
               onClick={onClose}
               className="flex h-8 w-8 items-center justify-center rounded-xl transition-colors bg-[#F5F0EB] text-text-muted"
             >
@@ -173,17 +177,12 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
           </div>
 
           {/* Current state */}
-          <div
-            className="mt-3 flex items-center gap-2 rounded-xl px-3 py-2 text-sm"
-            style={{ background: accentBg }}
-          >
+          <div className="mt-3 flex items-center gap-2 rounded-xl px-3 py-2 text-sm" style={{ background: accentBg }}>
             <span
               className="inline-block h-2 w-2 rounded-full animate-pulse"
               style={{ backgroundColor: accentColor }}
             />
-            <span className="text-text-primary">
-              {STATE_LABELS[agent.state] || agent.state}
-            </span>
+            <span className="text-text-primary">{STATE_LABELS[agent.state] || agent.state}</span>
           </div>
         </div>
 
@@ -191,16 +190,15 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
         <div className="space-y-5 px-6 py-4">
           {/* Operation Log - dark theme for contrast */}
           <Section title="操作ログ" accentColor={accentColor} icon="terminal">
-            <div
-              ref={logContainerRef}
-              className="max-h-[220px] overflow-y-auto rounded-xl p-3 bg-[#1E1B2E] font-mono"
-            >
+            <div ref={logContainerRef} className="max-h-[220px] overflow-y-auto rounded-xl p-3 bg-[#1E1B2E] font-mono">
               {logs.slice(0, visibleLogLines).map((line, i) => (
                 <LogLine key={i} text={line} accentColor={accentColor} />
               ))}
               {currentTypingLine < logs.length && (
                 <div className="flex items-start gap-1.5 text-xs leading-relaxed">
-                  <span style={{ color: accentColor }} className="shrink-0 select-none">{'>'}</span>
+                  <span style={{ color: accentColor }} className="shrink-0 select-none">
+                    {'>'}
+                  </span>
                   <span style={{ color: '#E2DDD5' }}>
                     {typingText}
                     <span
@@ -215,7 +213,9 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
               )}
               {currentTypingLine >= logs.length && (
                 <div className="mt-1 flex items-center gap-1.5 text-xs">
-                  <span style={{ color: accentColor }} className="select-none">{'>'}</span>
+                  <span style={{ color: accentColor }} className="select-none">
+                    {'>'}
+                  </span>
                   <span
                     className="inline-block h-3.5 w-1.5 rounded-sm"
                     style={{
@@ -231,19 +231,14 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
           {/* Feedbacks */}
           <Section title="発見したフィードバック" accentColor={accentColor} icon="alert" count={agentFeedbacks.length}>
             {agentFeedbacks.length === 0 ? (
-              <p className="text-xs italic text-text-muted">
-                まだフィードバックはありません
-              </p>
+              <p className="text-xs italic text-text-muted">まだフィードバックはありません</p>
             ) : (
               <div className="space-y-2">
-                {agentFeedbacks.map(fb => {
+                {agentFeedbacks.map((fb) => {
                   const typeInfo = FEEDBACK_TYPE_LABELS[fb.type] || { label: fb.type, color: '#8B7355', bg: '#F5F0EB' };
                   const sevColor = SEVERITY_COLORS[fb.severity] || '#8B7355';
                   return (
-                    <div
-                      key={fb.id}
-                      className="rounded-xl p-2.5 text-xs bg-[#FAFAF8] border border-border-warm"
-                    >
+                    <div key={fb.id} className="rounded-xl p-2.5 text-xs bg-[#FAFAF8] border border-border-warm">
                       <div className="mb-1 flex items-center gap-2">
                         <span
                           className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
@@ -251,14 +246,14 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
                         >
                           {typeInfo.label}
                         </span>
-                        <span
-                          className="text-[10px] font-medium uppercase"
-                          style={{ color: sevColor }}
-                        >
+                        <span className="text-[10px] font-medium uppercase" style={{ color: sevColor }}>
                           {fb.severity}
                         </span>
                         {fb.resolved && (
-                          <span className="text-[10px] font-medium rounded-full px-1.5 py-0.5" style={{ color: '#6ECFB0', background: '#F0FDF4' }}>
+                          <span
+                            className="text-[10px] font-medium rounded-full px-1.5 py-0.5"
+                            style={{ color: '#6ECFB0', background: '#F0FDF4' }}
+                          >
                             解決済
                           </span>
                         )}
@@ -274,20 +269,13 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
           {/* Skills */}
           <Section title="保有スキル" accentColor={accentColor} icon="skill" count={agentSkills.length}>
             {agentSkills.length === 0 ? (
-              <p className="text-xs italic text-text-muted">
-                まだスキルはありません
-              </p>
+              <p className="text-xs italic text-text-muted">まだスキルはありません</p>
             ) : (
               <div className="space-y-2">
-                {agentSkills.map(skill => (
-                  <div
-                    key={skill.id}
-                    className="rounded-xl p-2.5 text-xs bg-[#FAFAF8] border border-border-warm"
-                  >
+                {agentSkills.map((skill) => (
+                  <div key={skill.id} className="rounded-xl p-2.5 text-xs bg-[#FAFAF8] border border-border-warm">
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="font-medium text-text-primary">
-                        {skill.name}
-                      </span>
+                      <span className="font-medium text-text-primary">{skill.name}</span>
                       <span
                         className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
                         style={{ backgroundColor: accentBg, color: accentColor }}
@@ -296,9 +284,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
                       </span>
                     </div>
                     <p className="text-text-secondary">{skill.description}</p>
-                    <p className="mt-1 text-text-muted">
-                      ソース: {skill.source.replace('_', ' ')}
-                    </p>
+                    <p className="mt-1 text-text-muted">ソース: {skill.source.replace('_', ' ')}</p>
                   </div>
                 ))}
               </div>
@@ -308,17 +294,6 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks, skills }: 
 
         <div className="h-6" />
       </div>
-
-      <style>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
@@ -327,7 +302,9 @@ function LogLine({ text, accentColor }: { text: string; accentColor: string }) {
   const isWarning = text.includes('\u26a0\ufe0f');
   return (
     <div className="flex items-start gap-1.5 text-xs leading-relaxed">
-      <span style={{ color: accentColor }} className="shrink-0 select-none">{'>'}</span>
+      <span style={{ color: accentColor }} className="shrink-0 select-none">
+        {'>'}
+      </span>
       <span style={{ color: isWarning ? '#FFD93D' : '#E2DDD5' }}>{text}</span>
     </div>
   );
@@ -371,9 +348,7 @@ function Section({
     <div>
       <div className="mb-2 flex items-center gap-2">
         {icons[icon]}
-        <h3 className="text-xs font-medium uppercase tracking-wider text-text-secondary">
-          {title}
-        </h3>
+        <h3 className="text-xs font-medium uppercase tracking-wider text-text-secondary">{title}</h3>
         {count !== undefined && (
           <span
             className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"

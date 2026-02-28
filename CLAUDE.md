@@ -17,6 +17,8 @@ npm install
 npm run dev       # http://localhost:5173
 npm run build     # dist/ に出力
 npx tsc --noEmit  # 型チェック
+npm run lint      # Biome による lint チェック
+npm run lint:fix  # Biome で自動修正
 ```
 
 ## スプライト生成
@@ -62,4 +64,10 @@ test/
 
 - `feat:`, `fix:`, `refactor:` プレフィックス
 - .env は絶対にコミットしない (.gitignore 済)
-- test/ ディレクトリと *.png も .gitignore 済
+- test/ ディレクトリと生成スプライト PNG も .gitignore 済
+
+## Lint & Format
+
+- **Biome** (ESLint + Prettier の代替) を使用
+- 設定: `biome.json` — single quotes, 2-space indent, 120 line width
+- `src/index.css` は Tailwind v4 の `@theme` 構文のため Biome の対象外

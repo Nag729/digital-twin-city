@@ -1,4 +1,4 @@
-import type { Agent, Building, BuildingType, PhaseNumber, AgentState } from '../types';
+import type { Agent, AgentState, Building, BuildingType, PhaseNumber } from '../types';
 
 // ─── Building type preferences per role ───────────────────────────────
 export const ROLE_BUILDING_PREFS: Record<string, BuildingType[]> = {
@@ -31,9 +31,10 @@ export function simulateAgent(
       if (phase >= 5) {
         // Phase 5: prefer vision-aligned buildings
         const visionBuildings = candidates.filter((b) => VISION_PRIORITY_TYPES.includes(b.type));
-        target = visionBuildings.length > 0
-          ? visionBuildings[Math.floor(Math.random() * visionBuildings.length)]
-          : candidates[Math.floor(Math.random() * candidates.length)];
+        target =
+          visionBuildings.length > 0
+            ? visionBuildings[Math.floor(Math.random() * visionBuildings.length)]
+            : candidates[Math.floor(Math.random() * candidates.length)];
       } else {
         target = candidates[Math.floor(Math.random() * candidates.length)];
       }

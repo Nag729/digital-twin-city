@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from 'react';
-import type { Building, Agent, PhaseNumber, Vision } from '../types';
-import { MAP_COLS, MAP_ROWS, ROADS, gridToIso } from '../data/mockData';
-import { loadSprites, getAgentSpriteKey, getBuildingSpriteKey } from '../utils/spriteLoader';
+import type React from 'react';
+import { useEffect, useRef } from 'react';
+import { gridToIso, MAP_COLS, MAP_ROWS, ROADS } from '../data/mockData';
+import type { Agent, Building, PhaseNumber, Vision } from '../types';
 import type { SpriteKey } from '../utils/spriteLoader';
+import { getAgentSpriteKey, getBuildingSpriteKey, loadSprites } from '../utils/spriteLoader';
 
 export interface CityCanvasProps {
   buildings: Building[];
@@ -44,32 +45,48 @@ const AGENT_SPRITE_SIZE: Record<string, number> = {
 
 function getRoleColor(role: string): string {
   switch (role) {
-    case 'warehouse_worker': return '#FFB347';
-    case 'sort_operator': return '#FF8FAB';
-    case 'delivery_driver': return '#6ECFB0';
-    case 'recipient': return '#87CEEB';
-    default: return '#8B7355';
+    case 'warehouse_worker':
+      return '#FFB347';
+    case 'sort_operator':
+      return '#FF8FAB';
+    case 'delivery_driver':
+      return '#6ECFB0';
+    case 'recipient':
+      return '#87CEEB';
+    default:
+      return '#8B7355';
   }
 }
 
 // ─── Particle & effect types ────────────────────────────────────
 interface Confetti {
-  x: number; y: number;
-  vx: number; vy: number;
-  life: number; maxLife: number;
-  size: number; color: string;
-  rotation: number; rotSpeed: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  color: string;
+  rotation: number;
+  rotSpeed: number;
 }
 
 interface SkillBand {
-  x: number; y: number;
-  targetX: number; targetY: number;
-  progress: number; speed: number;
-  width: number; colorIndex: number;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  progress: number;
+  speed: number;
+  width: number;
+  colorIndex: number;
 }
 
 interface AgentTrail {
-  x: number; y: number; alpha: number;
+  x: number;
+  y: number;
+  alpha: number;
 }
 
 // ─── Drawing helper functions ───────────────────────────────────
@@ -97,12 +114,20 @@ function drawGrid(ctx: CanvasRenderingContext2D): void {
   ctx.lineWidth = 0.5;
   ctx.setLineDash([3, 6]);
   for (let col = 0; col <= MAP_COLS; col++) {
-    const s = gridToIso(col, 0), e = gridToIso(col, MAP_ROWS);
-    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y); ctx.stroke();
+    const s = gridToIso(col, 0),
+      e = gridToIso(col, MAP_ROWS);
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(e.x, e.y);
+    ctx.stroke();
   }
   for (let row = 0; row <= MAP_ROWS; row++) {
-    const s = gridToIso(0, row), e = gridToIso(MAP_COLS, row);
-    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y); ctx.stroke();
+    const s = gridToIso(0, row),
+      e = gridToIso(MAP_COLS, row);
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(e.x, e.y);
+    ctx.stroke();
   }
   ctx.setLineDash([]);
 }
@@ -140,7 +165,13 @@ function drawRoads(ctx: CanvasRenderingContext2D): void {
   }
 }
 
-function drawConfetti(ctx: CanvasRenderingContext2D, cw: number, ch: number, frame: number, particles: Confetti[]): void {
+function drawConfetti(
+  ctx: CanvasRenderingContext2D,
+  cw: number,
+  ch: number,
+  frame: number,
+  particles: Confetti[],
+): void {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.x += p.vx + Math.sin(frame * 0.01 + i) * 0.15;
@@ -150,9 +181,12 @@ function drawConfetti(ctx: CanvasRenderingContext2D, cw: number, ch: number, fra
 
     if (p.life > p.maxLife || p.y > ch + 10) {
       particles[i] = {
-        x: Math.random() * cw, y: -5,
-        vx: (Math.random() - 0.5) * 0.4, vy: 0.15 + Math.random() * 0.25,
-        life: 0, maxLife: 300 + Math.random() * 200,
+        x: Math.random() * cw,
+        y: -5,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: 0.15 + Math.random() * 0.25,
+        life: 0,
+        maxLife: 300 + Math.random() * 200,
         size: 2 + Math.random() * 3,
         color: COLORS.confettiColors[Math.floor(Math.random() * COLORS.confettiColors.length)],
         rotation: Math.random() * Math.PI * 2,
@@ -176,17 +210,34 @@ function drawConfetti(ctx: CanvasRenderingContext2D, cw: number, ch: number, fra
   ctx.globalAlpha = 1;
 }
 
-function drawSkillBands(ctx: CanvasRenderingContext2D, cw: number, ch: number, frame: number, bands: SkillBand[]): void {
+function drawSkillBands(
+  ctx: CanvasRenderingContext2D,
+  cw: number,
+  ch: number,
+  frame: number,
+  bands: SkillBand[],
+): void {
   // Spawn new bands periodically
   if (frame % 50 === 0 && bands.length < 6) {
     const edge = Math.floor(Math.random() * 4);
-    let sx = 0, sy = 0;
-    if (edge === 0) { sx = Math.random() * cw; sy = -10; }
-    else if (edge === 1) { sx = cw + 10; sy = Math.random() * ch; }
-    else if (edge === 2) { sx = Math.random() * cw; sy = ch + 10; }
-    else { sx = -10; sy = Math.random() * ch; }
+    let sx = 0,
+      sy = 0;
+    if (edge === 0) {
+      sx = Math.random() * cw;
+      sy = -10;
+    } else if (edge === 1) {
+      sx = cw + 10;
+      sy = Math.random() * ch;
+    } else if (edge === 2) {
+      sx = Math.random() * cw;
+      sy = ch + 10;
+    } else {
+      sx = -10;
+      sy = Math.random() * ch;
+    }
     bands.push({
-      x: sx, y: sy,
+      x: sx,
+      y: sy,
       targetX: cw / 2 + (Math.random() - 0.5) * 300,
       targetY: ch / 2 + (Math.random() - 0.5) * 200,
       progress: 0,
@@ -200,7 +251,10 @@ function drawSkillBands(ctx: CanvasRenderingContext2D, cw: number, ch: number, f
   for (let i = bands.length - 1; i >= 0; i--) {
     const band = bands[i];
     band.progress += band.speed;
-    if (band.progress >= 1) { bands.splice(i, 1); continue; }
+    if (band.progress >= 1) {
+      bands.splice(i, 1);
+      continue;
+    }
 
     const cx = band.x + (band.targetX - band.x) * band.progress;
     const cy = band.y + (band.targetY - band.y) * band.progress;
@@ -275,7 +329,7 @@ function drawBuildings(
 
     // Feedback indicator (Phase 3+)
     if (phase >= 3 && b.feedbacks.length > 0) {
-      const hasBug = b.feedbacks.some(f => f.type === 'bug');
+      const hasBug = b.feedbacks.some((f) => f.type === 'bug');
       const indicatorColor = hasBug ? '#FF6B6B' : '#87CEEB';
       const indicatorBg = hasBug ? '#FFF0F0' : '#F0F8FF';
       const pulseScale = 1 + Math.sin(frame * 0.06) * 0.1;
@@ -283,9 +337,13 @@ function drawBuildings(
       ctx.translate(bx + dims.w * 0.3, by - dims.h + 5);
       ctx.scale(pulseScale, pulseScale);
       ctx.fillStyle = indicatorBg;
-      ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = indicatorColor;
-      ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 0, 5, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#FFFFFF';
       ctx.font = 'bold 7px system-ui';
       ctx.textAlign = 'center';
@@ -331,7 +389,8 @@ function drawAgents(
   trails: Map<string, AgentTrail[]>,
 ): void {
   for (const agent of agents) {
-    const ax = agent.position.x, ay = agent.position.y;
+    const ax = agent.position.x,
+      ay = agent.position.y;
     if (ax === 0 && ay === 0) continue;
 
     // Trails
@@ -343,7 +402,10 @@ function drawAgents(
     }
     for (let t = agentTrail.length - 1; t >= 0; t--) {
       agentTrail[t].alpha -= 0.025;
-      if (agentTrail[t].alpha <= 0) { agentTrail.splice(t, 1); continue; }
+      if (agentTrail[t].alpha <= 0) {
+        agentTrail.splice(t, 1);
+        continue;
+      }
       ctx.globalAlpha = agentTrail[t].alpha * 0.3;
       ctx.fillStyle = getRoleColor(agent.role);
       ctx.beginPath();
@@ -372,12 +434,16 @@ function drawAgents(
       const roleColor = getRoleColor(agent.role);
       const radius = agent.role === 'delivery_driver' ? 8 : 6;
       ctx.fillStyle = roleColor;
-      ctx.beginPath(); ctx.arc(ax, ay - 4, radius, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ax, ay - 4, radius, 0, Math.PI * 2);
+      ctx.fill();
       ctx.strokeStyle = 'rgba(255,255,255,0.7)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
       ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.beginPath(); ctx.arc(ax - 1.5, ay - 5.5, radius * 0.25, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ax - 1.5, ay - 5.5, radius * 0.25, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // State indicators
@@ -402,12 +468,13 @@ function drawAgents(
       ctx.textAlign = 'center';
       ctx.fillText('!', ax + 17, ay - 18);
     } else if (agent.state === 'communicating' && agent.communicatingWithAgentId) {
-      const target = agents.find(a => a.id === agent.communicatingWithAgentId);
+      const target = agents.find((a) => a.id === agent.communicatingWithAgentId);
       if (target && target.position.x !== 0) {
         const progress = (Math.sin(frame * 0.06) + 1) / 2;
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(ax, ay); ctx.lineTo(target.position.x, target.position.y);
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(target.position.x, target.position.y);
         ctx.strokeStyle = '#FF8FAB40';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([4, 6]);
@@ -427,7 +494,8 @@ function drawAgents(
 
 function drawVisionRipple(
   ctx: CanvasRenderingContext2D,
-  cw: number, ch: number,
+  cw: number,
+  ch: number,
   vision: Vision,
   rippleRadius: number,
 ): void {
@@ -517,14 +585,18 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
     for (const agent of currentAgents) {
       const dist = Math.sqrt((lx - agent.position.x) ** 2 + (ly - agent.position.y) ** 2);
-      if (dist < 22) { onAgentClick?.(agent.id); return; }
+      if (dist < 22) {
+        onAgentClick?.(agent.id);
+        return;
+      }
     }
     for (const b of currentBuildings) {
       const dims = BUILDING_SPRITE_SIZE[b.type] || BUILDING_SPRITE_SIZE.receive_station;
       const hw = dims.w / 2 + 10;
       const hh = dims.h + 10;
       if (lx > b.position.x - hw && lx < b.position.x + hw && ly > b.position.y - hh && ly < b.position.y + 10) {
-        onBuildingClick?.(b.id); return;
+        onBuildingClick?.(b.id);
+        return;
       }
     }
   };
@@ -546,9 +618,12 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     // Init confetti particles
     for (let i = 0; i < 40; i++) {
       confettiParticles.current.push({
-        x: Math.random() * 1280, y: Math.random() * 800,
-        vx: (Math.random() - 0.5) * 0.4, vy: 0.15 + Math.random() * 0.25,
-        life: Math.random() * 300, maxLife: 300 + Math.random() * 200,
+        x: Math.random() * 1280,
+        y: Math.random() * 800,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: 0.15 + Math.random() * 0.25,
+        life: Math.random() * 300,
+        maxLife: 300 + Math.random() * 200,
         size: 2 + Math.random() * 3,
         color: COLORS.confettiColors[Math.floor(Math.random() * COLORS.confettiColors.length)],
         rotation: Math.random() * Math.PI * 2,
@@ -604,7 +679,7 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
       cancelAnimationFrame(animRef.current);
       ro.disconnect();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

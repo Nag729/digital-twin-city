@@ -9,9 +9,7 @@ export default function Header({ currentPhase }: HeaderProps) {
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 pointer-events-none">
       <div className="flex items-center gap-3 pointer-events-auto">
         <div className="relative">
-          <h1 className="text-xl font-medium tracking-wide text-text-primary select-none">
-            デジタルツインシティ
-          </h1>
+          <h1 className="text-xl font-medium tracking-wide text-text-primary select-none">デジタルツインシティ</h1>
           <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full bg-gradient-to-r from-accent-mint/60 via-accent-coral/40 to-accent-lavender/60" />
         </div>
       </div>
@@ -29,9 +27,7 @@ export default function Header({ currentPhase }: HeaderProps) {
             className="w-2 h-2 rounded-full bg-accent-mint"
             style={{ boxShadow: '0 0 4px rgba(110, 207, 176, 0.4)' }}
           />
-          <span className="text-xs text-text-primary font-medium">
-            フェーズ {currentPhase}
-          </span>
+          <span className="text-xs text-text-primary font-medium">フェーズ {currentPhase}</span>
           <span className="text-[10px] text-text-muted">/5</span>
         </div>
       </div>

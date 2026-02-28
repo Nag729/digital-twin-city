@@ -1,31 +1,22 @@
-import { useReducer, useEffect, useRef, useCallback, useState } from 'react';
-import type {
-  PhaseNumber,
-  Agent,
-  AgentState,
-  Building,
-  Feedback,
-  AgentSkill,
-  Vision,
-} from './types';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import AgentDetailPanel from './components/AgentDetailPanel';
+import CityCanvas from './components/CityCanvas';
+import Footer from './components/Footer';
+import Header from './components/Header';
+import HintBar from './components/HintBar';
+import PhaseNav from './components/PhaseNav';
+import StatusPanel from './components/StatusPanel';
 import {
-  PHASES,
-  INITIAL_BUILDINGS,
+  getMetricsForPhase,
   INITIAL_AGENTS,
+  INITIAL_BUILDINGS,
   MOCK_FEEDBACKS,
   MOCK_SKILLS,
   MOCK_VISION,
-  getMetricsForPhase,
+  PHASES,
 } from './data/mockData';
-import { simulateAgent, initializeAgentPosition } from './utils/agentSimulation';
-
-import CityCanvas from './components/CityCanvas';
-import StatusPanel from './components/StatusPanel';
-import Header from './components/Header';
-import PhaseNav from './components/PhaseNav';
-import HintBar from './components/HintBar';
-import Footer from './components/Footer';
-import AgentDetailPanel from './components/AgentDetailPanel';
+import type { Agent, AgentSkill, AgentState, Building, Feedback, PhaseNumber, Vision } from './types';
+import { initializeAgentPosition, simulateAgent } from './utils/agentSimulation';
 
 // ─── State ────────────────────────────────────────────────────────────
 interface GameState {
@@ -56,25 +47,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'SET_PHASE': {
       const newMax = Math.max(state.maxReachedPhase, action.phase) as PhaseNumber;
-      const newBuildings = action.phase >= 3
-        ? state.buildings.map((b) => ({
-            ...b,
-            feedbacks: MOCK_FEEDBACKS.filter((f) => f.buildingId === b.id),
-          }))
-        : action.phase < 3
-          ? state.buildings.map((b) => ({ ...b, feedbacks: [] }))
-          : state.buildings;
+      const newBuildings =
+        action.phase >= 3
+          ? state.buildings.map((b) => ({
+              ...b,
+              feedbacks: MOCK_FEEDBACKS.filter((f) => f.buildingId === b.id),
+            }))
+          : action.phase < 3
+            ? state.buildings.map((b) => ({ ...b, feedbacks: [] }))
+            : state.buildings;
 
       // Phase 4: upgrade some buildings
-      const upgradedBuildings = action.phase >= 4
-        ? newBuildings.map((b, i) => ({
-            ...b,
-            level: Math.min(5, b.level + (i % 3 === 0 ? 2 : 1)),
-            status: (i % 3 === 0 ? 'upgraded' : 'normal') as Building['status'],
-          }))
-        : action.phase < 4
-          ? newBuildings.map((b) => ({ ...b, level: 1, status: 'normal' as const }))
-          : newBuildings;
+      const upgradedBuildings =
+        action.phase >= 4
+          ? newBuildings.map((b, i) => ({
+              ...b,
+              level: Math.min(5, b.level + (i % 3 === 0 ? 2 : 1)),
+              status: (i % 3 === 0 ? 'upgraded' : 'normal') as Building['status'],
+            }))
+          : action.phase < 4
+            ? newBuildings.map((b) => ({ ...b, level: 1, status: 'normal' as const }))
+            : newBuildings;
 
       return {
         ...state,
@@ -85,15 +78,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         feedbacks: action.phase >= 3 ? MOCK_FEEDBACKS.slice(0, Math.min(6, MOCK_FEEDBACKS.length)) : [],
         skills: action.phase >= 3 ? MOCK_SKILLS : [],
         vision: action.phase >= 5 ? { ...MOCK_VISION, alignmentScore: 0.87 } : null,
-        agents: action.phase >= 2
-          ? state.agents.length > 0
-            ? state.agents.map((a) => ({ ...a, skills: action.phase >= 3 ? MOCK_SKILLS.map((s) => s.id) : [] }))
-            : INITIAL_AGENTS.map((a) => ({
-                ...a,
-                state: 'idle' as AgentState,
-                skills: action.phase >= 3 ? MOCK_SKILLS.map((s) => s.id) : [],
-              }))
-          : [],
+        agents:
+          action.phase >= 2
+            ? state.agents.length > 0
+              ? state.agents.map((a) => ({ ...a, skills: action.phase >= 3 ? MOCK_SKILLS.map((s) => s.id) : [] }))
+              : INITIAL_AGENTS.map((a) => ({
+                  ...a,
+                  state: 'idle' as AgentState,
+                  skills: action.phase >= 3 ? MOCK_SKILLS.map((s) => s.id) : [],
+                }))
+            : [],
         qualityHistory: action.phase >= 4 ? [12, 25, 38, 52, 65, getMetricsForPhase(action.phase).qualityScore] : [],
       };
     }
@@ -108,9 +102,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         feedbacks: [...state.feedbacks, action.feedback],
         buildings: state.buildings.map((b) =>
-          b.id === action.feedback.buildingId
-            ? { ...b, feedbacks: [...b.feedbacks, action.feedback] }
-            : b,
+          b.id === action.feedback.buildingId ? { ...b, feedbacks: [...b.feedbacks, action.feedback] } : b,
         ),
       };
     case 'INJECT_SKILL':
@@ -121,9 +113,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         buildings: state.buildings.map((b) =>
-          b.id === action.buildingId
-            ? { ...b, level: Math.min(5, b.level + 1), status: 'upgraded' as const }
-            : b,
+          b.id === action.buildingId ? { ...b, level: Math.min(5, b.level + 1), status: 'upgraded' as const } : b,
         ),
       };
     case 'PUSH_QUALITY':
@@ -191,9 +181,7 @@ export default function App() {
   // ─── Derived data ───────────────────────────────────────────────────
   const currentPhaseConfig = PHASES.find((p) => p.number === state.currentPhase)!;
   const metrics = getMetricsForPhase(state.currentPhase);
-  const selectedAgent = state.selectedAgentId
-    ? state.agents.find((a) => a.id === state.selectedAgentId) || null
-    : null;
+  const selectedAgent = state.selectedAgentId ? state.agents.find((a) => a.id === state.selectedAgentId) || null : null;
 
   // ─── Handlers ───────────────────────────────────────────────────────
   const handleAgentClick = useCallback((agentId: string) => {
