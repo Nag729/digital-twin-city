@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type {
   PhaseNumber,
   PhaseMetrics,
@@ -227,6 +227,12 @@ function AgentStateSummary({ agents }: { agents: Agent[] }) {
 }
 
 // ─── Skill item with injection animation ────────────────────────
+const SOURCE_COLORS: Record<string, { color: string; bg: string }> = {
+  FB: { color: '#FF8FAB', bg: '#FFF0F5' },
+  DATA: { color: '#87CEEB', bg: '#F0F8FF' },
+  EXPERT: { color: '#C4B5FD', bg: '#F5F3FF' },
+};
+
 function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
   const [visible, setVisible] = useState(false);
 
@@ -239,12 +245,6 @@ function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
 
   const sourceLabel =
     skill.source === 'user_feedback' ? 'FB' : skill.source === 'usage_analytics' ? 'DATA' : 'EXPERT';
-
-  const SOURCE_COLORS: Record<string, { color: string; bg: string }> = {
-    FB: { color: '#FF8FAB', bg: '#FFF0F5' },
-    DATA: { color: '#87CEEB', bg: '#F0F8FF' },
-    EXPERT: { color: '#C4B5FD', bg: '#F5F3FF' },
-  };
   const srcCfg = SOURCE_COLORS[sourceLabel] || SOURCE_COLORS.DATA;
 
   return (
@@ -301,7 +301,7 @@ function VisionPanel({ vision }: { vision: Vision }) {
           className="w-2 h-2 rounded-full"
           style={{ backgroundColor: '#C4B5FD' }}
         />
-        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#C4B5FD' }}>Human Vision</span>
+        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#C4B5FD' }}>ヒューマンビジョン</span>
       </div>
 
       {/* Vision statement */}
@@ -319,7 +319,7 @@ function VisionPanel({ vision }: { vision: Vision }) {
 
       {/* Priorities */}
       <div className="mb-2">
-        <span className="text-[10px] text-text-secondary uppercase tracking-wide font-medium">Priorities</span>
+        <span className="text-[10px] text-text-secondary uppercase tracking-wide font-medium">優先事項</span>
         <ul className="mt-1 space-y-1">
           {vision.priorities.map((p, i) => (
             <li key={i} className="flex items-start gap-1.5 text-[11px] text-text-primary">
@@ -359,7 +359,7 @@ function VisionPanel({ vision }: { vision: Vision }) {
             {alignmentAnimated}%
           </text>
           <text x="34" y="44" textAnchor="middle" className="text-[8px]" fill="#8B7355">
-            Alignment
+            一致度
           </text>
         </svg>
         <p className="text-[10px] text-text-secondary leading-tight flex-1">
@@ -367,6 +367,18 @@ function VisionPanel({ vision }: { vision: Vision }) {
         </p>
       </div>
     </PaperCard>
+  );
+}
+
+// ─── Section title ──────────────────────────────────────────────
+function SectionTitle({ label, color }: { label: string; color: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-1.5">
+      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+      <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color }}>
+        {label}
+      </span>
+    </div>
   );
 }
 
@@ -393,29 +405,17 @@ export default function StatusPanel({
   const chartScores =
     qualityHistory.length > 0 ? qualityHistory : currentPhase >= 4 ? [12, 25, 38, 52, 65, metrics.qualityScore] : [];
 
-  const sectionTitle = useCallback(
-    (label: string, color: string) => (
-      <div className="flex items-center gap-2 mb-1.5">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color }}>
-          {label}
-        </span>
-      </div>
-    ),
-    [],
-  );
-
   return (
     <div
-      className="w-72 h-full flex flex-col gap-2.5 p-3 overflow-y-auto"
+      className="w-80 h-full flex flex-col gap-2.5 p-3.5 overflow-y-auto"
       style={{ background: 'rgba(255, 248, 240, 0.6)' }}
     >
       {/* Phase indicator */}
       <PaperCard accentColor="#87CEEB">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium text-text-secondary uppercase tracking-wider">Phase</span>
+          <span className="text-[10px] font-medium text-text-secondary uppercase tracking-wider">フェーズ</span>
           <span className="text-lg font-mono font-medium" style={{ color: '#5D4E37' }}>
-            {currentPhase}/5
+            {currentPhase}<span className="text-xs text-text-muted ml-0.5">/5</span>
           </span>
         </div>
         <div className="flex gap-1.5 mt-1.5">
@@ -436,7 +436,7 @@ export default function StatusPanel({
 
       {/* Core metrics */}
       <PaperCard accentColor="#6ECFB0">
-        {sectionTitle('Metrics', '#6ECFB0')}
+        <SectionTitle label="メトリクス" color="#6ECFB0" />
         <MetricRow label="施設数" value={12} color="#87CEEB" />
         <MetricRow label="配送成功率" value={metrics.deliverySuccessRate} suffix="%" color="#6ECFB0" placeholder="---%"  />
         {currentPhase >= 2 && <MetricRow label="エージェント数" value={metrics.agentCount} color="#87CEEB" />}
@@ -449,7 +449,7 @@ export default function StatusPanel({
         {currentPhase >= 4 && <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />}
         {currentPhase >= 4 && chartScores.length > 1 && (
           <div className="mt-1.5 pt-1.5 border-t border-border-warm/40">
-            <span className="text-[10px] text-text-secondary font-medium">品質推移</span>
+            <span className="text-[10px] text-text-secondary font-medium">品質スコア推移</span>
             <QualityChart scores={chartScores} />
           </div>
         )}
@@ -458,10 +458,10 @@ export default function StatusPanel({
       {/* Agent roles (Phase 2+) */}
       {currentPhase >= 2 && agents.length > 0 && (
         <PaperCard accentColor="#87CEEB">
-          {sectionTitle('Agents', '#87CEEB')}
+          <SectionTitle label="エージェント" color="#87CEEB" />
           <AgentRoleBreakdown agents={agents} />
           <div className="mt-1.5 pt-1.5 border-t border-border-warm/30">
-            <span className="text-[10px] text-text-secondary font-medium">Status</span>
+            <span className="text-[10px] text-text-secondary font-medium">ステータス</span>
             <AgentStateSummary agents={agents} />
           </div>
         </PaperCard>
@@ -470,7 +470,7 @@ export default function StatusPanel({
       {/* Feedback breakdown (Phase 3+) */}
       {currentPhase >= 3 && feedbacks.length > 0 && (
         <PaperCard accentColor="#FFB347">
-          {sectionTitle('Feedbacks', '#FFB347')}
+          <SectionTitle label="フィードバック" color="#FFB347" />
           <FeedbackBreakdown feedbacks={feedbacks} />
           <div className="mt-2 space-y-1 max-h-28 overflow-y-auto">
             {feedbacks.slice(0, 5).map((fb, i) => {
@@ -488,7 +488,7 @@ export default function StatusPanel({
                     />
                     <span className="text-text-secondary">{fb.agentName}</span>
                     {fb.resolved && (
-                      <span className="text-[8px] font-medium ml-auto rounded-full px-1.5 py-0.5" style={{ color: '#6ECFB0', background: '#F0FDF4' }}>RESOLVED</span>
+                      <span className="text-[8px] font-medium ml-auto rounded-full px-1.5 py-0.5" style={{ color: '#6ECFB0', background: '#F0FDF4' }}>解決済</span>
                     )}
                   </div>
                   <p className="text-text-primary mt-0.5 leading-tight">{fb.description}</p>
@@ -502,7 +502,7 @@ export default function StatusPanel({
       {/* Agent Skills (Phase 3+) */}
       {currentPhase >= 3 && skills.length > 0 && (
         <PaperCard accentColor="#87CEEB">
-          {sectionTitle('Agent Skills', '#87CEEB')}
+          <SectionTitle label="スキル" color="#87CEEB" />
           <div className="space-y-2">
             {skills.map((skill, i) => (
               <SkillItem key={skill.id} skill={skill} delay={i * 400} />

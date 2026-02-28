@@ -154,36 +154,36 @@ export const INITIAL_BUILDINGS: Building[] = [
 // Agent definitions (spawned in Phase 2)
 export const INITIAL_AGENTS: Agent[] = [
   // Warehouse workers
-  { id: 'a1', name: 'Kenji', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b1', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.2 },
-  { id: 'a2', name: 'Yuki', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b5', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.0 },
-  { id: 'a3', name: 'Haruto', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b9', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.1 },
+  { id: 'a1', name: 'ケンジ', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b1', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.2 },
+  { id: 'a2', name: 'ユキ', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b5', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.0 },
+  { id: 'a3', name: 'ハルト', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b9', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.1 },
   // Sort operators
-  { id: 'a4', name: 'Sakura', role: 'sort_operator', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b2', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.0 },
-  { id: 'a5', name: 'Ren', role: 'sort_operator', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b6', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.3 },
+  { id: 'a4', name: 'サクラ', role: 'sort_operator', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b2', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.0 },
+  { id: 'a5', name: 'レン', role: 'sort_operator', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b6', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.3 },
   // Delivery drivers
-  { id: 'a6', name: 'Emily', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b3', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.0 },
-  { id: 'a7', name: 'James', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b7', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.2 },
-  { id: 'a8', name: 'Sofia', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b10', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.8 },
-  { id: 'a9', name: 'Marcus', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b3', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.1 },
+  { id: 'a6', name: 'エミリ', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b3', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.0 },
+  { id: 'a7', name: 'ジェームス', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b7', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.2 },
+  { id: 'a8', name: 'ソフィア', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b10', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.8 },
+  { id: 'a9', name: 'マーカス', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b3', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.1 },
   // Recipients
-  { id: 'a10', name: 'Aisha', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b4', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.8 },
-  { id: 'a11', name: 'Liam', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b8', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.9 },
-  { id: 'a12', name: 'Mia', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b11', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.7 },
-  { id: 'a13', name: 'Noah', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b12', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.85 },
+  { id: 'a10', name: 'アイシャ', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b4', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.8 },
+  { id: 'a11', name: 'リアム', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b8', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.9 },
+  { id: 'a12', name: 'ミア', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b11', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.7 },
+  { id: 'a13', name: 'ノア', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b12', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.85 },
 ];
 
 // Feedbacks discovered during Phase 3+
 export const MOCK_FEEDBACKS: Feedback[] = [
-  { id: 'f1', agentId: 'a6', agentName: 'Emily', buildingId: 'b3', type: 'bug', severity: 'high', description: '再配達の時間指定UIで翌日の枠が表示されない', resolved: false },
-  { id: 'f2', agentId: 'a4', agentName: 'Sakura', buildingId: 'b2', type: 'ux_improvement', severity: 'medium', description: '仕分けリストのソート順が直感的でない', resolved: false },
-  { id: 'f3', agentId: 'a7', agentName: 'James', buildingId: 'b7', type: 'performance', severity: 'high', description: 'ルート最適化APIのレスポンスが5秒以上かかる', resolved: false },
-  { id: 'f4', agentId: 'a1', agentName: 'Kenji', buildingId: 'b1', type: 'bug', severity: 'medium', description: '在庫数の表示が出荷反映後も更新されない', resolved: false },
-  { id: 'f5', agentId: 'a10', agentName: 'Aisha', buildingId: 'b4', type: 'ux_improvement', severity: 'low', description: '配送状況通知のメッセージが技術的すぎて分かりにくい', resolved: false },
-  { id: 'f6', agentId: 'a8', agentName: 'Sofia', buildingId: 'b10', type: 'bug', severity: 'high', description: '悪天候時の配送遅延アラートが発火しない', resolved: false },
-  { id: 'f7', agentId: 'a5', agentName: 'Ren', buildingId: 'b6', type: 'performance', severity: 'medium', description: '大量荷物の一括スキャン時にUIがフリーズする', resolved: false },
-  { id: 'f8', agentId: 'a11', agentName: 'Liam', buildingId: 'b8', type: 'ux_improvement', severity: 'medium', description: '受取確認ボタンが小さく押しにくい', resolved: false },
-  { id: 'f9', agentId: 'a9', agentName: 'Marcus', buildingId: 'b3', type: 'bug', severity: 'low', description: '配送完了ステータスが稀に「配送中」に戻る', resolved: false },
-  { id: 'f10', agentId: 'a2', agentName: 'Yuki', buildingId: 'b5', type: 'performance', severity: 'high', description: 'ピッキングリスト生成に20秒以上かかる', resolved: false },
+  { id: 'f1', agentId: 'a6', agentName: 'エミリ', buildingId: 'b3', type: 'bug', severity: 'high', description: '再配達の時間指定UIで翌日の枠が表示されない', resolved: false },
+  { id: 'f2', agentId: 'a4', agentName: 'サクラ', buildingId: 'b2', type: 'ux_improvement', severity: 'medium', description: '仕分けリストのソート順が直感的でない', resolved: false },
+  { id: 'f3', agentId: 'a7', agentName: 'ジェームス', buildingId: 'b7', type: 'performance', severity: 'high', description: 'ルート最適化APIのレスポンスが5秒以上かかる', resolved: false },
+  { id: 'f4', agentId: 'a1', agentName: 'ケンジ', buildingId: 'b1', type: 'bug', severity: 'medium', description: '在庫数の表示が出荷反映後も更新されない', resolved: false },
+  { id: 'f5', agentId: 'a10', agentName: 'アイシャ', buildingId: 'b4', type: 'ux_improvement', severity: 'low', description: '配送状況通知のメッセージが技術的すぎて分かりにくい', resolved: false },
+  { id: 'f6', agentId: 'a8', agentName: 'ソフィア', buildingId: 'b10', type: 'bug', severity: 'high', description: '悪天候時の配送遅延アラートが発火しない', resolved: false },
+  { id: 'f7', agentId: 'a5', agentName: 'レン', buildingId: 'b6', type: 'performance', severity: 'medium', description: '大量荷物の一括スキャン時にUIがフリーズする', resolved: false },
+  { id: 'f8', agentId: 'a11', agentName: 'リアム', buildingId: 'b8', type: 'ux_improvement', severity: 'medium', description: '受取確認ボタンが小さく押しにくい', resolved: false },
+  { id: 'f9', agentId: 'a9', agentName: 'マーカス', buildingId: 'b3', type: 'bug', severity: 'low', description: '配送完了ステータスが稀に「配送中」に戻る', resolved: false },
+  { id: 'f10', agentId: 'a2', agentName: 'ユキ', buildingId: 'b5', type: 'performance', severity: 'high', description: 'ピッキングリスト生成に20秒以上かかる', resolved: false },
 ];
 
 // Agent Skills (injected in Phase 3)

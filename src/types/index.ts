@@ -79,14 +79,3 @@ export interface PhaseConfig {
   description: string;
   hints: string[];
 }
-
-export interface GameState {
-  currentPhase: PhaseNumber;
-  buildings: Building[];
-  agents: Agent[];
-  metrics: PhaseMetrics;
-  skills: AgentSkill[];
-  vision: Vision | null;
-  feedbacks: Feedback[];
-  elapsedTime: number;
-}

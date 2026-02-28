@@ -51,7 +51,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
             <div key={phaseNum} className="flex items-center">
               {/* Connecting line */}
               {i > 0 && (
-                <div className="w-6 h-0.5 mx-0.5 rounded-full" style={{
+                <div className="w-10 h-0.5 mx-0.5 rounded-full" style={{
                   background: phaseNum <= currentPhase
                     ? `linear-gradient(90deg, ${DOT_COLORS[i - 1]}88, ${dotColor}88)`
                     : '#F5E6D3',
@@ -81,12 +81,12 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
 
                 {/* Label */}
                 <span
-                  className="absolute top-5.5 text-[10px] whitespace-nowrap font-medium transition-colors duration-200"
+                  className="absolute top-5.5 text-[11px] whitespace-nowrap font-medium transition-colors duration-200"
                   style={{
                     color: isCurrent ? '#5D4E37' : isReached ? '#8B7355' : '#C4B5A0',
                   }}
                 >
-                  {phase.name}
+                  {phase.label}
                 </span>
               </button>
             </div>
