@@ -1,0 +1,334 @@
+import { Building, Agent, AgentSkill, Feedback, Vision, PhaseConfig, PhaseMetrics, PhaseNumber } from '../types';
+
+// Isometric grid constants
+export const TILE_WIDTH = 80;
+export const TILE_HEIGHT = 40;
+export const MAP_COLS = 16;
+export const MAP_ROWS = 16;
+
+// Convert grid to isometric screen position
+export function gridToIso(col: number, row: number): { x: number; y: number } {
+  return {
+    x: (col - row) * (TILE_WIDTH / 2) + 640,
+    y: (col + row) * (TILE_HEIGHT / 2) + 100,
+  };
+}
+
+export function isoToGrid(x: number, y: number): { col: number; row: number } {
+  const ax = x - 640;
+  const ay = y - 100;
+  return {
+    col: Math.round((ax / (TILE_WIDTH / 2) + ay / (TILE_HEIGHT / 2)) / 2),
+    row: Math.round((ay / (TILE_HEIGHT / 2) - ax / (TILE_WIDTH / 2)) / 2),
+  };
+}
+
+// Road network (grid coordinates pairs defining connected roads)
+export const ROADS: [number, number][][] = [
+  // Main horizontal roads
+  [[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],[15,4]],
+  [[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[15,8]],
+  [[0,12],[1,12],[2,12],[3,12],[4,12],[5,12],[6,12],[7,12],[8,12],[9,12],[10,12],[11,12],[12,12],[13,12],[14,12],[15,12]],
+  // Main vertical roads
+  [[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],[4,8],[4,9],[4,10],[4,11],[4,12],[4,13],[4,14],[4,15]],
+  [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,6],[8,7],[8,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[8,15]],
+  [[12,0],[12,1],[12,2],[12,3],[12,4],[12,5],[12,6],[12,7],[12,8],[12,9],[12,10],[12,11],[12,12],[12,13],[12,14],[12,15]],
+];
+
+// Building definitions
+export const INITIAL_BUILDINGS: Building[] = [
+  {
+    id: 'b1',
+    name: '中央倉庫',
+    type: 'warehouse',
+    position: gridToIso(2, 2),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b2',
+    name: '仕分けセンターA',
+    type: 'sort_center',
+    position: gridToIso(6, 2),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b3',
+    name: '配送ハブA',
+    type: 'delivery_hub',
+    position: gridToIso(10, 2),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b4',
+    name: '受取ステーション北',
+    type: 'receive_station',
+    position: gridToIso(14, 3),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+    hasRoof: true,
+  },
+  {
+    id: 'b5',
+    name: '第二倉庫',
+    type: 'warehouse',
+    position: gridToIso(2, 6),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b6',
+    name: '仕分けセンターB',
+    type: 'sort_center',
+    position: gridToIso(6, 6),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b7',
+    name: '配送ハブB',
+    type: 'delivery_hub',
+    position: gridToIso(10, 6),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b8',
+    name: '受取ステーション東',
+    type: 'receive_station',
+    position: gridToIso(14, 7),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+    hasRoof: false,
+  },
+  {
+    id: 'b9',
+    name: '冷蔵倉庫',
+    type: 'warehouse',
+    position: gridToIso(2, 10),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b10',
+    name: '配送ハブC',
+    type: 'delivery_hub',
+    position: gridToIso(6, 10),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+  },
+  {
+    id: 'b11',
+    name: '受取ステーション南',
+    type: 'receive_station',
+    position: gridToIso(10, 10),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+    hasRoof: true,
+  },
+  {
+    id: 'b12',
+    name: '受取ステーション西',
+    type: 'receive_station',
+    position: gridToIso(14, 11),
+    level: 1,
+    status: 'normal',
+    feedbacks: [],
+    hasRoof: false,
+  },
+];
+
+// Agent definitions (spawned in Phase 2)
+export const INITIAL_AGENTS: Agent[] = [
+  // Warehouse workers
+  { id: 'a1', name: 'Kenji', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b1', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.2 },
+  { id: 'a2', name: 'Yuki', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b5', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.0 },
+  { id: 'a3', name: 'Haruto', role: 'warehouse_worker', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b9', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.1 },
+  // Sort operators
+  { id: 'a4', name: 'Sakura', role: 'sort_operator', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b2', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.0 },
+  { id: 'a5', name: 'Ren', role: 'sort_operator', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b6', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.3 },
+  // Delivery drivers
+  { id: 'a6', name: 'Emily', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b3', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.0 },
+  { id: 'a7', name: 'James', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b7', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.2 },
+  { id: 'a8', name: 'Sofia', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b10', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 1.8 },
+  { id: 'a9', name: 'Marcus', role: 'delivery_driver', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b3', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 2.1 },
+  // Recipients
+  { id: 'a10', name: 'Aisha', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b4', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.8 },
+  { id: 'a11', name: 'Liam', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b8', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.9 },
+  { id: 'a12', name: 'Mia', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b11', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.7 },
+  { id: 'a13', name: 'Noah', role: 'recipient', position: { x: 0, y: 0 }, state: 'idle', targetBuildingId: 'b12', previousBuildingId: null, communicatingWithAgentId: null, skills: [], feedbacksFound: [], progress: 0, speed: 0.85 },
+];
+
+// Feedbacks discovered during Phase 3+
+export const MOCK_FEEDBACKS: Feedback[] = [
+  { id: 'f1', agentId: 'a6', agentName: 'Emily', buildingId: 'b3', type: 'bug', severity: 'high', description: '再配達の時間指定UIで翌日の枠が表示されない', resolved: false },
+  { id: 'f2', agentId: 'a4', agentName: 'Sakura', buildingId: 'b2', type: 'ux_improvement', severity: 'medium', description: '仕分けリストのソート順が直感的でない', resolved: false },
+  { id: 'f3', agentId: 'a7', agentName: 'James', buildingId: 'b7', type: 'performance', severity: 'high', description: 'ルート最適化APIのレスポンスが5秒以上かかる', resolved: false },
+  { id: 'f4', agentId: 'a1', agentName: 'Kenji', buildingId: 'b1', type: 'bug', severity: 'medium', description: '在庫数の表示が出荷反映後も更新されない', resolved: false },
+  { id: 'f5', agentId: 'a10', agentName: 'Aisha', buildingId: 'b4', type: 'ux_improvement', severity: 'low', description: '配送状況通知のメッセージが技術的すぎて分かりにくい', resolved: false },
+  { id: 'f6', agentId: 'a8', agentName: 'Sofia', buildingId: 'b10', type: 'bug', severity: 'high', description: '悪天候時の配送遅延アラートが発火しない', resolved: false },
+  { id: 'f7', agentId: 'a5', agentName: 'Ren', buildingId: 'b6', type: 'performance', severity: 'medium', description: '大量荷物の一括スキャン時にUIがフリーズする', resolved: false },
+  { id: 'f8', agentId: 'a11', agentName: 'Liam', buildingId: 'b8', type: 'ux_improvement', severity: 'medium', description: '受取確認ボタンが小さく押しにくい', resolved: false },
+  { id: 'f9', agentId: 'a9', agentName: 'Marcus', buildingId: 'b3', type: 'bug', severity: 'low', description: '配送完了ステータスが稀に「配送中」に戻る', resolved: false },
+  { id: 'f10', agentId: 'a2', agentName: 'Yuki', buildingId: 'b5', type: 'performance', severity: 'high', description: 'ピッキングリスト生成に20秒以上かかる', resolved: false },
+];
+
+// Agent Skills (injected in Phase 3)
+export const MOCK_SKILLS: AgentSkill[] = [
+  { id: 's1', name: '雨天時の配送遅延パターン', source: 'user_feedback', description: '現場ドライバー調査: 雨天時は荷物の受け渡しに通常の2倍時間がかかる', confidence: 0.92, injectedAtPhase: 3 },
+  { id: 's2', name: '年末繁忙期の仕分け負荷', source: 'usage_analytics', description: '利用データ: 年末繁忙期に仕分けセンターで処理遅延が頻発', confidence: 0.88, injectedAtPhase: 3 },
+  { id: 's3', name: '集合住宅の配送効率', source: 'domain_expert', description: '物流コンサル: 集合住宅では宅配ボックス満杯率が40%を超えると再配達が急増する', confidence: 0.85, injectedAtPhase: 3 },
+  { id: 's4', name: '交通渋滞パターン', source: 'usage_analytics', description: '走行データ: 都心部は8-9時と17-19時にルート所要時間が平均1.8倍になる', confidence: 0.95, injectedAtPhase: 3 },
+];
+
+// Vision (Phase 5)
+export const MOCK_VISION: Vision = {
+  statement: 'どんな天候でも翌日届く安心を届ける',
+  priorities: [
+    'ラストワンマイルの信頼性向上',
+    '悪天候時の代替ルート自動提案',
+    '受取人へのリアルタイム通知',
+  ],
+  alignmentScore: 0,
+};
+
+// Phase configurations
+export const PHASES: PhaseConfig[] = [
+  {
+    number: 1,
+    name: 'Deploy',
+    label: '初期デプロイ',
+    description: 'プロダクトがデプロイされた。まだフィードバックループは存在しない。',
+    hints: [
+      'これは物流管理システムのデジタルツインシティです。倉庫、仕分けセンター、配送ハブなど、現実の物流拠点が再現されています。',
+      'まだ誰もこのシステムを使っていません。品質は未知数です。',
+    ],
+  },
+  {
+    number: 2,
+    name: 'Spawn Agents',
+    label: 'エージェント投入',
+    description: 'AIデジタルツインが投入され、プロダクトの自律的な探索が始まる。',
+    hints: [
+      'AIデジタルツインが投入されました。倉庫作業員、仕分けスタッフ、配送ドライバー、受取人——それぞれが現実の人間のように振る舞います。',
+      'エージェントは自律的に物流システムを利用し、荷物の仕分け・配送・受取を始めます。',
+    ],
+  },
+  {
+    number: 3,
+    name: 'Feedback Loop',
+    label: 'フィードバック収集',
+    description: 'エージェントが問題を発見する。同時に、AIだけでは知り得ない現実世界の知識がAgent Skillsとして注入される。',
+    hints: [
+      'エージェントがシステムのバグやUXの問題を発見しています。',
+      'ここで現実世界のフィードバックがAgent Skillsとして注入されます。',
+      '「雨天時は荷物の受け渡しに通常の2倍かかる」——AIだけでは気づけない現実の知識が注入され、ドライバーが屋根付きポイントを優先し始めました。',
+    ],
+  },
+  {
+    number: 4,
+    name: 'Autonomous Evolution',
+    label: '自律的進化',
+    description: 'フィードバックに基づき、プロダクトが自律的に進化する。しかし方向性なき最適化は、やがて停滞する。',
+    hints: [
+      'フィードバックに基づいて、プロダクトが自動的に改善されています。',
+      '拠点がアップグレードされ、新しい配送ルートが開拓され、品質スコアが上がっていきます。',
+      'しかし——この進化には方向性がありません。全体が均質に最適化され、「何のためのプロダクトか」が見えなくなっていきます。',
+    ],
+  },
+  {
+    number: 5,
+    name: 'Vision Injection',
+    label: 'ビジョン注入',
+    description: 'しかしAIは「目的」を定義できない。人間がビジョンを注入し、進化の方向を決める。これがセミクローズドループ。',
+    hints: [
+      'ここで人間が介入します。プロダクトのビジョンが注入されます。',
+      'エージェントの行動がビジョンに沿って再編成されました。進化に方向性が生まれます。',
+      'AIは「適応」が得意。でも「目的」は定義できない。これがセミクローズドループ——人間とAIの理想的な役割分担です。',
+    ],
+  },
+];
+
+// Metrics per phase
+export function getMetricsForPhase(phase: PhaseNumber): PhaseMetrics {
+  const metricsMap: Record<PhaseNumber, PhaseMetrics> = {
+    1: { phase: 1, qualityScore: 0, deliverySuccessRate: 0, totalFeedbacks: 0, resolvedIssues: 0, agentCount: 0, skills: [] },
+    2: { phase: 2, qualityScore: 12, deliverySuccessRate: 45, totalFeedbacks: 0, resolvedIssues: 0, agentCount: 13, skills: [] },
+    3: { phase: 3, qualityScore: 38, deliverySuccessRate: 62, totalFeedbacks: 10, resolvedIssues: 3, agentCount: 13, skills: MOCK_SKILLS },
+    4: { phase: 4, qualityScore: 72, deliverySuccessRate: 84, totalFeedbacks: 24, resolvedIssues: 18, agentCount: 13, skills: MOCK_SKILLS },
+    5: { phase: 5, qualityScore: 91, deliverySuccessRate: 96, totalFeedbacks: 32, resolvedIssues: 28, agentCount: 13, skills: MOCK_SKILLS },
+  };
+  return metricsMap[phase];
+}
+
+// Agent operation logs for detail view
+export const AGENT_LOGS: Record<string, string[]> = {
+  a1: [
+    '入庫リストを確認（本日38件）',
+    'ロケーション管理システムにログイン',
+    'A棟3列目の在庫をスキャン',
+    '出荷指示と在庫数に差異を検出',
+    '⚠️ 在庫数の表示が出荷反映後も更新されない → フィードバック生成',
+  ],
+  a4: [
+    '本日の仕分け対象リストを取得（156件）',
+    'ベルトコンベアの荷物をスキャン開始',
+    'エリアコード別に自動仕分けを実行',
+    '仕分けリストの表示順に違和感',
+    '⚠️ 仕分けリストのソート順が直感的でない → フィードバック生成',
+  ],
+  a6: [
+    '本日の配送リストを確認（12件）',
+    'ルート最適化を実行',
+    '最適ルートに従い配送開始',
+    '3件目の配送先に到着 → 受取確認を送信',
+    '5件目で不在 → 再配達登録を試行',
+    '⚠️ 再配達の時間指定UIで翌日の枠が表示されない → フィードバック生成',
+  ],
+  a7: [
+    '配送ルートの読み込み（8件）',
+    'ルート最適化APIを呼び出し',
+    '... レスポンス待機中（5秒経過）',
+    '⚠️ ルート最適化APIのレスポンスが5秒以上かかる → フィードバック生成',
+    '手動でルート設定し配送開始',
+  ],
+  a8: [
+    '本日の配送リストを確認（15件）',
+    '天候情報を確認 → 午後から雨予報',
+    '配送順を調整（屋外受渡し先を午前に集中）',
+    '7件目で遅延アラート未発火を確認',
+    '⚠️ 悪天候時の配送遅延アラートが発火しない → フィードバック生成',
+  ],
+  a10: [
+    '配送状況をアプリで確認',
+    '「配送中」ステータスを確認',
+    '到着通知を受信 → 受取ステーションへ移動',
+    '荷物を受取、確認ボタンをタップ',
+    '⚠️ 配送状況通知のメッセージが技術的すぎて分かりにくい → フィードバック生成',
+  ],
+};
+
+// Generate default logs for agents without specific logs
+export function getAgentLogs(agentId: string): string[] {
+  if (AGENT_LOGS[agentId]) return AGENT_LOGS[agentId];
+  return [
+    'システムにログイン',
+    '本日のタスクリストを確認',
+    '作業を開始',
+    '処理を実行中...',
+    '作業完了 → 次のタスクへ移動',
+  ];
+}
