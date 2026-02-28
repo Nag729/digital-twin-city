@@ -1,4 +1,4 @@
-import { Building, Agent, AgentSkill, Feedback, Vision, PhaseConfig, PhaseMetrics, PhaseNumber } from '../types';
+import type { Building, Agent, AgentSkill, Feedback, Vision, PhaseConfig, PhaseMetrics, PhaseNumber } from '../types';
 
 // Isometric grid constants
 export const TILE_WIDTH = 80;
