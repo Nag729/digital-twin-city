@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { Building, Agent, PhaseNumber, Vision } from '../types';
+import type { Building, Agent, PhaseNumber, Vision } from '../types';
 import { TILE_WIDTH, TILE_HEIGHT, MAP_COLS, MAP_ROWS, ROADS, gridToIso, isoToGrid } from '../data/mockData';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
