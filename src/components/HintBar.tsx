@@ -11,6 +11,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const [visible, setVisible] = useState(true);
   const [fadeKey, setFadeKey] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset hints when phase changes
   useEffect(() => {
     setCurrentHintIndex(0);
     setVisible(true);
@@ -38,10 +39,10 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const hint = hints[currentHintIndex];
 
   return (
-    <div className="fixed top-14 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl px-4">
+    <div className="absolute top-4 left-4 right-4 z-30 pointer-events-none">
       <div
         key={fadeKey}
-        className="relative flex items-start gap-3 px-5 py-3 rounded-2xl animate-fade-in"
+        className="relative flex items-start gap-3 px-5 py-3.5 rounded-2xl animate-fade-in pointer-events-auto"
         style={{
           background: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(12px)',
@@ -138,13 +139,6 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
               </svg>
             </button>
           )}
-        </div>
-
-        {/* Decorative dotted arrow pointing down */}
-        <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5">
-          <div className="w-1 h-1 rounded-full bg-accent-coral/30" />
-          <div className="w-1 h-1 rounded-full bg-accent-coral/20" />
-          <div className="w-1 h-1 rounded-full bg-accent-coral/10" />
         </div>
       </div>
     </div>

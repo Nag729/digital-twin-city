@@ -14,7 +14,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
   const DOT_COLORS = ['#6ECFB0', '#87CEEB', '#FFD93D', '#FF8FAB', '#C4B5FD'];
 
   return (
-    <nav className="fixed bottom-16 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2">
+    <nav className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2">
       {/* Prev arrow */}
       <button
         type="button"
@@ -88,11 +88,12 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
                   }}
                 />
 
-                {/* Label */}
+                {/* Label — hover/current only */}
                 <span
-                  className="absolute top-5.5 text-[11px] whitespace-nowrap font-medium transition-colors duration-200"
+                  className="absolute top-6 text-xs whitespace-nowrap font-medium transition-all duration-200 pointer-events-none opacity-0 group-hover:opacity-100"
                   style={{
                     color: isCurrent ? '#5D4E37' : isReached ? '#8B7355' : '#C4B5A0',
+                    opacity: isCurrent ? 1 : undefined,
                   }}
                 >
                   {phase.label}

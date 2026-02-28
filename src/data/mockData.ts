@@ -748,14 +748,15 @@ export const AGENT_LOGS: Record<string, string[]> = {
   ],
 };
 
-// Generate default logs for agents without specific logs
+const DEFAULT_LOGS: string[] = [
+  'システムにログイン',
+  '本日のタスクリストを確認',
+  '作業を開始',
+  '処理を実行中...',
+  '作業完了 → 次のタスクへ移動',
+];
+
+// Get log texts for display
 export function getAgentLogs(agentId: string): string[] {
-  if (AGENT_LOGS[agentId]) return AGENT_LOGS[agentId];
-  return [
-    'システムにログイン',
-    '本日のタスクリストを確認',
-    '作業を開始',
-    '処理を実行中...',
-    '作業完了 → 次のタスクへ移動',
-  ];
+  return AGENT_LOGS[agentId] || DEFAULT_LOGS;
 }

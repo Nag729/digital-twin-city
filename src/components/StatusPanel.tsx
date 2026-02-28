@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Agent, AgentRole, AgentSkill, Feedback, FeedbackType, PhaseMetrics, PhaseNumber, Vision } from '../types';
+import type { Agent, AgentRole, AgentSkill, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
+
+// ─── Role icon helper ───────────────────────────────────────────
+const ROLE_ICONS: Record<AgentRole, string> = {
+  warehouse_worker: '📦',
+  sort_operator: '🔀',
+  delivery_driver: '🚚',
+  recipient: '👤',
+};
 
 // ─── Count-up hook ───────────────────────────────────────────────
 function useCountUp(target: number, duration = 1200): number {
@@ -33,9 +41,9 @@ function useCountUp(target: number, duration = 1200): number {
 function QualityChart({ scores }: { scores: number[] }) {
   if (scores.length < 2) return null;
 
-  const w = 160;
-  const h = 48;
-  const pad = 4;
+  const w = 220;
+  const h = 64;
+  const pad = 6;
   const maxVal = Math.max(...scores, 1);
   const pts = scores.map((v, i) => ({
     x: pad + (i / (scores.length - 1)) * (w - pad * 2),
@@ -46,7 +54,7 @@ function QualityChart({ scores }: { scores: number[] }) {
   const area = `${line} L${pts[pts.length - 1].x},${h - pad} L${pts[0].x},${h - pad} Z`;
 
   return (
-    <svg width={w} height={h} className="mt-1">
+    <svg width={w} height={h} className="mt-2 w-full">
       <defs>
         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#6ECFB0" stopOpacity="0.2" />
@@ -72,7 +80,6 @@ function QualityChart({ scores }: { scores: number[] }) {
 // ─── Paper Card wrapper ──────────────────────────────────────────
 function PaperCard({
   children,
-  accentColor = '#6ECFB0',
   className = '',
 }: {
   children: React.ReactNode;
@@ -81,11 +88,11 @@ function PaperCard({
 }) {
   return (
     <div
-      className={`relative rounded-2xl p-3 ${className}`}
+      className={`relative rounded-2xl p-5 ${className}`}
       style={{
         background: '#FFFFFF',
         border: '1.5px solid #F5E6D3',
-        boxShadow: `0 2px 12px rgba(180, 140, 100, 0.06), 0 0 0 0 ${accentColor}00`,
+        boxShadow: '0 2px 12px rgba(180, 140, 100, 0.06)',
       }}
     >
       {children}
@@ -110,9 +117,9 @@ function MetricRow({
   const displayed = useCountUp(value);
 
   return (
-    <div className="flex items-center justify-between py-1">
-      <span className="text-xs text-text-secondary">{label}</span>
-      <span className="text-sm font-mono font-medium" style={{ color }}>
+    <div className="flex items-center justify-between py-2">
+      <span className="text-sm text-text-secondary">{label}</span>
+      <span className="text-base font-mono font-medium" style={{ color }}>
         {placeholder !== undefined && value === 0 ? placeholder : `${displayed}${suffix}`}
       </span>
     </div>
@@ -131,13 +138,13 @@ function FeedbackBreakdown({ feedbacks }: { feedbacks: Feedback[] }) {
   for (const f of feedbacks) counts[f.type]++;
 
   return (
-    <div className="flex gap-2 mt-1">
+    <div className="flex gap-2 mt-2">
       {(Object.keys(counts) as FeedbackType[]).map((type) => {
         const cfg = FB_CONFIG[type];
         return (
           <span
             key={type}
-            className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            className="text-xs font-medium px-2.5 py-1 rounded-full"
             style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label}: {counts[type]}
@@ -166,16 +173,17 @@ function AgentRoleBreakdown({ agents }: { agents: Agent[] }) {
   for (const a of agents) counts[a.role]++;
 
   return (
-    <div className="flex flex-wrap gap-1.5 mt-1">
+    <div className="flex flex-wrap gap-2 mt-2">
       {(Object.keys(counts) as AgentRole[]).map((role) => {
         if (counts[role] === 0) return null;
         const cfg = ROLE_CONFIG[role];
         return (
           <span
             key={role}
-            className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            className="text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1"
             style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
+            <span>{ROLE_ICONS[role]}</span>
             {cfg.label} x{counts[role]}
           </span>
         );
@@ -200,13 +208,13 @@ function AgentStateSummary({ agents }: { agents: Agent[] }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-1.5 mt-1">
+    <div className="flex flex-wrap gap-2 mt-2">
       {Object.entries(stateCounts).map(([state, count]) => {
         const cfg = STATE_LABELS[state] || { label: state, color: '#8B7355', bg: '#F5F0EB' };
         return (
           <span
             key={state}
-            className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            className="text-xs font-medium px-2.5 py-1 rounded-full"
             style={{ color: cfg.color, backgroundColor: cfg.bg }}
           >
             {cfg.label}: {count}
@@ -217,14 +225,14 @@ function AgentStateSummary({ agents }: { agents: Agent[] }) {
   );
 }
 
-// ─── Skill item with injection animation ────────────────────────
-const SOURCE_COLORS: Record<string, { color: string; bg: string }> = {
-  FB: { color: '#FF8FAB', bg: '#FFF0F5' },
-  DATA: { color: '#87CEEB', bg: '#F0F8FF' },
-  EXPERT: { color: '#C4B5FD', bg: '#F5F3FF' },
+// ─── External Knowledge item ─────────────────────────────────────
+const SOURCE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+  user_feedback: { label: '現場FB', color: '#FF8FAB', bg: '#FFF0F5' },
+  usage_analytics: { label: '利用データ', color: '#87CEEB', bg: '#F0F8FF' },
+  domain_expert: { label: '専門家', color: '#C4B5FD', bg: '#F5F3FF' },
 };
 
-function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
+function KnowledgeItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -234,29 +242,29 @@ function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
 
   if (!visible) return null;
 
-  const sourceLabel = skill.source === 'user_feedback' ? 'FB' : skill.source === 'usage_analytics' ? 'DATA' : 'EXPERT';
-  const srcCfg = SOURCE_COLORS[sourceLabel] || SOURCE_COLORS.DATA;
+  const srcCfg = SOURCE_LABELS[skill.source] || SOURCE_LABELS.usage_analytics;
 
   return (
     <div
-      className="animate-fade-in border-l-2 pl-2.5 py-1 rounded-r-xl"
+      className="animate-fade-in border-l-2 pl-4 py-2 rounded-r-xl"
       style={{
-        borderColor: '#6ECFB0',
-        background: 'rgba(110, 207, 176, 0.04)',
+        borderColor: '#87CEEB',
+        background: 'rgba(135, 206, 235, 0.04)',
       }}
     >
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2 mb-1">
         <span
-          className="text-[9px] font-medium px-1.5 py-0.5 rounded-full"
+          className="text-[11px] font-medium px-2 py-0.5 rounded-full"
           style={{ color: srcCfg.color, backgroundColor: srcCfg.bg }}
         >
-          {sourceLabel}
+          {srcCfg.label}
         </span>
-        <span className="text-[11px] font-medium text-text-primary">{skill.name}</span>
+        <span className="text-sm font-medium text-text-primary">{skill.name}</span>
       </div>
-      <p className="text-[10px] text-text-secondary mt-0.5 leading-tight">{skill.description}</p>
-      <div className="flex items-center gap-1 mt-1">
-        <div className="h-1.5 flex-1 rounded-full bg-border-warm/50 overflow-hidden">
+      <p className="text-xs text-text-secondary leading-relaxed mb-2">{skill.description}</p>
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] text-text-muted shrink-0">信頼度</span>
+        <div className="h-2 flex-1 rounded-full bg-border-warm/50 overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-1000"
             style={{
@@ -265,109 +273,18 @@ function SkillItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
             }}
           />
         </div>
-        <span className="text-[9px] font-medium text-text-muted">{Math.round(skill.confidence * 100)}%</span>
+        <span className="text-xs font-medium text-text-muted">{Math.round(skill.confidence * 100)}%</span>
       </div>
     </div>
-  );
-}
-
-// ─── Vision Panel (Phase 5) ─────────────────────────────────────
-function VisionPanel({ vision }: { vision: Vision }) {
-  const alignmentAnimated = useCountUp(Math.round(vision.alignmentScore * 100));
-  const circumference = 2 * Math.PI * 28;
-  const [dashOffset, setDashOffset] = useState(circumference);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDashOffset(circumference * (1 - vision.alignmentScore));
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [vision.alignmentScore, circumference]);
-
-  return (
-    <PaperCard accentColor="#C4B5FD" className="animate-fade-in">
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#C4B5FD' }} />
-        <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#C4B5FD' }}>
-          ヒューマンビジョン
-        </span>
-      </div>
-
-      {/* Vision statement */}
-      <div
-        className="rounded-xl p-2.5 mb-2"
-        style={{
-          border: '1.5px solid #E9D5FF',
-          backgroundColor: '#FAF5FF',
-        }}
-      >
-        <p className="text-sm font-medium leading-snug" style={{ color: '#7C3AED' }}>
-          &ldquo;{vision.statement}&rdquo;
-        </p>
-      </div>
-
-      {/* Priorities */}
-      <div className="mb-2">
-        <span className="text-[10px] text-text-secondary uppercase tracking-wide font-medium">優先事項</span>
-        <ul className="mt-1 space-y-1">
-          {vision.priorities.map((p, i) => (
-            <li key={i} className="flex items-start gap-1.5 text-[11px] text-text-primary">
-              <span
-                className="font-medium mt-px text-[9px] rounded-full w-4 h-4 flex items-center justify-center"
-                style={{ color: '#C4B5FD', background: '#F5F3FF' }}
-              >
-                {i + 1}
-              </span>
-              {p}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Alignment score gauge */}
-      <div className="flex items-center gap-3">
-        <svg width="68" height="68" viewBox="0 0 68 68">
-          <circle cx="34" cy="34" r="28" fill="none" stroke="#F5E6D3" strokeWidth="4" />
-          <circle
-            cx="34"
-            cy="34"
-            r="28"
-            fill="none"
-            stroke="url(#visionGrad)"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={dashOffset}
-            transform="rotate(-90 34 34)"
-            style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
-          />
-          <defs>
-            <linearGradient id="visionGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#C4B5FD" />
-              <stop offset="100%" stopColor="#FF8FAB" />
-            </linearGradient>
-          </defs>
-          <text x="34" y="32" textAnchor="middle" className="text-sm font-mono font-medium" fill="#7C3AED">
-            {alignmentAnimated}%
-          </text>
-          <text x="34" y="44" textAnchor="middle" className="text-[8px]" fill="#8B7355">
-            一致度
-          </text>
-        </svg>
-        <p className="text-[10px] text-text-secondary leading-tight flex-1">
-          ビジョンとプロダクト進化の方向性が一致しているスコアです。人間の意思決定がAIの進化に方向性を与えます。
-        </p>
-      </div>
-    </PaperCard>
   );
 }
 
 // ─── Section title ──────────────────────────────────────────────
 function SectionTitle({ label, color }: { label: string; color: string }) {
   return (
-    <div className="flex items-center gap-2 mb-1.5">
-      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-      <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color }}>
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+      <span className="text-xs font-medium uppercase tracking-wider" style={{ color }}>
         {label}
       </span>
     </div>
@@ -378,7 +295,6 @@ function SectionTitle({ label, color }: { label: string; color: string }) {
 interface StatusPanelProps {
   currentPhase: PhaseNumber;
   metrics: PhaseMetrics;
-  vision: Vision | null;
   skills: AgentSkill[];
   feedbacks: Feedback[];
   agents?: Agent[];
@@ -388,7 +304,6 @@ interface StatusPanelProps {
 export default function StatusPanel({
   currentPhase,
   metrics,
-  vision,
   skills,
   feedbacks,
   agents = [],
@@ -399,34 +314,9 @@ export default function StatusPanel({
 
   return (
     <div
-      className="w-80 h-full flex flex-col gap-2.5 p-3.5 overflow-y-auto"
+      className="w-96 h-full flex flex-col gap-4 p-5 overflow-y-auto"
       style={{ background: 'rgba(255, 248, 240, 0.6)' }}
     >
-      {/* Phase indicator */}
-      <PaperCard accentColor="#87CEEB">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium text-text-secondary uppercase tracking-wider">フェーズ</span>
-          <span className="text-lg font-mono font-medium" style={{ color: '#5D4E37' }}>
-            {currentPhase}
-            <span className="text-xs text-text-muted ml-0.5">/5</span>
-          </span>
-        </div>
-        <div className="flex gap-1.5 mt-1.5">
-          {[1, 2, 3, 4, 5].map((p) => {
-            const colors = ['#6ECFB0', '#87CEEB', '#FFD93D', '#FF8FAB', '#C4B5FD'];
-            return (
-              <div
-                key={p}
-                className="flex-1 h-1.5 rounded-full transition-all duration-500"
-                style={{
-                  backgroundColor: p <= currentPhase ? colors[p - 1] : '#F5E6D3',
-                }}
-              />
-            );
-          })}
-        </div>
-      </PaperCard>
-
       {/* Core metrics */}
       <PaperCard accentColor="#6ECFB0">
         <SectionTitle label="メトリクス" color="#6ECFB0" />
@@ -449,8 +339,8 @@ export default function StatusPanel({
           <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />
         )}
         {currentPhase >= 4 && chartScores.length > 1 && (
-          <div className="mt-1.5 pt-1.5 border-t border-border-warm/40">
-            <span className="text-[10px] text-text-secondary font-medium">品質スコア推移</span>
+          <div className="mt-3 pt-3 border-t border-border-warm/40">
+            <span className="text-xs text-text-secondary font-medium">品質スコア推移</span>
             <QualityChart scores={chartScores} />
           </div>
         )}
@@ -461,8 +351,8 @@ export default function StatusPanel({
         <PaperCard accentColor="#87CEEB">
           <SectionTitle label="エージェント" color="#87CEEB" />
           <AgentRoleBreakdown agents={agents} />
-          <div className="mt-1.5 pt-1.5 border-t border-border-warm/30">
-            <span className="text-[10px] text-text-secondary font-medium">ステータス</span>
+          <div className="mt-3 pt-3 border-t border-border-warm/30">
+            <span className="text-xs text-text-secondary font-medium">ステータス</span>
             <AgentStateSummary agents={agents} />
           </div>
         </PaperCard>
@@ -473,28 +363,28 @@ export default function StatusPanel({
         <PaperCard accentColor="#FFB347">
           <SectionTitle label="フィードバック" color="#FFB347" />
           <FeedbackBreakdown feedbacks={feedbacks} />
-          <div className="mt-2 space-y-1 max-h-28 overflow-y-auto">
+          <div className="mt-3 space-y-2 max-h-44 overflow-y-auto">
             {feedbacks.slice(0, 5).map((fb, i) => {
               const cfg = FB_CONFIG[fb.type];
               return (
                 <div
                   key={fb.id}
-                  className="text-[10px] py-1.5 border-b border-border-warm/30 last:border-0 animate-fade-in"
+                  className="text-xs py-2.5 border-b border-border-warm/30 last:border-0 animate-fade-in"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: cfg.color }} />
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: cfg.color }} />
                     <span className="text-text-secondary">{fb.agentName}</span>
                     {fb.resolved && (
                       <span
-                        className="text-[8px] font-medium ml-auto rounded-full px-1.5 py-0.5"
+                        className="text-[10px] font-medium ml-auto rounded-full px-2 py-0.5"
                         style={{ color: '#6ECFB0', background: '#F0FDF4' }}
                       >
                         解決済
                       </span>
                     )}
                   </div>
-                  <p className="text-text-primary mt-0.5 leading-tight">{fb.description}</p>
+                  <p className="text-text-primary mt-1.5 leading-relaxed">{fb.description}</p>
                 </div>
               );
             })}
@@ -502,20 +392,20 @@ export default function StatusPanel({
         </PaperCard>
       )}
 
-      {/* Agent Skills (Phase 3+) */}
+      {/* External Knowledge (Phase 3+) — formerly "Skills" */}
       {currentPhase >= 3 && skills.length > 0 && (
         <PaperCard accentColor="#87CEEB">
-          <SectionTitle label="スキル" color="#87CEEB" />
-          <div className="space-y-2">
+          <SectionTitle label="外部ナレッジ" color="#87CEEB" />
+          <p className="text-xs text-text-muted mb-3 leading-relaxed">
+            AIだけでは知り得ない現実世界の知識。プロダクト改善の判断基準として外部から注入されます。
+          </p>
+          <div className="space-y-3">
             {skills.map((skill, i) => (
-              <SkillItem key={skill.id} skill={skill} delay={i * 400} />
+              <KnowledgeItem key={skill.id} skill={skill} delay={i * 400} />
             ))}
           </div>
         </PaperCard>
       )}
-
-      {/* Human Vision (Phase 5) */}
-      {currentPhase >= 5 && vision && <VisionPanel vision={vision} />}
     </div>
   );
 }

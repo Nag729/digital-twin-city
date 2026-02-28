@@ -58,6 +58,21 @@ function getRoleColor(role: string): string {
   }
 }
 
+function getRoleIcon(role: string): string {
+  switch (role) {
+    case 'warehouse_worker':
+      return '📦';
+    case 'sort_operator':
+      return '🔀';
+    case 'delivery_driver':
+      return '🚚';
+    case 'recipient':
+      return '👤';
+    default:
+      return '●';
+  }
+}
+
 // ─── Particle & effect types ────────────────────────────────────
 interface Confetti {
   x: number;
@@ -489,6 +504,24 @@ function drawAgents(
         ctx.restore();
       }
     }
+
+    // Role icon badge above agent
+    const roleIcon = getRoleIcon(agent.role);
+    const badgeX = ax;
+    const badgeY = ay - (AGENT_SPRITE_SIZE[agent.role] || 32) - 4;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.beginPath();
+    ctx.arc(badgeX, badgeY, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = `${getRoleColor(agent.role)}60`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.font = '9px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(roleIcon, badgeX, badgeY);
+    ctx.restore();
   }
 }
 
@@ -569,18 +602,42 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     prevPhase.current = currentPhase;
   }, [currentPhase]);
 
-  // Click handler
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // Convert mouse event to logical canvas coordinates
+  const getLogicalCoords = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     const mx = (e.clientX - rect.left) * scaleX;
     const my = (e.clientY - rect.top) * scaleY;
     const dpr = window.devicePixelRatio || 1;
-    const lx = mx / dpr;
-    const ly = my / dpr;
+    return { x: mx / dpr, y: my / dpr };
+  };
+
+  // Hit test against agents and buildings
+  const hitTest = (lx: number, ly: number): 'agent' | 'building' | null => {
+    const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
+    for (const agent of currentAgents) {
+      const dist = Math.sqrt((lx - agent.position.x) ** 2 + (ly - agent.position.y) ** 2);
+      if (dist < 22) return 'agent';
+    }
+    for (const b of currentBuildings) {
+      const dims = BUILDING_SPRITE_SIZE[b.type] || BUILDING_SPRITE_SIZE.receive_station;
+      const hw = dims.w / 2 + 10;
+      const hh = dims.h + 10;
+      if (lx > b.position.x - hw && lx < b.position.x + hw && ly > b.position.y - hh && ly < b.position.y + 10) {
+        return 'building';
+      }
+    }
+    return null;
+  };
+
+  // Click handler
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const coords = getLogicalCoords(e);
+    if (!coords) return;
+    const { x: lx, y: ly } = coords;
 
     const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
     for (const agent of currentAgents) {
@@ -599,6 +656,14 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
         return;
       }
     }
+  };
+
+  // Hover cursor management
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const coords = getLogicalCoords(e);
+    if (!coords || !canvasRef.current) return;
+    const hit = hitTest(coords.x, coords.y);
+    canvasRef.current.style.cursor = hit ? 'pointer' : 'default';
   };
 
   // Single render loop
@@ -684,7 +749,12 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
 
   return (
     <div ref={containerRef} className="w-full h-full relative">
-      <canvas ref={canvasRef} onClick={handleClick} className="absolute inset-0 w-full h-full cursor-pointer" />
+      <canvas
+        ref={canvasRef}
+        onClick={handleClick}
+        onMouseMove={handleMouseMove}
+        className="absolute inset-0 w-full h-full"
+      />
     </div>
   );
 };
