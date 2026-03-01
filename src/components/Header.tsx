@@ -9,6 +9,9 @@ interface HeaderProps {
 
 const DOT_COLORS = ['#6ECFB0', '#87CEEB', '#FFD93D', '#FF8FAB', '#C4B5FD'];
 
+const TITLE_CHARS = [...'デジタルツインシティ'];
+const TITLE_COLORS = ['#6ECFB0', '#87CEEB', '#FFB347', '#FF8FAB', '#C4B5FD', '#6ECFB0', '#87CEEB', '#FFB347', '#C4B5FD'];
+
 export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }: HeaderProps) {
   const canGoPrev = currentPhase > 1;
   const canGoNext = currentPhase < maxReachedPhase;
@@ -24,10 +27,20 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
     >
       {/* Title */}
       <div className="flex items-center gap-3">
-        <div className="relative">
-          <h1 className="text-xl font-medium tracking-wide text-text-primary select-none">デジタルツインシティ</h1>
-          <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full bg-gradient-to-r from-accent-mint/60 via-accent-coral/40 to-accent-lavender/60" />
-        </div>
+        <h1 className="text-[22px] -tracking-[0.02em] select-none" style={{ fontFamily: "'Zen Maru Gothic', sans-serif" }}>
+          {TITLE_CHARS.map((char, i) => (
+            <span
+              key={i}
+              className="inline-block"
+              style={{
+                color: TITLE_COLORS[i % TITLE_COLORS.length],
+                textShadow: '0 1px 2px rgba(0,0,0,0.06)',
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </h1>
       </div>
 
       {/* Phase Navigation — integrated in header */}
