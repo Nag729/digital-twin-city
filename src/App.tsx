@@ -255,6 +255,26 @@ export default function App() {
 
           {/* Action buttons — bottom-left of map */}
           <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-3">
+            {/* Knowledge button (Phase 3+) */}
+            {state.currentPhase >= 3 && (
+              <button
+                type="button"
+                onClick={handleOpenKnowledge}
+                className="flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1.5px solid #BAE6FD',
+                  boxShadow: '0 2px 16px rgba(135, 206, 235, 0.15)',
+                }}
+              >
+                <span className="text-lg">📡</span>
+                <span className="text-sm font-medium" style={{ color: '#0EA5E9' }}>
+                  外部ナレッジ
+                </span>
+              </button>
+            )}
+
             {/* Vision button */}
             <button
               type="button"
@@ -286,26 +306,6 @@ export default function App() {
                 </span>
               )}
             </button>
-
-            {/* Knowledge button (Phase 3+) */}
-            {state.currentPhase >= 3 && (
-              <button
-                type="button"
-                onClick={handleOpenKnowledge}
-                className="flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.92)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1.5px solid #BAE6FD',
-                  boxShadow: '0 2px 16px rgba(135, 206, 235, 0.15)',
-                }}
-              >
-                <span className="text-lg">📡</span>
-                <span className="text-sm font-medium" style={{ color: '#0EA5E9' }}>
-                  外部ナレッジ
-                </span>
-              </button>
-            )}
           </div>
         </div>
 
