@@ -75,7 +75,12 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         maxReachedPhase: newMax,
         phaseElapsed: 0,
         buildings: upgradedBuildings,
-        feedbacks: action.phase >= 3 ? MOCK_FEEDBACKS.slice(0, Math.min(6, MOCK_FEEDBACKS.length)) : [],
+        feedbacks:
+          action.phase >= 4
+            ? MOCK_FEEDBACKS.map((f, i) => ({ ...f, resolved: i < 4 }))
+            : action.phase >= 3
+              ? MOCK_FEEDBACKS.slice(0, Math.min(6, MOCK_FEEDBACKS.length))
+              : [],
         skills: action.phase >= 3 ? MOCK_SKILLS : [],
         vision: action.phase >= 5 ? { ...MOCK_VISION, alignmentScore: 0.87 } : null,
         agents:

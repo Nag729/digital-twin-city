@@ -141,18 +141,6 @@ export default function KnowledgeModal({ open, onClose, skills }: KnowledgeModal
               ))}
             </div>
           </div>
-
-          {/* Key insight */}
-          <div
-            className="rounded-2xl p-5 text-center"
-            style={{ background: 'linear-gradient(135deg, #F0F9FF, #F0FDF4)', border: '1px solid #BAE6FD' }}
-          >
-            <p className="text-sm leading-relaxed" style={{ color: '#5D4E37' }}>
-              エージェントが<strong style={{ color: '#6ECFB0' }}>「探索」</strong>する一方、 人間の経験値が
-              <strong style={{ color: '#0EA5E9' }}>「教師データ」</strong>となる。
-            </p>
-            <p className="text-xs text-text-muted mt-2">これが分布外の盲点を補い、デジタルツインの解像度を高める。</p>
-          </div>
         </div>
 
         <div className="h-4" />

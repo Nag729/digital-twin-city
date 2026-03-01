@@ -9,14 +9,14 @@ export const MAP_ROWS = 16;
 // Convert grid to isometric screen position
 export function gridToIso(col: number, row: number): { x: number; y: number } {
   return {
-    x: (col - row) * (TILE_WIDTH / 2) + 640,
-    y: (col + row) * (TILE_HEIGHT / 2) + 100,
+    x: (col - row) * (TILE_WIDTH / 2) + 480,
+    y: (col + row) * (TILE_HEIGHT / 2) + 60,
   };
 }
 
 export function isoToGrid(x: number, y: number): { col: number; row: number } {
-  const ax = x - 640;
-  const ay = y - 100;
+  const ax = x - 480;
+  const ay = y - 60;
   return {
     col: Math.round((ax / (TILE_WIDTH / 2) + ay / (TILE_HEIGHT / 2)) / 2),
     row: Math.round((ay / (TILE_HEIGHT / 2) - ax / (TILE_WIDTH / 2)) / 2),
@@ -547,7 +547,7 @@ export const MOCK_FEEDBACKS: Feedback[] = [
   },
 ];
 
-// Agent Skills (injected in Phase 3)
+// 外部ナレッジ (injected in Phase 3)
 export const MOCK_SKILLS: AgentSkill[] = [
   {
     id: 's1',
@@ -585,11 +585,11 @@ export const MOCK_SKILLS: AgentSkill[] = [
 
 // Vision (Phase 5)
 export const MOCK_VISION: Vision = {
-  statement: '物流を"届く確率"ではなく"届く確信"で再定義する',
+  statement: 'すべての荷物が、最適なルートで、確実に届く物流ネットワークを実現する',
   priorities: [
-    'インフラレジリエンス — 天候・交通・設備障害に対する配送網の自律的耐障害性を確立する',
-    'オペレーション最適化 — 現場ナレッジとリアルタイムデータの融合による仕分け・配送の動的最適化',
-    '受取体験の再設計 — 「届くかどうか」を考えさせない透明性と予測精度を実現する',
+    '配送信頼性の向上 — 天候・交通・設備トラブルに強い、止まらない配送ネットワークを構築する',
+    'オペレーションの効率化 — 倉庫の在庫管理から仕分け・配送まで、ボトルネックを解消しスループットを最大化する',
+    '配送体験の改善 — 正確な到着予測と透明性のあるステータス通知で、受取人の満足度を高める',
   ],
   alignmentScore: 0,
 };
@@ -621,10 +621,10 @@ export const PHASES: PhaseConfig[] = [
     name: 'Feedback Loop',
     label: 'フィードバック収集',
     description:
-      'エージェントが問題を発見する。同時に、AIだけでは知り得ない現実世界の知識がAgent Skillsとして注入される。',
+      'エージェントが問題を発見する。同時に、AIだけでは知り得ない現実世界の知識が外部ナレッジとして注入される。',
     hints: [
       'エージェントがシステムのバグやUXの問題を発見しています。',
-      'ここで現実世界のフィードバックがAgent Skillsとして注入されます。',
+      'ここで現実世界のフィードバックが外部ナレッジとして注入されます。',
       '「雨天時は荷物の受け渡しに通常の2倍かかる」——AIだけでは気づけない現実の知識が注入され、ドライバーが屋根付きポイントを優先し始めました。',
     ],
   },
@@ -648,7 +648,7 @@ export const PHASES: PhaseConfig[] = [
     hints: [
       'ここで人間が介入します。プロダクトのビジョンが注入されます。',
       'エージェントの行動がビジョンに沿って再編成されました。進化に方向性が生まれます。',
-      'AIは「適応」が得意。でも「目的」は定義できない。これがセミクローズドループ——人間とAIの理想的な役割分担です。',
+      'AIは「適応」が得意。でも「目的」は定義できない。人間がビジョンを与え、AIが実行する——これがセミクローズドループです。探索→フィードバック→ナレッジ注入→改善→ビジョン注入のサイクルが回り続けます。',
     ],
   },
 ];

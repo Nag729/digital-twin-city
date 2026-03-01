@@ -307,6 +307,17 @@ export default function StatusPanel({
         <PaperCard accentColor="#FFB347">
           <SectionTitle label="フィードバック" color="#FFB347" />
           <FeedbackBreakdown feedbacks={feedbacks} />
+          {feedbacks.some((f) => f.resolved) && (
+            <div
+              className="mt-3 flex items-center gap-2 text-xs rounded-xl px-3 py-2"
+              style={{ color: '#6ECFB0', background: '#F0FDF4', border: '1px solid #D1FAE5' }}
+            >
+              <span>✅</span>
+              <span className="font-medium">
+                {feedbacks.filter((f) => f.resolved).length}/{feedbacks.length} 件の課題が改善によって解決
+              </span>
+            </div>
+          )}
           <div className="mt-4 space-y-3.5 max-h-48 overflow-y-auto">
             {feedbacks.slice(0, 5).map((fb, i) => {
               const cfg = FB_CONFIG[fb.type];

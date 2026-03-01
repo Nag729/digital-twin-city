@@ -525,49 +525,6 @@ function drawAgents(
   }
 }
 
-function drawVisionRipple(
-  ctx: CanvasRenderingContext2D,
-  cw: number,
-  ch: number,
-  vision: Vision,
-  rippleRadius: number,
-): void {
-  const maxR = Math.sqrt(cw * cw + ch * ch);
-  if (rippleRadius < maxR) {
-    const a = Math.max(0, 1 - rippleRadius / maxR) * 0.25;
-    ctx.globalAlpha = a;
-    ctx.strokeStyle = COLORS.visionLavender;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.ellipse(cw / 2, ch / 2, rippleRadius, rippleRadius * 0.55, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    if (rippleRadius > 40) {
-      ctx.globalAlpha = a * 0.5;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(cw / 2, ch / 2, rippleRadius - 40, (rippleRadius - 40) * 0.55, 0, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  // Vision text
-  if (rippleRadius > 100) {
-    ctx.globalAlpha = Math.min(1, (rippleRadius - 100) / 200) * 0.7;
-    ctx.fillStyle = '#7C3AED';
-    ctx.font = 'bold 15px system-ui';
-    ctx.textAlign = 'center';
-    const vText = `"${vision.statement}"`;
-    const tw = ctx.measureText(vText).width + 24;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.beginPath();
-    ctx.roundRect(cw / 2 - tw / 2, 48, tw, 28, 14);
-    ctx.fill();
-    ctx.fillStyle = '#7C3AED';
-    ctx.fillText(vText, cw / 2, 67);
-    ctx.globalAlpha = 1;
-  }
-}
 
 // ─── Component ──────────────────────────────────────────────────
 
@@ -592,13 +549,9 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
   const skillBandsList = useRef<SkillBand[]>([]);
   const agentTrails = useRef<Map<string, AgentTrail[]>>(new Map());
   const frameCount = useRef(0);
-  const visionRipple = useRef(0);
   const prevPhase = useRef(currentPhase);
 
   useEffect(() => {
-    if (currentPhase === 5 && prevPhase.current !== 5) {
-      visionRipple.current = 0;
-    }
     prevPhase.current = currentPhase;
   }, [currentPhase]);
 
@@ -728,11 +681,6 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
 
       if (phase >= 2) {
         drawAgents(ctx, agts, frame, sprites, agentTrails.current);
-      }
-
-      if (phase === 5 && vis) {
-        visionRipple.current += 1.0;
-        drawVisionRipple(ctx, cw, ch, vis, visionRipple.current);
       }
 
       animRef.current = requestAnimationFrame(render);
