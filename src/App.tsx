@@ -29,7 +29,6 @@ interface GameState {
   vision: Vision | null;
   phaseElapsed: number;
   selectedAgentId: string | null;
-  qualityHistory: number[];
 }
 
 type GameAction =
@@ -40,8 +39,7 @@ type GameAction =
   | { type: 'ADD_FEEDBACK'; feedback: Feedback }
   | { type: 'INJECT_SKILL'; skill: AgentSkill }
   | { type: 'INJECT_VISION'; vision: Vision }
-  | { type: 'UPGRADE_BUILDING'; buildingId: string }
-  | { type: 'PUSH_QUALITY'; score: number };
+  | { type: 'UPGRADE_BUILDING'; buildingId: string };
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -93,7 +91,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                   skills: action.phase >= 3 ? MOCK_SKILLS.map((s) => s.id) : [],
                 }))
             : [],
-        qualityHistory: action.phase >= 4 ? [12, 25, 38, 52, 65, getMetricsForPhase(action.phase).qualityScore] : [],
       };
     }
     case 'TICK':
@@ -121,8 +118,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           b.id === action.buildingId ? { ...b, level: Math.min(5, b.level + 1), status: 'upgraded' as const } : b,
         ),
       };
-    case 'PUSH_QUALITY':
-      return { ...state, qualityHistory: [...state.qualityHistory, action.score] };
     default:
       return state;
   }
@@ -140,7 +135,6 @@ export default function App() {
     vision: null,
     phaseElapsed: 0,
     selectedAgentId: null,
-    qualityHistory: [],
   });
 
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
@@ -316,7 +310,6 @@ export default function App() {
             metrics={metrics}
             feedbacks={state.feedbacks}
             agents={state.agents}
-            qualityHistory={state.qualityHistory}
           />
         </div>
       </div>

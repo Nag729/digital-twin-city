@@ -38,45 +38,6 @@ function useCountUp(target: number, duration = 1200): number {
 }
 
 // ─── Mini line chart (SVG) ───────────────────────────────────────
-function QualityChart({ scores }: { scores: number[] }) {
-  if (scores.length < 2) return null;
-
-  const w = 220;
-  const h = 64;
-  const pad = 6;
-  const maxVal = Math.max(...scores, 1);
-  const pts = scores.map((v, i) => ({
-    x: pad + (i / (scores.length - 1)) * (w - pad * 2),
-    y: h - pad - (v / maxVal) * (h - pad * 2),
-  }));
-
-  const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
-  const area = `${line} L${pts[pts.length - 1].x},${h - pad} L${pts[0].x},${h - pad} Z`;
-
-  return (
-    <svg width={w} height={h} className="mt-2 w-full">
-      <defs>
-        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#6ECFB0" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#6ECFB0" stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#chartGrad)" />
-      <path d={line} fill="none" stroke="#6ECFB0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      {pts.length > 0 && (
-        <circle
-          cx={pts[pts.length - 1].x}
-          cy={pts[pts.length - 1].y}
-          r="3.5"
-          fill="#6ECFB0"
-          stroke="white"
-          strokeWidth="1.5"
-        />
-      )}
-    </svg>
-  );
-}
-
 // ─── Paper Card wrapper ──────────────────────────────────────────
 function PaperCard({
   children,
@@ -243,19 +204,9 @@ interface StatusPanelProps {
   metrics: PhaseMetrics;
   feedbacks: Feedback[];
   agents?: Agent[];
-  qualityHistory?: number[];
 }
 
-export default function StatusPanel({
-  currentPhase,
-  metrics,
-  feedbacks,
-  agents = [],
-  qualityHistory = [],
-}: StatusPanelProps) {
-  const chartScores =
-    qualityHistory.length > 0 ? qualityHistory : currentPhase >= 3 ? [12, 25, 38, metrics.qualityScore] : [];
-
+export default function StatusPanel({ currentPhase, metrics, feedbacks, agents = [] }: StatusPanelProps) {
   return (
     <div
       className="w-[400px] h-full flex flex-col gap-5 p-5 overflow-y-auto"
@@ -278,15 +229,6 @@ export default function StatusPanel({
             <MetricRow label="フィードバック数" value={metrics.totalFeedbacks} color="#FFB347" />
             <MetricRow label="解決済み" value={metrics.resolvedIssues} color="#6ECFB0" />
           </>
-        )}
-        {currentPhase >= 3 && (
-          <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />
-        )}
-        {currentPhase >= 3 && chartScores.length > 1 && (
-          <div className="mt-4 pt-4 border-t border-border-warm/40">
-            <span className="text-xs text-text-secondary font-medium">品質スコア推移</span>
-            <QualityChart scores={chartScores} />
-          </div>
         )}
       </PaperCard>
 
