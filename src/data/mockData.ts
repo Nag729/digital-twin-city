@@ -679,7 +679,7 @@ export function getMetricsForPhase(phase: PhaseNumber): PhaseMetrics {
       qualityScore: 38,
       deliverySuccessRate: 62,
       totalFeedbacks: 10,
-      resolvedIssues: 3,
+      resolvedIssues: 0,
       agentCount: 13,
       skills: MOCK_SKILLS,
     },
