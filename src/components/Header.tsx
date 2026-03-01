@@ -10,7 +10,17 @@ interface HeaderProps {
 const DOT_COLORS = ['#6ECFB0', '#87CEEB', '#FFD93D', '#FF8FAB', '#C4B5FD'];
 
 const TITLE_CHARS = [...'デジタルツインシティ'];
-const TITLE_COLORS = ['#6ECFB0', '#87CEEB', '#FFB347', '#FF8FAB', '#C4B5FD', '#6ECFB0', '#87CEEB', '#FFB347', '#C4B5FD'];
+const TITLE_COLORS = [
+  '#6ECFB0',
+  '#87CEEB',
+  '#FFB347',
+  '#FF8FAB',
+  '#C4B5FD',
+  '#6ECFB0',
+  '#87CEEB',
+  '#FFB347',
+  '#C4B5FD',
+];
 
 export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }: HeaderProps) {
   const canGoPrev = currentPhase > 1;
@@ -27,7 +37,10 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
     >
       {/* Title */}
       <div className="flex items-center gap-3">
-        <h1 className="text-[22px] -tracking-[0.02em] select-none" style={{ fontFamily: "'Zen Maru Gothic', sans-serif" }}>
+        <h1
+          className="text-[22px] -tracking-[0.02em] select-none"
+          style={{ fontFamily: "'Zen Maru Gothic', sans-serif" }}
+        >
           {TITLE_CHARS.map((char, i) => (
             <span
               key={i}

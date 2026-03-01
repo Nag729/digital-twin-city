@@ -525,7 +525,6 @@ function drawAgents(
   }
 }
 
-
 // ─── Component ──────────────────────────────────────────────────
 
 const CityCanvas: React.FC<CityCanvasProps> = ({
@@ -665,7 +664,7 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     const render = () => {
       const frame = frameCount.current++;
       const { width: cw, height: ch } = container.getBoundingClientRect();
-      const { buildings: blds, agents: agts, currentPhase: phase, vision: vis } = propsRef.current;
+      const { buildings: blds, agents: agts, currentPhase: phase } = propsRef.current;
       const sprites = spritesRef.current;
 
       drawBackground(ctx, cw, ch, frame);

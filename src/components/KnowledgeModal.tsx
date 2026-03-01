@@ -108,7 +108,7 @@ export default function KnowledgeModal({ open, onClose, skills }: KnowledgeModal
               </div>
               <div>
                 <h2 className="text-lg font-medium text-text-primary">外部ナレッジ</h2>
-                <p className="text-xs text-text-muted mt-0.5">AIだけでは知り得ない現実世界の知識</p>
+                <p className="text-xs text-text-muted mt-0.5">現実世界のフィードバックがエージェントの行動を変える</p>
               </div>
             </div>
             <button
@@ -127,14 +127,16 @@ export default function KnowledgeModal({ open, onClose, skills }: KnowledgeModal
           {/* Explanation */}
           <div className="rounded-2xl p-5" style={{ border: '1.5px solid #BAE6FD', backgroundColor: '#F0F9FF' }}>
             <p className="text-sm leading-relaxed" style={{ color: '#0369A1' }}>
-              プロダクト改善の判断基準として、外部から注入される知識です。
-              現場の声・利用データ・専門家の知見を統合し、AIの探索精度を引き上げます。
+              現実世界から得られたフィードバック（現場の声・利用データ・専門家の知見）をもとに、
+              エージェントがデジタルツイン上の行動を変えていきます。
             </p>
           </div>
 
           {/* Knowledge items */}
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-text-secondary mb-4">注入済みナレッジ</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-text-secondary mb-4">
+              適用済みフィードバック
+            </p>
             <div className="space-y-4">
               {skills.map((skill, i) => (
                 <KnowledgeItem key={skill.id} skill={skill} delay={i * 300} />
