@@ -20,7 +20,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
         type="button"
         onClick={() => canGoPrev && onPhaseChange((currentPhase - 1) as PhaseNumber)}
         disabled={!canGoPrev}
-        className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200"
         style={{
           background: 'rgba(255, 255, 255, 0.9)',
           border: '1.5px solid #F5E6D3',
@@ -77,7 +77,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
                 type="button"
                 onClick={() => isReached && onPhaseChange(phaseNum)}
                 disabled={!isReached}
-                className="flex flex-col items-center gap-1 group relative disabled:cursor-not-allowed"
+                className="flex flex-col items-center gap-1 group relative"
               >
                 <div
                   className="relative w-3.5 h-3.5 rounded-full transition-all duration-300"
@@ -109,7 +109,7 @@ export default function PhaseNav({ currentPhase, onPhaseChange, maxReachedPhase 
         type="button"
         onClick={() => canGoNext && onPhaseChange((currentPhase + 1) as PhaseNumber)}
         disabled={!canGoNext}
-        className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200"
         style={{
           background: 'rgba(255, 255, 255, 0.9)',
           border: '1.5px solid #F5E6D3',

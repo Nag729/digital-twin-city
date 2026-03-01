@@ -52,6 +52,66 @@
     color: var(--color-text-primary);
     font-family: "Rounded Mplus 1c", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+  }
+}
+
+/* ── Reusable component classes ── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  background: rgba(93, 78, 55, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.modal-close {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: #F5F0EB;
+  color: var(--color-text-muted);
+  transition: background-color 0.15s;
+}
+.modal-close:hover {
+  background: var(--color-border-warm);
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.paper-card {
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: #FFFFFF;
+  border: 1.5px solid var(--color-border-warm);
+  box-shadow: 0 2px 8px rgba(180, 140, 100, 0.05);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--color-border-warm);
+  box-shadow: 0 2px 16px rgba(180, 140, 100, 0.1);
 }
 
 @keyframes fade-in {

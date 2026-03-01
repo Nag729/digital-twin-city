@@ -42,14 +42,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
     <div className="absolute top-4 left-4 right-4 z-30 pointer-events-none">
       <div
         key={fadeKey}
-        className="relative flex items-start gap-3 px-5 py-3.5 rounded-2xl animate-fade-in pointer-events-auto"
-        style={{
-          background: 'rgba(255, 255, 255, 0.92)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          border: '1.5px solid #F5E6D3',
-          boxShadow: '0 2px 16px rgba(180, 140, 100, 0.1)',
-        }}
+        className="glass-panel relative flex items-start gap-3 px-5 py-3.5 rounded-2xl animate-fade-in pointer-events-auto"
       >
         {/* Pulse indicator */}
         <div className="flex-shrink-0 mt-1.5">
@@ -70,7 +63,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
                 type="button"
                 onClick={prevHint}
                 disabled={currentHintIndex === 0}
-                className="p-1 text-text-muted hover:text-accent-coral transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-1 text-text-muted hover:text-accent-coral transition-colors"
               >
                 <svg
                   width="12"

@@ -63,7 +63,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
           type="button"
           onClick={() => canGoPrev && onPhaseChange((currentPhase - 1) as PhaseNumber)}
           disabled={!canGoPrev}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-border-warm/30"
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-border-warm/30"
           style={{ color: '#8B7355' }}
         >
           <svg
@@ -111,7 +111,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
                   type="button"
                   onClick={() => isReached && onPhaseChange(phaseNum)}
                   disabled={!isReached}
-                  className="flex flex-col items-center gap-0.5 group relative disabled:cursor-not-allowed"
+                  className="flex flex-col items-center gap-0.5 group relative"
                 >
                   <div
                     className="relative w-3 h-3 rounded-full transition-all duration-300"
@@ -143,7 +143,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
           type="button"
           onClick={() => canGoNext && onPhaseChange((currentPhase + 1) as PhaseNumber)}
           disabled={!canGoNext}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-border-warm/30"
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-border-warm/30"
           style={{ color: '#8B7355' }}
         >
           <svg

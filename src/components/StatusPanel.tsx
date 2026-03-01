@@ -230,7 +230,7 @@ function SectionTitle({ label, color }: { label: string; color: string }) {
   return (
     <div className="flex items-center gap-2 mb-3.5">
       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-      <span className="text-xs font-medium uppercase tracking-wider" style={{ color }}>
+      <span className="section-label" style={{ color }}>
         {label}
       </span>
     </div>

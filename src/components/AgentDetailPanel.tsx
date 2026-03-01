@@ -153,11 +153,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-end bg-[rgba(93,78,55,0.3)] backdrop-blur-sm"
-      onClick={handleBackdropClick}
-      role="presentation"
-    >
+    <div className="modal-backdrop justify-end" onClick={handleBackdropClick} role="presentation">
       <div
         ref={panelRef}
         className="h-full w-[460px] max-w-[90vw] overflow-y-auto rounded-l-3xl bg-white shadow-[-4px_0_30px_rgba(180,140,100,0.15)] animate-[slideIn_0.3s_ease-out]"
@@ -189,11 +185,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors bg-[#F5F0EB] text-text-muted hover:bg-border-warm"
-            >
+            <button type="button" onClick={onClose} className="modal-close">
               <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
                 <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>

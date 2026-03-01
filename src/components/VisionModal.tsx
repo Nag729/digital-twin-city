@@ -33,17 +33,13 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(93,78,55,0.35)] backdrop-blur-sm"
-      onClick={handleBackdropClick}
-      role="presentation"
-    >
+    <div className="modal-backdrop justify-center" onClick={handleBackdropClick} role="presentation">
       <div
         ref={panelRef}
         className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)] animate-[slideUp_0.3s_ease-out]"
       >
         {/* Header */}
-        <div className="px-7 pt-7 pb-5" style={{ borderBottom: '1.5px solid #F5E6D3' }}>
+        <div className="px-7 pt-7 pb-5 border-b border-border-warm">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -57,11 +53,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
                 <p className="text-xs text-text-muted mt-0.5">プロダクトの進化に方向性を与える人間の意思</p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors bg-[#F5F0EB] text-text-muted hover:bg-border-warm"
-            >
+            <button type="button" onClick={onClose} className="modal-close">
               <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
                 <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
@@ -72,7 +64,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
         <div className="px-7 py-6 space-y-6">
           {/* Vision Statement */}
           <div className="rounded-2xl p-5" style={{ border: '1.5px solid #E9D5FF', backgroundColor: '#FAF5FF' }}>
-            <p className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: '#C4B5FD' }}>
+            <p className="section-label mb-3" style={{ color: '#C4B5FD' }}>
               ビジョンステートメント
             </p>
             <p className="text-lg font-medium leading-relaxed" style={{ color: '#7C3AED' }}>
@@ -84,7 +76,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
           {currentPhase >= 5 && (
             <div>
               <div className="flex items-center gap-2 mb-3.5">
-                <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">優先事項</p>
+                <p className="section-label">優先事項</p>
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse"
                   style={{ color: '#7C3AED', background: '#EDE9FE' }}
