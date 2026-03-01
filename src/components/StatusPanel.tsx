@@ -254,7 +254,7 @@ export default function StatusPanel({
   qualityHistory = [],
 }: StatusPanelProps) {
   const chartScores =
-    qualityHistory.length > 0 ? qualityHistory : currentPhase >= 4 ? [12, 25, 38, 52, 65, metrics.qualityScore] : [];
+    qualityHistory.length > 0 ? qualityHistory : currentPhase >= 3 ? [12, 25, 38, metrics.qualityScore] : [];
 
   return (
     <div
@@ -282,7 +282,7 @@ export default function StatusPanel({
         {currentPhase >= 3 && (
           <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />
         )}
-        {currentPhase >= 4 && chartScores.length > 1 && (
+        {currentPhase >= 3 && chartScores.length > 1 && (
           <div className="mt-4 pt-4 border-t border-border-warm/40">
             <span className="text-xs text-text-secondary font-medium">品質スコア推移</span>
             <QualityChart scores={chartScores} />
