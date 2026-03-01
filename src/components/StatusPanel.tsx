@@ -279,7 +279,7 @@ export default function StatusPanel({
             <MetricRow label="解決済み" value={metrics.resolvedIssues} color="#6ECFB0" />
           </>
         )}
-        {currentPhase >= 4 && (
+        {currentPhase >= 3 && (
           <MetricRow label="品質スコア" value={metrics.qualityScore} suffix="/100" color="#6ECFB0" />
         )}
         {currentPhase >= 4 && chartScores.length > 1 && (
