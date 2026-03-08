@@ -1,22 +1,12 @@
 # デジタルツインシティ
 
+https://nag729.github.io/digital-twin-city/
+
 「AIデジタルツインがソフトウェアを自律的にテスト・改善していく未来」を、アイソメトリックな街で表現するインタラクティブなコンセプトデモです。
 
 物流・配送管理システムを題材に、現実の物流網（倉庫・配送拠点・ルート・車両）をデジタルツインとしてソフトウェア上に再現。AIエージェントが仮想世界の中で配送ドライバーや倉庫スタッフのように振る舞い、システムの問題を自律的に発見します。
 
 ただし完全なクローズドループではなく、**人間がプロダクトビジョンを定義し、進化の方向性を決める「セミクローズドループ」** を提案します。
-
----
-
-## スクリーンショット
-
-| Phase 1: Deploy | Phase 2: Spawn Agents | Phase 3: Feedback Loop |
-|:---:|:---:|:---:|
-| ![Phase 1](test/p1.png) | ![Phase 2](test/p2.png) | ![Phase 3](test/p3.png) |
-
-| Phase 4: Autonomous Evolution | Phase 5: Vision Injection |
-|:---:|:---:|
-| ![Phase 4](test/p4.png) | ![Phase 5](test/p5.png) |
 
 ---
 
@@ -57,7 +47,7 @@ node scripts/generate-sprites.mjs
 | フレームワーク | React 19 + TypeScript |
 | ビルドツール | Vite 7 |
 | スタイリング | Tailwind CSS v4 |
-| マップ描画 | HTML5 Canvas（アイソメトリック描画、グロー/パーティクルエフェクト） |
+| マップ描画 | HTML5 Canvas（アイソメトリック描画、ズーム/パン対応） |
 | スプライト生成 | OpenAI gpt-image-1 API |
 | ビジュアルスタイル | ペーパークラフト風（パステルカラー、手作り感のある温かいビジュアル） |
 
@@ -65,7 +55,7 @@ node scripts/generate-sprites.mjs
 
 ## フェーズ構成
 
-本デモは5つのフェーズで構成されています。画面下部のナビゲーションで切り替えられます。
+本デモは5つのフェーズで構成されています。ヘッダーのナビゲーションで切り替えられます。
 
 | Phase | 名称 | 概要 |
 |:---:|---|---|
