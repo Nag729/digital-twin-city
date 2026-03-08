@@ -779,22 +779,20 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
 
       ctx.restore();
 
-      // Draw zoom indicator (screen space) when zoomed
-      if (Math.abs(cam.zoom - 1) > 0.05) {
-        const zoomText = `${Math.round(cam.zoom * 100)}%`;
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.beginPath();
-        ctx.roundRect(cw - 64, ch - 32, 56, 24, 12);
-        ctx.fill();
-        ctx.globalAlpha = 0.7;
-        ctx.fillStyle = '#5D4E37';
-        ctx.font = '500 11px system-ui';
-        ctx.textAlign = 'center';
-        ctx.fillText(zoomText, cw - 36, ch - 16);
-        ctx.restore();
-      }
+      // Draw zoom indicator (screen space)
+      const zoomText = `🔍 ${Math.round(cam.zoom * 100)}%`;
+      ctx.save();
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath();
+      ctx.roundRect(cw - 88, ch - 34, 80, 26, 13);
+      ctx.fill();
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = '#5D4E37';
+      ctx.font = '500 11px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(zoomText, cw - 48, ch - 17);
+      ctx.restore();
 
       animRef.current = requestAnimationFrame(render);
     };

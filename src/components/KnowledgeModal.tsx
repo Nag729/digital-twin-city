@@ -110,9 +110,35 @@ export default function KnowledgeModal({ onClose, skills }: KnowledgeModalProps)
             {/* Explanation */}
             <div className="rounded-2xl p-5" style={{ border: '1.5px solid #BAE6FD', backgroundColor: '#F0F9FF' }}>
               <p className="text-sm leading-relaxed" style={{ color: '#0369A1' }}>
-                現実世界から得られたフィードバック（現場の声・利用データ・専門家の知見）をもとに、
-                エージェントがデジタルツイン上の行動を変えていきます。
+                現実世界から得られた多様なデータソースをもとに、 エージェントがデジタルツイン上の行動を変えていきます。
               </p>
+            </div>
+
+            {/* Knowledge source types */}
+            <div>
+              <p className="section-label mb-3">取り込み可能なデータソース</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { icon: '🎥', label: 'ユーザーインタビュー', desc: '映像から行動パターンを学習' },
+                  { icon: '🎫', label: 'サポートチケット', desc: '困りごとをリアルタイム反映' },
+                  { icon: '📈', label: 'アクセスログ', desc: '操作パターンからUX課題を特定' },
+                  { icon: '🎓', label: '専門家の知見', desc: '業界知識をエージェントに注入' },
+                  { icon: '🧪', label: 'A/Bテスト結果', desc: '実験データで改善の方向性を提供' },
+                  { icon: '💬', label: 'SNS・レビュー', desc: 'ユーザーの生の声を収集' },
+                ].map((src) => (
+                  <div
+                    key={src.label}
+                    className="flex items-start gap-2.5 rounded-xl p-3"
+                    style={{ background: '#FAFAF8', border: '1px solid #F0EBE4' }}
+                  >
+                    <span className="text-base shrink-0 mt-0.5">{src.icon}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-text-primary">{src.label}</p>
+                      <p className="text-[11px] text-text-muted leading-snug mt-0.5">{src.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Knowledge items */}

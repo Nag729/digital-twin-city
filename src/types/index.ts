@@ -78,3 +78,11 @@ export interface PhaseConfig {
   label: string;
   hints: string[];
 }
+
+export interface ImprovementProposal {
+  id: string;
+  feedbackId: string;
+  title: string;
+  description: string;
+  impact: 'low' | 'medium' | 'high';
+}

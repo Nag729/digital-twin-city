@@ -6,6 +6,7 @@ import Header from './components/Header';
 import HintBar from './components/HintBar';
 import IntroOverlay from './components/IntroOverlay';
 import KnowledgeModal from './components/KnowledgeModal';
+import ProposalModal from './components/ProposalModal';
 import StatusPanel from './components/StatusPanel';
 import VisionModal from './components/VisionModal';
 import {
@@ -13,6 +14,7 @@ import {
   INITIAL_AGENTS,
   INITIAL_BUILDINGS,
   MOCK_FEEDBACKS,
+  MOCK_PROPOSALS,
   MOCK_SKILLS,
   MOCK_VISION,
   PHASES,
@@ -159,6 +161,8 @@ export default function App() {
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
   const [visionModalOpen, setVisionModalOpen] = useState(false);
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
+  const [proposalModalOpen, setProposalModalOpen] = useState(false);
+  const [proposalDecisions, setProposalDecisions] = useState<Record<string, 'go' | 'nogo'>>({});
   const [showIntro, setShowIntro] = useState(true);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
@@ -229,6 +233,18 @@ export default function App() {
 
   const handleCloseKnowledge = useCallback(() => {
     setKnowledgeModalOpen(false);
+  }, []);
+
+  const handleOpenProposal = useCallback(() => {
+    setProposalModalOpen(true);
+  }, []);
+
+  const handleCloseProposal = useCallback(() => {
+    setProposalModalOpen(false);
+  }, []);
+
+  const handleProposalDecide = useCallback((proposalId: string, decision: 'go' | 'nogo') => {
+    setProposalDecisions((prev) => ({ ...prev, [proposalId]: decision }));
   }, []);
 
   const isPhase5 = state.currentPhase >= 5;
@@ -304,6 +320,32 @@ export default function App() {
                   <span className="text-base md:text-lg">📡</span>
                   <span className="text-xs md:text-sm font-medium" style={{ color: '#0EA5E9' }}>
                     外部ナレッジ
+                  </span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Proposal button (Phase 4+) */}
+            <AnimatePresence>
+              {state.currentPhase >= 4 && (
+                <motion.button
+                  type="button"
+                  onClick={handleOpenProposal}
+                  className="flex items-center gap-2 md:gap-2.5 px-3.5 md:px-5 py-2.5 md:py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.92)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1.5px solid #FDE68A',
+                    boxShadow: '0 2px 16px rgba(255, 179, 71, 0.15)',
+                  }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                >
+                  <span className="text-base md:text-lg">🗳️</span>
+                  <span className="text-xs md:text-sm font-medium" style={{ color: '#B45309' }}>
+                    改善提案
                   </span>
                 </motion.button>
               )}
@@ -444,6 +486,18 @@ export default function App() {
       {/* Knowledge Modal */}
       <AnimatePresence>
         {knowledgeModalOpen && <KnowledgeModal onClose={handleCloseKnowledge} skills={state.skills} />}
+      </AnimatePresence>
+
+      {/* Proposal Modal */}
+      <AnimatePresence>
+        {proposalModalOpen && (
+          <ProposalModal
+            onClose={handleCloseProposal}
+            proposals={MOCK_PROPOSALS}
+            decisions={proposalDecisions}
+            onDecide={handleProposalDecide}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
