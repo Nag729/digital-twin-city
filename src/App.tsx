@@ -94,7 +94,12 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                   skills: action.phase >= 3 ? MOCK_SKILLS.map((s) => s.id) : [],
                 }))
             : [],
-        qualityHistory: action.phase >= 4 ? [12, 25, 38, 52, 65, getMetricsForPhase(action.phase).qualityScore] : [],
+        qualityHistory:
+          action.phase >= 5
+            ? [12, 25, 38, 52, 65, 72, getMetricsForPhase(action.phase).qualityScore]
+            : action.phase >= 4
+              ? [12, 25, 38, 52, 65, 68, getMetricsForPhase(action.phase).qualityScore]
+              : [],
       };
     }
     case 'TICK':
@@ -281,13 +286,13 @@ export default function App() {
             <button
               type="button"
               onClick={handleOpenVision}
-              className="relative flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${isPhase5 ? 'animate-[bounce-soft_2s_ease-in-out_infinite]' : ''}`}
               style={{
-                background: 'rgba(255, 255, 255, 0.92)',
+                background: isPhase5 ? 'rgba(250, 245, 255, 0.95)' : 'rgba(255, 255, 255, 0.92)',
                 backdropFilter: 'blur(8px)',
-                border: isPhase5 ? '1.5px solid #C4B5FD' : '1.5px solid #E9D5FF',
+                border: isPhase5 ? '2px solid #C4B5FD' : '1.5px solid #E9D5FF',
                 boxShadow: isPhase5
-                  ? '0 2px 20px rgba(196, 181, 253, 0.3), 0 0 0 1px rgba(196, 181, 253, 0.1)'
+                  ? '0 4px 24px rgba(124, 58, 237, 0.25), 0 0 0 3px rgba(196, 181, 253, 0.15)'
                   : '0 2px 16px rgba(196, 181, 253, 0.15)',
               }}
             >
@@ -296,16 +301,24 @@ export default function App() {
                 ヒューマンビジョン
               </span>
               {isPhase5 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center">
+                <>
                   <span
-                    className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
-                    style={{ backgroundColor: '#C4B5FD' }}
-                  />
-                  <span
-                    className="relative inline-flex h-3 w-3 rounded-full"
-                    style={{ backgroundColor: '#7C3AED', boxShadow: '0 0 6px rgba(124, 58, 237, 0.4)' }}
-                  />
-                </span>
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse"
+                    style={{ color: '#7C3AED', background: '#EDE9FE' }}
+                  >
+                    New
+                  </span>
+                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center">
+                    <span
+                      className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
+                      style={{ backgroundColor: '#C4B5FD' }}
+                    />
+                    <span
+                      className="relative inline-flex h-3 w-3 rounded-full"
+                      style={{ backgroundColor: '#7C3AED', boxShadow: '0 0 6px rgba(124, 58, 237, 0.4)' }}
+                    />
+                  </span>
+                </>
               )}
             </button>
           </div>

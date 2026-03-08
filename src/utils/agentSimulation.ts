@@ -9,7 +9,7 @@ export const ROLE_BUILDING_PREFS: Record<string, BuildingType[]> = {
 };
 
 // ─── Vision-aligned building types ───────────────────────────────────
-export const VISION_PRIORITY_TYPES: BuildingType[] = ['delivery_hub', 'receive_station'];
+export const VISION_PRIORITY_TYPES: BuildingType[] = ['delivery_hub'];
 
 // ─── Agent behavior simulation ────────────────────────────────────────
 export function simulateAgent(

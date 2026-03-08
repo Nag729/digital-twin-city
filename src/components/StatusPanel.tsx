@@ -254,7 +254,13 @@ export default function StatusPanel({
   qualityHistory = [],
 }: StatusPanelProps) {
   const chartScores =
-    qualityHistory.length > 0 ? qualityHistory : currentPhase >= 4 ? [12, 25, 38, 52, 65, metrics.qualityScore] : [];
+    qualityHistory.length > 0
+      ? qualityHistory
+      : currentPhase >= 5
+        ? [12, 25, 38, 52, 65, 72, metrics.qualityScore]
+        : currentPhase >= 4
+          ? [12, 25, 38, 52, 65, 68, metrics.qualityScore]
+          : [];
 
   return (
     <div

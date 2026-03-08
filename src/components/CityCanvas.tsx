@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef } from 'react';
 import { gridToIso, MAP_COLS, MAP_ROWS, ROADS } from '../data/mockData';
-import type { Agent, Building, PhaseNumber, Vision } from '../types';
+import type { Agent, Building, BuildingType, PhaseNumber, Vision } from '../types';
 import type { SpriteKey } from '../utils/spriteLoader';
 import { getAgentSpriteKey, getBuildingSpriteKey, loadSprites } from '../utils/spriteLoader';
 
@@ -288,6 +288,8 @@ function drawSkillBands(
   ctx.globalAlpha = 1;
 }
 
+const VISION_HIGHLIGHT_TYPES: BuildingType[] = ['delivery_hub'];
+
 function drawBuildings(
   ctx: CanvasRenderingContext2D,
   buildings: Building[],
@@ -373,6 +375,23 @@ function drawBuildings(
       ctx.font = '12px system-ui';
       ctx.textAlign = 'center';
       ctx.fillText('\u2B06', bx, by - dims.h - 2);
+    }
+
+    // Phase 5: vision-aligned building glow (delivery hubs)
+    if (phase >= 5 && VISION_HIGHLIGHT_TYPES.includes(b.type)) {
+      const pulse = Math.sin(frame * 0.035);
+      const glowAlpha = 0.18 + pulse * 0.08;
+      const glowSize = 1 + pulse * 0.06;
+      ctx.save();
+      ctx.globalAlpha = glowAlpha;
+      ctx.shadowColor = COLORS.visionLavender;
+      ctx.shadowBlur = 24;
+      ctx.fillStyle = COLORS.visionLavender;
+      ctx.beginPath();
+      ctx.ellipse(bx, by + 6, dims.w * 0.65 * glowSize, dims.h * 0.35 * glowSize, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
     }
 
     // Building name label

@@ -113,7 +113,7 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
           >
             <p className="text-sm leading-relaxed" style={{ color: '#8B7355' }}>
               プロダクトの世界をデジタルツインとして再現し、その中で
-              <span className="font-medium" style={{ color: '#5D4E37' }}>
+              <span className="font-bold" style={{ color: '#5D4E37' }}>
                 AIエージェントが人間のように振る舞いながら品質を検証する
               </span>
               ——このデモでは、物流システムを題材にその未来を体験できます。
