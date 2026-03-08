@@ -76,6 +76,5 @@ export interface PhaseConfig {
   number: PhaseNumber;
   name: string;
   label: string;
-  description: string;
   hints: string[];
 }
