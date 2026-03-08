@@ -8,13 +8,11 @@ interface HintBarProps {
 
 export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const [currentHintIndex, setCurrentHintIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
   const [fadeKey, setFadeKey] = useState(0);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset hints when phase changes
   useEffect(() => {
     setCurrentHintIndex(0);
-    setVisible(true);
     setFadeKey((k) => k + 1);
   }, [currentPhase]);
 
@@ -22,8 +20,6 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
     if (currentHintIndex < hints.length - 1) {
       setCurrentHintIndex((i) => i + 1);
       setFadeKey((k) => k + 1);
-    } else {
-      setVisible(false);
     }
   }, [currentHintIndex, hints.length]);
 
@@ -34,7 +30,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
     }
   }, [currentHintIndex]);
 
-  if (!visible || hints.length === 0) return null;
+  if (hints.length === 0) return null;
 
   const hint = hints[currentHintIndex];
 
@@ -86,6 +82,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
               <button
                 type="button"
                 onClick={nextHint}
+                disabled={currentHintIndex === hints.length - 1}
                 className="p-1 text-text-muted hover:text-accent-coral transition-colors"
               >
                 <svg
@@ -98,39 +95,10 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  {currentHintIndex < hints.length - 1 ? (
-                    <polyline points="9 18 15 12 9 6" />
-                  ) : (
-                    <>
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </>
-                  )}
+                  <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
             </>
-          )}
-
-          {hints.length <= 1 && (
-            <button
-              type="button"
-              onClick={() => setVisible(false)}
-              className="p-1 text-text-muted hover:text-accent-coral transition-colors"
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
           )}
         </div>
       </div>

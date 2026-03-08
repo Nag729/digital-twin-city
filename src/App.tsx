@@ -3,6 +3,7 @@ import AgentDetailPanel from './components/AgentDetailPanel';
 import CityCanvas from './components/CityCanvas';
 import Header from './components/Header';
 import HintBar from './components/HintBar';
+import IntroOverlay from './components/IntroOverlay';
 import KnowledgeModal from './components/KnowledgeModal';
 import StatusPanel from './components/StatusPanel';
 import VisionModal from './components/VisionModal';
@@ -146,6 +147,7 @@ export default function App() {
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
   const [visionModalOpen, setVisionModalOpen] = useState(false);
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
 
@@ -320,6 +322,9 @@ export default function App() {
           />
         </div>
       </div>
+
+      {/* Intro Overlay */}
+      {showIntro && <IntroOverlay onClose={() => setShowIntro(false)} />}
 
       {/* Agent Detail Panel */}
       <AgentDetailPanel agent={selectedAgent} onClose={handleCloseDetail} feedbacks={state.feedbacks} />
