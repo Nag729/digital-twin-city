@@ -9,25 +9,21 @@ interface HintBarProps {
 
 export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const [currentHintIndex, setCurrentHintIndex] = useState(0);
-  const [fadeKey, setFadeKey] = useState(0);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset hints when phase changes
   useEffect(() => {
     setCurrentHintIndex(0);
-    setFadeKey((k) => k + 1);
   }, [currentPhase]);
 
   const nextHint = useCallback(() => {
     if (currentHintIndex < hints.length - 1) {
       setCurrentHintIndex((i) => i + 1);
-      setFadeKey((k) => k + 1);
     }
   }, [currentHintIndex, hints.length]);
 
   const prevHint = useCallback(() => {
     if (currentHintIndex > 0) {
       setCurrentHintIndex((i) => i - 1);
-      setFadeKey((k) => k + 1);
     }
   }, [currentHintIndex]);
 
@@ -39,7 +35,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
     <div className="absolute top-4 left-4 right-4 z-30 pointer-events-none">
       <AnimatePresence mode="wait">
         <motion.div
-          key={fadeKey}
+          key={`${currentPhase}-${currentHintIndex}`}
           className="glass-panel relative flex items-start gap-3 px-5 py-3.5 rounded-2xl pointer-events-auto"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}

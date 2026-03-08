@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 import type { AgentSkill } from '../types';
+import { backdropMotionProps, fadeUpVariants, modalSlideUpProps, staggerContainer } from '../utils/motionVariants';
 
 const SOURCE_LABELS: Record<AgentSkill['source'], { label: string; color: string; bg: string; icon: string }> = {
   user_feedback: { label: '現場フィードバック', color: '#FF8FAB', bg: '#FFF0F5', icon: '🗣️' },
@@ -8,15 +9,7 @@ const SOURCE_LABELS: Record<AgentSkill['source'], { label: string; color: string
   domain_expert: { label: '専門家知見', color: '#C4B5FD', bg: '#F5F3FF', icon: '🎓' },
 };
 
-const staggerContainer = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.15 } },
-};
-
-const staggerItem = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
-};
+const staggerItem = fadeUpVariants();
 
 function KnowledgeItem({ skill }: { skill: AgentSkill }) {
   const srcCfg = SOURCE_LABELS[skill.source] || SOURCE_LABELS.usage_analytics;
@@ -81,18 +74,12 @@ export default function KnowledgeModal({ onClose, skills }: KnowledgeModalProps)
       className="modal-backdrop justify-center"
       onClick={handleBackdropClick}
       role="presentation"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      {...backdropMotionProps}
     >
       <motion.div
         ref={panelRef}
         className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
-        initial={{ y: 24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 24, opacity: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        {...modalSlideUpProps}
       >
         {/* Header */}
         <div className="px-7 pt-7 pb-5 border-b border-border-warm">

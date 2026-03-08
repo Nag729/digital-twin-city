@@ -1,6 +1,10 @@
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import type { Agent, AgentRole, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
+import { fadeUpVariants, staggerVariants } from '../utils/motionVariants';
+
+const feedbackStaggerContainer = staggerVariants(0.1);
+const feedbackStaggerItem = fadeUpVariants(8, 0.5);
 
 // ─── Role icon helper ───────────────────────────────────────────
 const ROLE_ICONS: Record<AgentRole, string> = {
@@ -321,7 +325,7 @@ export default function StatusPanel({
             className="mt-4 space-y-3.5 max-h-48 overflow-y-auto"
             initial="hidden"
             animate="show"
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+            variants={feedbackStaggerContainer}
           >
             {feedbacks.slice(0, 5).map((fb) => {
               const cfg = FB_CONFIG[fb.type];
@@ -329,10 +333,7 @@ export default function StatusPanel({
                 <motion.div
                   key={fb.id}
                   className="text-xs py-2.5 border-b border-border-warm/30 last:border-0"
-                  variants={{
-                    hidden: { opacity: 0, y: 8 },
-                    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
-                  }}
+                  variants={feedbackStaggerItem}
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: cfg.color }} />

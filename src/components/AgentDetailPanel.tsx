@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getAgentLogs, INITIAL_BUILDINGS, LOG_ILLUSTRATIONS } from '../data/mockData';
 import type { Agent, AgentRole, Feedback } from '../types';
+import { backdropMotionProps } from '../utils/motionVariants';
 
 const buildingNameMap = new Map(INITIAL_BUILDINGS.map((b) => [b.id, b.name]));
 
@@ -179,10 +180,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
       className="modal-backdrop justify-end"
       onClick={handleBackdropClick}
       role="presentation"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      {...backdropMotionProps}
     >
       <motion.div
         ref={panelRef}

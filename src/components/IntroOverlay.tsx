@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
+import { fadeUpVariants, staggerVariants } from '../utils/motionVariants';
 
 interface IntroOverlayProps {
   onClose: () => void;
@@ -17,30 +18,17 @@ const STEPS_DATA = [
   { icon: '🔄', label: '自律的に改善を回す', desc: 'フィードバックループで品質が継続的に向上', color: '#FF8FAB' },
 ];
 
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
-};
+const containerVariants = staggerVariants(0.15, 0.1);
+const itemVariants = fadeUpVariants(12, 0.5);
 
 export default function IntroOverlay({ onClose }: IntroOverlayProps) {
-  const handleClose = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === 'Enter') handleClose();
+      if (e.key === 'Escape' || e.key === 'Enter') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose]);
+  }, [onClose]);
 
   return (
     <motion.div
@@ -146,7 +134,7 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
         >
           <button
             type="button"
-            onClick={handleClose}
+            onClick={onClose}
             className="w-full py-3.5 rounded-2xl text-sm font-medium transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
             style={{
               background: 'linear-gradient(135deg, #6ECFB0, #87CEEB)',

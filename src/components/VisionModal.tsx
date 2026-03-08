@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 import type { PhaseNumber, Vision } from '../types';
+import { backdropMotionProps, modalSlideUpProps } from '../utils/motionVariants';
 
 interface VisionModalProps {
   onClose: () => void;
@@ -33,18 +34,12 @@ export default function VisionModal({ onClose, vision, currentPhase }: VisionMod
       className="modal-backdrop justify-center"
       onClick={handleBackdropClick}
       role="presentation"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      {...backdropMotionProps}
     >
       <motion.div
         ref={panelRef}
         className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
-        initial={{ y: 24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 24, opacity: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        {...modalSlideUpProps}
       >
         {/* Header */}
         <div className="px-7 pt-7 pb-5 border-b border-border-warm">
