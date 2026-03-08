@@ -1,7 +1,8 @@
 import type React from 'react';
 import { useEffect, useRef } from 'react';
 import { gridToIso, MAP_COLS, MAP_ROWS, ROADS } from '../data/mockData';
-import type { Agent, Building, BuildingType, PhaseNumber, Vision } from '../types';
+import type { Agent, Building, PhaseNumber, Vision } from '../types';
+import { VISION_PRIORITY_TYPES } from '../utils/agentSimulation';
 import type { SpriteKey } from '../utils/spriteLoader';
 import { getAgentSpriteKey, getBuildingSpriteKey, loadSprites } from '../utils/spriteLoader';
 
@@ -10,7 +11,6 @@ export interface CityCanvasProps {
   agents: Agent[];
   currentPhase: PhaseNumber;
   vision: Vision | null;
-  elapsedTime: number;
   onBuildingClick?: (buildingId: string) => void;
   onAgentClick?: (agentId: string) => void;
 }
@@ -288,8 +288,6 @@ function drawSkillBands(
   ctx.globalAlpha = 1;
 }
 
-const VISION_HIGHLIGHT_TYPES: BuildingType[] = ['delivery_hub'];
-
 function drawBuildings(
   ctx: CanvasRenderingContext2D,
   buildings: Building[],
@@ -378,7 +376,7 @@ function drawBuildings(
     }
 
     // Phase 5: vision-aligned building glow (delivery hubs)
-    if (phase >= 5 && VISION_HIGHLIGHT_TYPES.includes(b.type)) {
+    if (phase >= 5 && VISION_PRIORITY_TYPES.includes(b.type)) {
       const pulse = Math.sin(frame * 0.035);
       const glowAlpha = 0.18 + pulse * 0.08;
       const glowSize = 1 + pulse * 0.06;
@@ -551,7 +549,6 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
   agents,
   currentPhase,
   vision,
-  elapsedTime,
   onBuildingClick,
   onAgentClick,
 }) => {
@@ -560,13 +557,14 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
   const animRef = useRef<number>(0);
   const spritesRef = useRef<Map<SpriteKey, HTMLImageElement>>(new Map());
 
-  const propsRef = useRef({ buildings, agents, currentPhase, vision, elapsedTime });
-  propsRef.current = { buildings, agents, currentPhase, vision, elapsedTime };
+  const propsRef = useRef({ buildings, agents, currentPhase, vision });
+  propsRef.current = { buildings, agents, currentPhase, vision };
 
   const confettiParticles = useRef<Confetti[]>([]);
   const skillBandsList = useRef<SkillBand[]>([]);
   const agentTrails = useRef<Map<string, AgentTrail[]>>(new Map());
   const frameCount = useRef(0);
+  const dimsRef = useRef({ width: 0, height: 0 });
   const prevPhase = useRef(currentPhase);
 
   useEffect(() => {
@@ -669,6 +667,7 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
 
     const resize = () => {
       const { width, height } = container.getBoundingClientRect();
+      dimsRef.current = { width, height };
       const dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -682,7 +681,7 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
 
     const render = () => {
       const frame = frameCount.current++;
-      const { width: cw, height: ch } = container.getBoundingClientRect();
+      const { width: cw, height: ch } = dimsRef.current;
       const { buildings: blds, agents: agts, currentPhase: phase } = propsRef.current;
       const sprites = spritesRef.current;
 

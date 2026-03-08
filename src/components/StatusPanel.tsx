@@ -13,9 +13,16 @@ const ROLE_ICONS: Record<AgentRole, string> = {
 function useCountUp(target: number, duration = 1200): number {
   const [value, setValue] = useState(0);
   const frameRef = useRef<number>(0);
+  const prevTargetRef = useRef(target);
+  const startValueRef = useRef(0);
+
+  if (prevTargetRef.current !== target) {
+    startValueRef.current = value;
+    prevTargetRef.current = target;
+  }
 
   useEffect(() => {
-    const start = value;
+    const start = startValueRef.current;
     const diff = target - start;
     if (diff === 0) return;
     const startTime = performance.now();
@@ -31,8 +38,7 @@ function useCountUp(target: number, duration = 1200): number {
     };
     frameRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frameRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, duration, value]);
+  }, [target, duration]);
 
   return value;
 }
@@ -78,14 +84,7 @@ function QualityChart({ scores }: { scores: number[] }) {
 }
 
 // ─── Paper Card wrapper ──────────────────────────────────────────
-function PaperCard({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode;
-  accentColor?: string;
-  className?: string;
-}) {
+function PaperCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div
       className={`relative rounded-2xl p-5 ${className}`}
@@ -253,14 +252,7 @@ export default function StatusPanel({
   agents = [],
   qualityHistory = [],
 }: StatusPanelProps) {
-  const chartScores =
-    qualityHistory.length > 0
-      ? qualityHistory
-      : currentPhase >= 5
-        ? [12, 25, 38, 52, 65, 72, metrics.qualityScore]
-        : currentPhase >= 4
-          ? [12, 25, 38, 52, 65, 68, metrics.qualityScore]
-          : [];
+  const chartScores = qualityHistory;
 
   return (
     <div
@@ -268,7 +260,7 @@ export default function StatusPanel({
       style={{ background: 'rgba(255, 248, 240, 0.6)' }}
     >
       {/* Core metrics */}
-      <PaperCard accentColor="#6ECFB0">
+      <PaperCard>
         <SectionTitle label="メトリクス" color="#6ECFB0" />
         <MetricRow label="施設数" value={12} color="#87CEEB" />
         <MetricRow
@@ -298,7 +290,7 @@ export default function StatusPanel({
 
       {/* Agent roles (Phase 2+) */}
       {currentPhase >= 2 && agents.length > 0 && (
-        <PaperCard accentColor="#87CEEB">
+        <PaperCard>
           <SectionTitle label="エージェント" color="#87CEEB" />
           <AgentRoleBreakdown agents={agents} />
           <div className="mt-4 pt-4 border-t border-border-warm/30">
@@ -310,7 +302,7 @@ export default function StatusPanel({
 
       {/* Feedback breakdown (Phase 3+) */}
       {currentPhase >= 3 && feedbacks.length > 0 && (
-        <PaperCard accentColor="#FFB347">
+        <PaperCard>
           <SectionTitle label="フィードバック" color="#FFB347" />
           <FeedbackBreakdown feedbacks={feedbacks} />
           {feedbacks.some((f) => f.resolved) && (

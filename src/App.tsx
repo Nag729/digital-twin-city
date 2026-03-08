@@ -28,14 +28,12 @@ interface GameState {
   feedbacks: Feedback[];
   skills: AgentSkill[];
   vision: Vision | null;
-  phaseElapsed: number;
   selectedAgentId: string | null;
   qualityHistory: number[];
 }
 
 type GameAction =
   | { type: 'SET_PHASE'; phase: PhaseNumber }
-  | { type: 'TICK'; dt: number }
   | { type: 'SELECT_AGENT'; agentId: string | null }
   | { type: 'UPDATE_AGENTS'; agents: Agent[] }
   | { type: 'ADD_FEEDBACK'; feedback: Feedback }
@@ -74,7 +72,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         currentPhase: action.phase,
         maxReachedPhase: newMax,
-        phaseElapsed: 0,
         buildings: upgradedBuildings,
         feedbacks:
           action.phase >= 4
@@ -102,8 +99,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
               : [],
       };
     }
-    case 'TICK':
-      return { ...state, phaseElapsed: state.phaseElapsed + action.dt };
     case 'SELECT_AGENT':
       return { ...state, selectedAgentId: action.agentId };
     case 'UPDATE_AGENTS':
@@ -144,7 +139,6 @@ export default function App() {
     feedbacks: [],
     skills: [],
     vision: null,
-    phaseElapsed: 0,
     selectedAgentId: null,
     qualityHistory: [],
   });
@@ -155,6 +149,8 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   // ─── Phase change handler ───────────────────────────────────────────
   const handlePhaseChange = useCallback((phase: PhaseNumber) => {
@@ -172,14 +168,14 @@ export default function App() {
       const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05);
       lastTimeRef.current = time;
 
-      dispatch({ type: 'TICK', dt });
+      const s = stateRef.current;
 
       // Only simulate agents when phase >= 2
-      if (state.currentPhase >= 2 && state.agents.length > 0) {
-        const updatedAgents = state.agents.map((agent) => {
-          const initialized = initializeAgentPosition(agent, state.buildings);
+      if (s.currentPhase >= 2 && s.agents.length > 0) {
+        const updatedAgents = s.agents.map((agent) => {
+          const initialized = initializeAgentPosition(agent, s.buildings);
           if (initialized !== agent) return initialized;
-          return simulateAgent(agent, state.buildings, state.agents, state.currentPhase, dt);
+          return simulateAgent(agent, s.buildings, s.agents, s.currentPhase, dt);
         });
 
         dispatch({ type: 'UPDATE_AGENTS', agents: updatedAgents });
@@ -190,7 +186,7 @@ export default function App() {
 
     rafRef.current = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [state.currentPhase, state.agents, state.buildings]);
+  }, []);
 
   // ─── Derived data ───────────────────────────────────────────────────
   const currentPhaseConfig = PHASES.find((p) => p.number === state.currentPhase)!;
@@ -256,7 +252,6 @@ export default function App() {
             agents={state.agents}
             currentPhase={state.currentPhase}
             vision={state.vision}
-            elapsedTime={state.phaseElapsed}
             onAgentClick={handleAgentClick}
           />
 
