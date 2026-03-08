@@ -9,7 +9,7 @@ fs.mkdirSync(outDir, { recursive: true });
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const STYLE_BASE = `Paper Mario / Yoshi's Island style, paper craft cutout, flat colors, white outline, cute and charming, pastel colors, transparent background, isometric view, game sprite, 64x64 pixel art style but smooth`;
+const STYLE_BASE = `paper craft cutout style, flat colors, white outline, cute and charming, pastel colors, transparent background, isometric view, game sprite, 64x64 pixel art style but smooth`;
 
 const sprites = [
   {

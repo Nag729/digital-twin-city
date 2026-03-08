@@ -9,7 +9,7 @@ fs.mkdirSync(outDir, { recursive: true });
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const STYLE_BASE = `Paper Mario / Yoshi's Island style, paper craft cutout look, flat pastel colors, white outline, cute and charming, warm color palette. Screenshot-like illustration of a logistics app screen. Simple UI mockup with Japanese text, rounded corners, soft shadows. The illustration should look like a miniature app screenshot rendered in paper craft style.`;
+const STYLE_BASE = `paper craft cutout style, flat pastel colors, white outline, cute and charming, warm color palette. Screenshot-like illustration of a logistics app screen. Simple UI mockup with Japanese text, rounded corners, soft shadows. The illustration should look like a miniature app screenshot rendered in paper craft style.`;
 
 const illustrations = [
   // Warehouse worker (a1) - ケンジ
