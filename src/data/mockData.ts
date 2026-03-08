@@ -647,55 +647,56 @@ export const PHASES: PhaseConfig[] = [
 ];
 
 // Metrics per phase
+const METRICS_MAP: Record<PhaseNumber, PhaseMetrics> = {
+  1: {
+    phase: 1,
+    qualityScore: 0,
+    deliverySuccessRate: 0,
+    totalFeedbacks: 0,
+    resolvedIssues: 0,
+    agentCount: 0,
+    skills: [],
+  },
+  2: {
+    phase: 2,
+    qualityScore: 12,
+    deliverySuccessRate: 45,
+    totalFeedbacks: 0,
+    resolvedIssues: 0,
+    agentCount: 13,
+    skills: [],
+  },
+  3: {
+    phase: 3,
+    qualityScore: 38,
+    deliverySuccessRate: 62,
+    totalFeedbacks: 10,
+    resolvedIssues: 0,
+    agentCount: 13,
+    skills: MOCK_SKILLS,
+  },
+  4: {
+    phase: 4,
+    qualityScore: 72,
+    deliverySuccessRate: 84,
+    totalFeedbacks: 24,
+    resolvedIssues: 18,
+    agentCount: 13,
+    skills: MOCK_SKILLS,
+  },
+  5: {
+    phase: 5,
+    qualityScore: 96,
+    deliverySuccessRate: 99,
+    totalFeedbacks: 32,
+    resolvedIssues: 30,
+    agentCount: 13,
+    skills: MOCK_SKILLS,
+  },
+};
+
 export function getMetricsForPhase(phase: PhaseNumber): PhaseMetrics {
-  const metricsMap: Record<PhaseNumber, PhaseMetrics> = {
-    1: {
-      phase: 1,
-      qualityScore: 0,
-      deliverySuccessRate: 0,
-      totalFeedbacks: 0,
-      resolvedIssues: 0,
-      agentCount: 0,
-      skills: [],
-    },
-    2: {
-      phase: 2,
-      qualityScore: 12,
-      deliverySuccessRate: 45,
-      totalFeedbacks: 0,
-      resolvedIssues: 0,
-      agentCount: 13,
-      skills: [],
-    },
-    3: {
-      phase: 3,
-      qualityScore: 38,
-      deliverySuccessRate: 62,
-      totalFeedbacks: 10,
-      resolvedIssues: 0,
-      agentCount: 13,
-      skills: MOCK_SKILLS,
-    },
-    4: {
-      phase: 4,
-      qualityScore: 72,
-      deliverySuccessRate: 84,
-      totalFeedbacks: 24,
-      resolvedIssues: 18,
-      agentCount: 13,
-      skills: MOCK_SKILLS,
-    },
-    5: {
-      phase: 5,
-      qualityScore: 96,
-      deliverySuccessRate: 99,
-      totalFeedbacks: 32,
-      resolvedIssues: 30,
-      agentCount: 13,
-      skills: MOCK_SKILLS,
-    },
-  };
-  return metricsMap[phase];
+  return METRICS_MAP[phase];
 }
 
 // Agent operation logs for detail view
@@ -705,14 +706,14 @@ export const AGENT_LOGS: Record<string, string[]> = {
     'ロケーション管理システムにログイン',
     'A棟3列目の在庫をスキャン',
     '出荷指示と在庫数に差異を検出',
-    '⚠️ 在庫数の表示が出荷反映後も更新されない → フィードバック生成',
+    '在庫数の表示が出荷反映後も更新されない → フィードバック生成',
   ],
   a4: [
     '本日の仕分け対象リストを取得（156件）',
     'ベルトコンベアの荷物をスキャン開始',
     'エリアコード別に自動仕分けを実行',
     '仕分けリストの表示順に違和感',
-    '⚠️ 仕分けリストのソート順が直感的でない → フィードバック生成',
+    '仕分けリストのソート順が直感的でない → フィードバック生成',
   ],
   a6: [
     '本日の配送リストを確認（12件）',
@@ -720,13 +721,13 @@ export const AGENT_LOGS: Record<string, string[]> = {
     '最適ルートに従い配送開始',
     '3件目の配送先に到着 → 受取確認を送信',
     '5件目で不在 → 再配達登録を試行',
-    '⚠️ 再配達の時間指定UIで翌日の枠が表示されない → フィードバック生成',
+    '再配達の時間指定UIで翌日の枠が表示されない → フィードバック生成',
   ],
   a7: [
     '配送ルートの読み込み（8件）',
     'ルート最適化APIを呼び出し',
     '... レスポンス待機中（5秒経過）',
-    '⚠️ ルート最適化APIのレスポンスが5秒以上かかる → フィードバック生成',
+    'ルート最適化APIのレスポンスが5秒以上かかる → フィードバック生成',
     '手動でルート設定し配送開始',
   ],
   a8: [
@@ -734,14 +735,14 @@ export const AGENT_LOGS: Record<string, string[]> = {
     '天候情報を確認 → 午後から雨予報',
     '配送順を調整（屋外受渡し先を午前に集中）',
     '7件目で遅延アラート未発火を確認',
-    '⚠️ 悪天候時の配送遅延アラートが発火しない → フィードバック生成',
+    '悪天候時の配送遅延アラートが発火しない → フィードバック生成',
   ],
   a10: [
     '配送状況をアプリで確認',
     '「配送中」ステータスを確認',
     '到着通知を受信 → 受取ステーションへ移動',
     '荷物を受取、確認ボタンをタップ',
-    '⚠️ 配送状況通知のメッセージが技術的すぎて分かりにくい → フィードバック生成',
+    '配送状況通知のメッセージが技術的すぎて分かりにくい → フィードバック生成',
   ],
 };
 
@@ -757,3 +758,36 @@ const DEFAULT_LOGS: string[] = [
 export function getAgentLogs(agentId: string): string[] {
   return AGENT_LOGS[agentId] || DEFAULT_LOGS;
 }
+
+// Log illustration mapping: agentId → lineIndex → illustration filename
+export const LOG_ILLUSTRATIONS: Record<string, Record<number, string>> = {
+  a1: {
+    0: 'inventory-check.png',
+    1: 'location-login.png',
+    2: 'barcode-scan.png',
+    3: 'inventory-mismatch.png',
+    4: 'bug-report-inventory.png',
+  },
+  a4: {
+    0: 'sort-list.png',
+    1: 'conveyor-scan.png',
+    3: 'sort-order-issue.png',
+  },
+  a6: {
+    0: 'delivery-list.png',
+    1: 'route-optimization.png',
+    3: 'delivery-confirmation.png',
+    5: 'redelivery-bug.png',
+  },
+  a7: {
+    2: 'api-loading.png',
+  },
+  a8: {
+    1: 'weather-check.png',
+    3: 'alert-missing.png',
+  },
+  a10: {
+    0: 'tracking-status.png',
+    4: 'confusing-notification.png',
+  },
+};

@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getAgentLogs } from '../data/mockData';
+import { getAgentLogs, INITIAL_BUILDINGS, LOG_ILLUSTRATIONS } from '../data/mockData';
 import type { Agent, AgentRole, Feedback } from '../types';
+
+const buildingNameMap = new Map(INITIAL_BUILDINGS.map((b) => [b.id, b.name]));
+
+// Eagerly import all log illustration images
+const illustrationModules = import.meta.glob<{ default: string }>('../assets/log-illustrations/*.png', { eager: true });
+const illustrationMap: Record<string, string> = {};
+for (const [path, mod] of Object.entries(illustrationModules)) {
+  const filename = path.split('/').pop() ?? '';
+  illustrationMap[filename] = mod.default;
+}
 
 interface AgentDetailPanelProps {
   agent: Agent | null;
@@ -36,13 +46,24 @@ const ROLE_ICONS: Record<AgentRole, string> = {
   recipient: '👤',
 };
 
-const STATE_LABELS: Record<string, string> = {
-  idle: '待機中',
-  moving: '移動中',
-  working: '作業中',
-  reporting: 'レポート中',
-  communicating: '通信中',
-};
+function getStateLabel(agent: Agent): string {
+  const target = agent.targetBuildingId ? buildingNameMap.get(agent.targetBuildingId) : null;
+  const prev = agent.previousBuildingId ? buildingNameMap.get(agent.previousBuildingId) : null;
+  switch (agent.state) {
+    case 'moving':
+      return target ? `${target}に移動中` : '移動中';
+    case 'working':
+      return target ? `${target}で作業中` : prev ? `${prev}で作業中` : '作業中';
+    case 'reporting':
+      return target ? `${target}でレポート中` : prev ? `${prev}でレポート中` : 'レポート中';
+    case 'communicating':
+      return '他エージェントと通信中';
+    case 'idle':
+      return '待機中';
+    default:
+      return agent.state;
+  }
+}
 
 const FEEDBACK_TYPE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
   bug: { label: 'BUG', color: '#FF6B6B', bg: '#FFF0F0' },
@@ -83,8 +104,9 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
   const logs = agent ? getAgentLogs(agent.id) : [];
   const agentFeedbacks = agent ? feedbacks.filter((f) => f.agentId === agent.id) : [];
 
+  const agentId = agent?.id ?? null;
   useEffect(() => {
-    if (!agent) {
+    if (!agentId) {
       setVisibleLogLines(0);
       setTypingText('');
       setCurrentTypingLine(-1);
@@ -93,7 +115,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
     setVisibleLogLines(0);
     setTypingText('');
     setCurrentTypingLine(0);
-  }, [agent]);
+  }, [agentId]);
 
   useEffect(() => {
     if (currentTypingLine < 0 || currentTypingLine >= logs.length) return;
@@ -109,7 +131,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
           setVisibleLogLines((prev) => prev + 1);
           setTypingText('');
           setCurrentTypingLine((prev) => prev + 1);
-        }, 300);
+        }, 1000);
       }
     }, 20);
     return () => clearInterval(typeInterval);
@@ -201,7 +223,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
               className="inline-block h-2.5 w-2.5 rounded-full animate-pulse"
               style={{ backgroundColor: accentColor }}
             />
-            <span className="text-text-primary font-medium">{STATE_LABELS[agent.state] || agent.state}</span>
+            <span className="text-text-primary font-medium">{getStateLabel(agent)}</span>
           </div>
         </div>
 
@@ -213,9 +235,11 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
               ref={logContainerRef}
               className="max-h-[420px] overflow-y-auto rounded-xl p-5 bg-[#1E1B2E] font-mono space-y-1.5"
             >
-              {logs.slice(0, visibleLogLines).map((text, i) => (
-                <LogLine key={i} text={text} accentColor={accentColor} />
-              ))}
+              {logs.slice(0, visibleLogLines).map((text, i) => {
+                const illuFile = agent ? LOG_ILLUSTRATIONS[agent.id]?.[i] : undefined;
+                const illuSrc = illuFile ? illustrationMap[illuFile] : undefined;
+                return <LogLine key={i} text={text} accentColor={accentColor} illustrationSrc={illuSrc} />;
+              })}
               {currentTypingLine < logs.length && (
                 <div className="flex items-start gap-2.5 text-sm leading-relaxed">
                   <span style={{ color: accentColor }} className="shrink-0 select-none">
@@ -234,17 +258,12 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
                 </div>
               )}
               {currentTypingLine >= logs.length && (
-                <div className="mt-1.5 flex items-center gap-2.5 text-sm">
-                  <span style={{ color: accentColor }} className="select-none">
-                    {'>'}
-                  </span>
-                  <span
-                    className="inline-block h-4 w-1.5 rounded-sm"
-                    style={{
-                      backgroundColor: accentColor,
-                      animation: 'blink 0.8s step-end infinite',
-                    }}
-                  />
+                <div
+                  className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs"
+                  style={{ background: `${accentColor}15`, color: accentColor, animation: 'fade-in 0.4s ease-out' }}
+                >
+                  <span>✓</span>
+                  <span className="font-medium">操作ログ完了</span>
                 </div>
               )}
             </div>
@@ -295,16 +314,38 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
   );
 }
 
-function LogLine({ text, accentColor }: { text: string; accentColor: string }) {
+function LogLine({
+  text,
+  accentColor,
+  illustrationSrc,
+}: {
+  text: string;
+  accentColor: string;
+  illustrationSrc?: string;
+}) {
   const isWarning = text.includes('\u26a0\ufe0f');
   const icon = getLogIcon(text);
 
   return (
-    <div className="flex items-start gap-2.5 text-sm leading-relaxed">
-      <span style={{ color: accentColor }} className="shrink-0 select-none">
-        {icon || '>'}
-      </span>
-      <span style={{ color: isWarning ? '#FFD93D' : '#E2DDD5' }}>{text}</span>
+    <div className="space-y-2">
+      <div className="flex items-start gap-2.5 text-sm leading-relaxed">
+        <span style={{ color: accentColor }} className="shrink-0 select-none">
+          {icon || '>'}
+        </span>
+        <span style={{ color: isWarning ? '#FFD93D' : '#E2DDD5' }}>{text}</span>
+      </div>
+      {illustrationSrc && (
+        <div
+          className="ml-7 mb-1"
+          style={{ animation: 'paper-in 0.5s ease-out both' }}
+        >
+          <img
+            src={illustrationSrc}
+            alt=""
+            className="w-48 rounded-lg shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-pointer"
+          />
+        </div>
+      )}
     </div>
   );
 }
