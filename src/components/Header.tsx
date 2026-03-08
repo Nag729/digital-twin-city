@@ -28,7 +28,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
 
   return (
     <header
-      className="flex-shrink-0 z-40 flex items-center justify-between px-7 py-3.5"
+      className="flex-shrink-0 z-40 flex items-center justify-between px-3 md:px-7 py-2.5 md:py-3.5"
       style={{
         background: 'rgba(255, 248, 240, 0.95)',
         backdropFilter: 'blur(8px)',
@@ -36,9 +36,9 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
       }}
     >
       {/* Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3 shrink-0">
         <h1
-          className="text-[22px] -tracking-[0.02em] select-none"
+          className="text-[15px] md:text-[22px] -tracking-[0.02em] select-none"
           style={{ fontFamily: "'Zen Maru Gothic', sans-serif" }}
         >
           {TITLE_CHARS.map((char, i) => (
@@ -57,13 +57,13 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
       </div>
 
       {/* Phase Navigation — integrated in header */}
-      <nav className="flex items-center gap-2">
+      <nav className="flex items-center gap-1 md:gap-2">
         {/* Prev arrow */}
         <button
           type="button"
           onClick={() => canGoPrev && onPhaseChange((currentPhase - 1) as PhaseNumber)}
           disabled={!canGoPrev}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-border-warm/30"
+          className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full transition-all duration-200 hover:bg-border-warm/30"
           style={{ color: '#8B7355' }}
         >
           <svg
@@ -82,7 +82,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
 
         {/* Phase dots and labels */}
         <div
-          className="flex items-center gap-0 px-4 py-2 rounded-full"
+          className="flex items-center gap-0 px-2.5 md:px-4 py-1.5 md:py-2 rounded-full"
           style={{ background: 'rgba(255, 255, 255, 0.7)' }}
         >
           {PHASES.map((phase, i) => {
@@ -93,10 +93,10 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
 
             return (
               <div key={phaseNum} className="flex items-center">
-                {/* Connecting line */}
+                {/* Connecting line — hidden on mobile */}
                 {i > 0 && (
                   <div
-                    className="w-8 h-0.5 mx-0.5 rounded-full"
+                    className="hidden md:block w-8 h-0.5 mx-0.5 rounded-full"
                     style={{
                       background:
                         phaseNum <= currentPhase
@@ -105,6 +105,8 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
                     }}
                   />
                 )}
+                {/* Mobile spacer */}
+                {i > 0 && <div className="w-3 md:hidden" />}
 
                 {/* Dot + label */}
                 <button
@@ -114,7 +116,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
                   className="flex flex-col items-center gap-0.5 group relative"
                 >
                   <div
-                    className="relative w-3 h-3 rounded-full transition-all duration-300"
+                    className="relative w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all duration-300"
                     style={{
                       background: isCurrent ? dotColor : isReached ? `${dotColor}66` : '#E8DDD0',
                       boxShadow: isCurrent ? `0 0 0 3px ${dotColor}30, 0 2px 6px ${dotColor}40` : 'none',
@@ -122,9 +124,9 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
                     }}
                   />
 
-                  {/* Label */}
+                  {/* Label — hidden on mobile */}
                   <span
-                    className="absolute top-5 text-[10px] whitespace-nowrap font-medium transition-all duration-200 pointer-events-none"
+                    className="absolute top-5 text-[10px] whitespace-nowrap font-medium transition-all duration-200 pointer-events-none hidden md:block"
                     style={{
                       color: isCurrent ? '#5D4E37' : '#C4B5A0',
                       opacity: isCurrent ? 1 : 0,
@@ -143,7 +145,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
           type="button"
           onClick={() => canGoNext && onPhaseChange((currentPhase + 1) as PhaseNumber)}
           disabled={!canGoNext}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:bg-border-warm/30"
+          className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full transition-all duration-200 hover:bg-border-warm/30"
           style={{ color: '#8B7355' }}
         >
           <svg
@@ -162,9 +164,9 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
       </nav>
 
       {/* Phase badge */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <div
-          className="flex items-center gap-2 px-4 py-1.5 rounded-full"
+          className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1 md:py-1.5 rounded-full"
           style={{
             background: 'rgba(255, 255, 255, 0.85)',
             border: '1.5px solid #F5E6D3',
@@ -174,8 +176,8 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
             className="w-2 h-2 rounded-full bg-accent-mint"
             style={{ boxShadow: '0 0 4px rgba(110, 207, 176, 0.4)' }}
           />
-          <span className="text-xs text-text-primary font-medium">フェーズ {currentPhase}</span>
-          <span className="text-[10px] text-text-muted">/5</span>
+          <span className="text-[10px] md:text-xs text-text-primary font-medium">P{currentPhase}</span>
+          <span className="text-[10px] text-text-muted hidden md:inline">/5</span>
         </div>
       </div>
     </header>

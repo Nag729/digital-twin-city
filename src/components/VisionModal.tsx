@@ -38,11 +38,11 @@ export default function VisionModal({ onClose, vision, currentPhase }: VisionMod
     >
       <motion.div
         ref={panelRef}
-        className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
+        className="w-[560px] max-w-[90vw] max-h-[85vh] flex flex-col rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
         {...modalSlideUpProps}
       >
-        {/* Header */}
-        <div className="px-7 pt-7 pb-5 border-b border-border-warm">
+        {/* Header — sticky */}
+        <div className="sticky top-0 z-10 px-7 pt-7 pb-5 border-b border-border-warm bg-white rounded-t-3xl flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -64,47 +64,50 @@ export default function VisionModal({ onClose, vision, currentPhase }: VisionMod
           </div>
         </div>
 
-        <div className="px-7 py-6 space-y-6">
-          {/* Vision Statement */}
-          <div className="rounded-2xl p-5" style={{ border: '1.5px solid #E9D5FF', backgroundColor: '#FAF5FF' }}>
-            <p className="section-label mb-3" style={{ color: '#C4B5FD' }}>
-              ビジョンステートメント
-            </p>
-            <p className="text-lg font-medium leading-relaxed" style={{ color: '#7C3AED' }}>
-              &ldquo;{vision.statement}&rdquo;
-            </p>
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1">
+          <div className="px-7 py-6 space-y-6">
+            {/* Vision Statement */}
+            <div className="rounded-2xl p-5" style={{ border: '1.5px solid #E9D5FF', backgroundColor: '#FAF5FF' }}>
+              <p className="section-label mb-3" style={{ color: '#C4B5FD' }}>
+                ビジョンステートメント
+              </p>
+              <p className="text-lg font-medium leading-relaxed" style={{ color: '#7C3AED' }}>
+                &ldquo;{vision.statement}&rdquo;
+              </p>
+            </div>
+
+            {/* Priorities — Phase 5 only */}
+            {currentPhase >= 5 && (
+              <div>
+                <div className="flex items-center gap-2 mb-3.5">
+                  <p className="section-label">優先事項</p>
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse"
+                    style={{ color: '#7C3AED', background: '#EDE9FE' }}
+                  >
+                    New
+                  </span>
+                </div>
+                <div className="space-y-3.5">
+                  {vision.priorities.map((p, i) => (
+                    <div key={i} className="flex items-start gap-3 rounded-xl p-4" style={{ background: '#FAF5FF' }}>
+                      <span
+                        className="font-medium text-xs rounded-full w-6 h-6 flex items-center justify-center shrink-0"
+                        style={{ color: '#C4B5FD', background: '#F0EAFF' }}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="text-sm text-text-primary leading-relaxed">{p}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Priorities — Phase 5 only */}
-          {currentPhase >= 5 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3.5">
-                <p className="section-label">優先事項</p>
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse"
-                  style={{ color: '#7C3AED', background: '#EDE9FE' }}
-                >
-                  New
-                </span>
-              </div>
-              <div className="space-y-3.5">
-                {vision.priorities.map((p, i) => (
-                  <div key={i} className="flex items-start gap-3 rounded-xl p-4" style={{ background: '#FAF5FF' }}>
-                    <span
-                      className="font-medium text-xs rounded-full w-6 h-6 flex items-center justify-center shrink-0"
-                      style={{ color: '#C4B5FD', background: '#F0EAFF' }}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="text-sm text-text-primary leading-relaxed">{p}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="h-4" />
         </div>
-
-        <div className="h-4" />
       </motion.div>
     </motion.div>
   );

@@ -58,13 +58,18 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
           }}
         />
 
-        <motion.div className="px-8 pt-8 pb-3" variants={containerVariants} initial="hidden" animate="show">
+        <motion.div
+          className="px-5 md:px-8 pt-6 md:pt-8 pb-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {/* Headline */}
-          <motion.div className="text-center mb-6" variants={itemVariants}>
-            <p className="text-xs font-medium tracking-widest uppercase mb-3" style={{ color: '#6ECFB0' }}>
+          <motion.div className="text-center mb-4 md:mb-6" variants={itemVariants}>
+            <p className="text-xs font-medium tracking-widest uppercase mb-2 md:mb-3" style={{ color: '#6ECFB0' }}>
               Concept Demo
             </p>
-            <h1 className="text-2xl font-bold leading-snug" style={{ color: '#5D4E37' }}>
+            <h1 className="text-xl md:text-2xl font-bold leading-snug" style={{ color: '#5D4E37' }}>
               生成AIがコードを書く時代。
               <br />
               <span style={{ color: '#6ECFB0' }}>次に変わるのは「品質保証」です。</span>
@@ -73,14 +78,14 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
 
           {/* Context */}
           <motion.div
-            className="rounded-2xl p-5 mb-6"
+            className="rounded-2xl p-4 md:p-5 mb-4 md:mb-6"
             style={{
               background: '#FFFAF5',
               border: '1.5px solid #F5E6D3',
             }}
             variants={itemVariants}
           >
-            <p className="text-sm leading-relaxed" style={{ color: '#8B7355' }}>
+            <p className="text-xs md:text-sm leading-relaxed" style={{ color: '#8B7355' }}>
               プロダクトの世界をデジタルツインとして再現し、その中で
               <span className="font-bold" style={{ color: '#5D4E37' }}>
                 AIエージェントが人間のように振る舞いながら品質を検証する
@@ -127,7 +132,7 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
 
         {/* CTA */}
         <motion.div
-          className="px-8 pt-4 pb-7"
+          className="px-5 md:px-8 pt-4 pb-5 md:pb-7"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.8 }}

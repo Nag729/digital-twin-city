@@ -567,21 +567,38 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
   const dimsRef = useRef({ width: 0, height: 0 });
   const prevPhase = useRef(currentPhase);
 
+  // Camera state for zoom & pan
+  const cameraRef = useRef({ x: 0, y: 0, zoom: 1 });
+  const dragRef = useRef<{ active: boolean; startX: number; startY: number; camStartX: number; camStartY: number }>({
+    active: false,
+    startX: 0,
+    startY: 0,
+    camStartX: 0,
+    camStartY: 0,
+  });
+  const pinchRef = useRef<{ active: boolean; startDist: number; startZoom: number }>({
+    active: false,
+    startDist: 0,
+    startZoom: 1,
+  });
+
   useEffect(() => {
     prevPhase.current = currentPhase;
   }, [currentPhase]);
 
-  // Convert mouse event to logical canvas coordinates
-  const getLogicalCoords = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // Convert mouse/touch event to logical canvas coordinates (accounting for camera)
+  const getLogicalCoords = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const mx = (e.clientX - rect.left) * scaleX;
-    const my = (e.clientY - rect.top) * scaleY;
-    const dpr = window.devicePixelRatio || 1;
-    return { x: mx / dpr, y: my / dpr };
+    const mx = ((clientX - rect.left) * scaleX) / dpr;
+    const my = ((clientY - rect.top) * scaleY) / dpr;
+    // Reverse camera transform
+    const cam = cameraRef.current;
+    return { x: (mx - cam.x) / cam.zoom, y: (my - cam.y) / cam.zoom };
   };
 
   // Hit test against agents and buildings
@@ -602,37 +619,82 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     return null;
   };
 
-  // Click handler
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const coords = getLogicalCoords(e);
-    if (!coords) return;
-    const { x: lx, y: ly } = coords;
+  // Click handler — only fires if not dragged
+  const clickIntentRef = useRef<{ x: number; y: number } | null>(null);
 
-    const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
-    for (const agent of currentAgents) {
-      const dist = Math.sqrt((lx - agent.position.x) ** 2 + (ly - agent.position.y) ** 2);
-      if (dist < 22) {
-        onAgentClick?.(agent.id);
-        return;
-      }
-    }
-    for (const b of currentBuildings) {
-      const dims = BUILDING_SPRITE_SIZE[b.type] || BUILDING_SPRITE_SIZE.receive_station;
-      const hw = dims.w / 2 + 10;
-      const hh = dims.h + 10;
-      if (lx > b.position.x - hw && lx < b.position.x + hw && ly > b.position.y - hh && ly < b.position.y + 10) {
-        onBuildingClick?.(b.id);
-        return;
-      }
-    }
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    clickIntentRef.current = { x: e.clientX, y: e.clientY };
+    const cam = cameraRef.current;
+    dragRef.current = { active: true, startX: e.clientX, startY: e.clientY, camStartX: cam.x, camStartY: cam.y };
+    canvasRef.current?.setPointerCapture(e.pointerId);
   };
 
-  // Hover cursor management
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const coords = getLogicalCoords(e);
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (dragRef.current.active) {
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      cameraRef.current.x = dragRef.current.camStartX + dx;
+      cameraRef.current.y = dragRef.current.camStartY + dy;
+      // If dragged far enough, cancel click intent
+      if (clickIntentRef.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+        clickIntentRef.current = null;
+      }
+    }
+    // Hover cursor
+    const coords = getLogicalCoords(e.clientX, e.clientY);
     if (!coords || !canvasRef.current) return;
     const hit = hitTest(coords.x, coords.y);
-    canvasRef.current.style.cursor = hit ? 'pointer' : 'default';
+    canvasRef.current.style.cursor = dragRef.current.active ? 'grabbing' : hit ? 'pointer' : 'grab';
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    dragRef.current.active = false;
+    // Only fire click if pointer didn't move much
+    if (clickIntentRef.current) {
+      const coords = getLogicalCoords(e.clientX, e.clientY);
+      if (coords) {
+        const { x: lx, y: ly } = coords;
+        const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
+        for (const agent of currentAgents) {
+          const dist = Math.sqrt((lx - agent.position.x) ** 2 + (ly - agent.position.y) ** 2);
+          if (dist < 22 / cameraRef.current.zoom + 5) {
+            onAgentClick?.(agent.id);
+            clickIntentRef.current = null;
+            return;
+          }
+        }
+        for (const b of currentBuildings) {
+          const dims = BUILDING_SPRITE_SIZE[b.type] || BUILDING_SPRITE_SIZE.receive_station;
+          const hw = dims.w / 2 + 10;
+          const hh = dims.h + 10;
+          if (lx > b.position.x - hw && lx < b.position.x + hw && ly > b.position.y - hh && ly < b.position.y + 10) {
+            onBuildingClick?.(b.id);
+            clickIntentRef.current = null;
+            return;
+          }
+        }
+      }
+    }
+    clickIntentRef.current = null;
+  };
+
+  // Wheel zoom
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const cam = cameraRef.current;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    // Mouse position relative to canvas element
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    const newZoom = Math.max(0.4, Math.min(4, cam.zoom * zoomFactor));
+    const scale = newZoom / cam.zoom;
+    // Zoom towards mouse position
+    cam.x = mx - (mx - cam.x) * scale;
+    cam.y = my - (my - cam.y) * scale;
+    cam.zoom = newZoom;
   };
 
   // Single render loop
@@ -684,20 +746,51 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
       const { width: cw, height: ch } = dimsRef.current;
       const { buildings: blds, agents: agts, currentPhase: phase } = propsRef.current;
       const sprites = spritesRef.current;
+      const cam = cameraRef.current;
 
+      // Clear and draw background (in screen space)
       drawBackground(ctx, cw, ch, frame);
+
+      // Apply camera transform
+      ctx.save();
+      ctx.translate(cam.x, cam.y);
+      ctx.scale(cam.zoom, cam.zoom);
+
       drawGrid(ctx);
       drawRoads(ctx);
-      drawConfetti(ctx, cw, ch, frame, confettiParticles.current);
+
+      // Confetti & skill bands use canvas size, so pass adjusted sizes
+      const vcw = cw / cam.zoom;
+      const vch = ch / cam.zoom;
+      drawConfetti(ctx, vcw, vch, frame, confettiParticles.current);
 
       if (phase >= 3) {
-        drawSkillBands(ctx, cw, ch, frame, skillBandsList.current);
+        drawSkillBands(ctx, vcw, vch, frame, skillBandsList.current);
       }
 
       drawBuildings(ctx, blds, phase, frame, sprites);
 
       if (phase >= 2) {
         drawAgents(ctx, agts, frame, sprites, agentTrails.current);
+      }
+
+      ctx.restore();
+
+      // Draw zoom indicator (screen space) when zoomed
+      if (Math.abs(cam.zoom - 1) > 0.05) {
+        const zoomText = `${Math.round(cam.zoom * 100)}%`;
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.beginPath();
+        ctx.roundRect(cw - 64, ch - 32, 56, 24, 12);
+        ctx.fill();
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = '#5D4E37';
+        ctx.font = '500 11px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText(zoomText, cw - 36, ch - 16);
+        ctx.restore();
       }
 
       animRef.current = requestAnimationFrame(render);
@@ -712,13 +805,63 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Touch handlers for pinch-to-zoom
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      pinchRef.current = { active: true, startDist: Math.sqrt(dx * dx + dy * dy), startZoom: cameraRef.current.zoom };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2 && pinchRef.current.active) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const scale = dist / pinchRef.current.startDist;
+      const newZoom = Math.max(0.4, Math.min(4, pinchRef.current.startZoom * scale));
+      const cam = cameraRef.current;
+      // Zoom towards center of two fingers
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+        const s = newZoom / cam.zoom;
+        cam.x = cx - (cx - cam.x) * s;
+        cam.y = cy - (cy - cam.y) * s;
+      }
+      cam.zoom = newZoom;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    pinchRef.current.active = false;
+  };
+
+  // Double-click/tap to reset view
+  const handleDoubleClick = () => {
+    cameraRef.current = { x: 0, y: 0, zoom: 1 };
+  };
+
   return (
     <div ref={containerRef} className="w-full h-full relative">
       <canvas
         ref={canvasRef}
-        onClick={handleClick}
-        onMouseMove={handleMouseMove}
-        className="absolute inset-0 w-full h-full"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={() => {
+          dragRef.current.active = false;
+        }}
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onDoubleClick={handleDoubleClick}
+        className="absolute inset-0 w-full h-full touch-none"
       />
     </div>
   );

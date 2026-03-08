@@ -78,11 +78,11 @@ export default function KnowledgeModal({ onClose, skills }: KnowledgeModalProps)
     >
       <motion.div
         ref={panelRef}
-        className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
+        className="w-[560px] max-w-[90vw] max-h-[85vh] flex flex-col rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
         {...modalSlideUpProps}
       >
-        {/* Header */}
-        <div className="px-7 pt-7 pb-5 border-b border-border-warm">
+        {/* Header — sticky */}
+        <div className="sticky top-0 z-10 px-7 pt-7 pb-5 border-b border-border-warm bg-white rounded-t-3xl flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -104,27 +104,30 @@ export default function KnowledgeModal({ onClose, skills }: KnowledgeModalProps)
           </div>
         </div>
 
-        <div className="px-7 py-6 space-y-6">
-          {/* Explanation */}
-          <div className="rounded-2xl p-5" style={{ border: '1.5px solid #BAE6FD', backgroundColor: '#F0F9FF' }}>
-            <p className="text-sm leading-relaxed" style={{ color: '#0369A1' }}>
-              現実世界から得られたフィードバック（現場の声・利用データ・専門家の知見）をもとに、
-              エージェントがデジタルツイン上の行動を変えていきます。
-            </p>
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1">
+          <div className="px-7 py-6 space-y-6">
+            {/* Explanation */}
+            <div className="rounded-2xl p-5" style={{ border: '1.5px solid #BAE6FD', backgroundColor: '#F0F9FF' }}>
+              <p className="text-sm leading-relaxed" style={{ color: '#0369A1' }}>
+                現実世界から得られたフィードバック（現場の声・利用データ・専門家の知見）をもとに、
+                エージェントがデジタルツイン上の行動を変えていきます。
+              </p>
+            </div>
+
+            {/* Knowledge items */}
+            <div>
+              <p className="section-label mb-4">適用済みフィードバック</p>
+              <motion.div className="space-y-4" variants={staggerContainer} initial="hidden" animate="show">
+                {skills.map((skill) => (
+                  <KnowledgeItem key={skill.id} skill={skill} />
+                ))}
+              </motion.div>
+            </div>
           </div>
 
-          {/* Knowledge items */}
-          <div>
-            <p className="section-label mb-4">適用済みフィードバック</p>
-            <motion.div className="space-y-4" variants={staggerContainer} initial="hidden" animate="show">
-              {skills.map((skill) => (
-                <KnowledgeItem key={skill.id} skill={skill} />
-              ))}
-            </motion.div>
-          </div>
+          <div className="h-4" />
         </div>
-
-        <div className="h-4" />
       </motion.div>
     </motion.div>
   );

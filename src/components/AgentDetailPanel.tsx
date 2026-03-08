@@ -184,7 +184,7 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
     >
       <motion.div
         ref={panelRef}
-        className="h-full w-[460px] max-w-[90vw] overflow-y-auto rounded-l-3xl bg-white shadow-[-4px_0_30px_rgba(180,140,100,0.15)]"
+        className="h-full w-full md:w-[460px] md:max-w-[90vw] overflow-y-auto rounded-none md:rounded-l-3xl bg-white shadow-[-4px_0_30px_rgba(180,140,100,0.15)]"
         initial={{ x: '100%', opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: '100%', opacity: 0 }}

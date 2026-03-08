@@ -32,11 +32,11 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const hint = hints[currentHintIndex];
 
   return (
-    <div className="absolute top-4 left-4 right-4 z-30 pointer-events-none">
+    <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-30 pointer-events-none">
       <AnimatePresence mode="wait">
         <motion.div
           key={`${currentPhase}-${currentHintIndex}`}
-          className="glass-panel relative flex items-start gap-3 px-5 py-3.5 rounded-2xl pointer-events-auto"
+          className="glass-panel relative flex items-start gap-2 md:gap-3 px-3 md:px-5 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl pointer-events-auto"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
@@ -51,7 +51,7 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
           </div>
 
           {/* Hint text */}
-          <p className="flex-1 text-sm text-text-primary/90 leading-relaxed">{hint}</p>
+          <p className="flex-1 text-xs md:text-sm text-text-primary/90 leading-relaxed">{hint}</p>
 
           {/* Navigation controls */}
           <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">

@@ -92,7 +92,7 @@ function QualityChart({ scores }: { scores: number[] }) {
 function PaperCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`relative rounded-2xl p-5 ${className}`}
+      className={`relative rounded-2xl p-4 md:p-5 ${className}`}
       style={{
         background: '#FFFFFF',
         border: '1.5px solid #F5E6D3',
@@ -261,7 +261,7 @@ export default function StatusPanel({
 
   return (
     <div
-      className="w-[400px] h-full flex flex-col gap-5 p-5 overflow-y-auto"
+      className="w-full md:w-[400px] md:h-full flex flex-col gap-4 md:gap-5 p-4 md:p-5 md:overflow-y-auto"
       style={{ background: 'rgba(255, 248, 240, 0.6)' }}
     >
       {/* Core metrics */}

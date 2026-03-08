@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState, useSyncExternalStore } from 'react';
 import AgentDetailPanel from './components/AgentDetailPanel';
 import CityCanvas from './components/CityCanvas';
 import Header from './components/Header';
@@ -130,6 +130,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
+// ─── Mobile detection ────────────────────────────────────────────────
+const mobileQuery = typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)') : null;
+function subscribeMobile(cb: () => void) {
+  mobileQuery?.addEventListener('change', cb);
+  return () => mobileQuery?.removeEventListener('change', cb);
+}
+function getIsMobile() {
+  return mobileQuery?.matches ?? false;
+}
+
 // ─── App Component ────────────────────────────────────────────────────
 export default function App() {
   const [state, dispatch] = useReducer(gameReducer, {
@@ -144,6 +154,8 @@ export default function App() {
     qualityHistory: [],
   });
 
+  const isMobile = useSyncExternalStore(subscribeMobile, getIsMobile, () => false);
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
   const [visionModalOpen, setVisionModalOpen] = useState(false);
   const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
@@ -262,14 +274,14 @@ export default function App() {
           />
 
           {/* Action buttons — bottom-left of map */}
-          <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-3">
+          <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 z-10 flex flex-col gap-2 md:gap-3">
             {/* Knowledge button (Phase 3+) */}
             <AnimatePresence>
               {state.currentPhase >= 3 && (
                 <motion.button
                   type="button"
                   onClick={handleOpenKnowledge}
-                  className="flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex items-center gap-2 md:gap-2.5 px-3.5 md:px-5 py-2.5 md:py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   style={{
                     background: 'rgba(255, 255, 255, 0.92)',
                     backdropFilter: 'blur(8px)',
@@ -281,8 +293,8 @@ export default function App() {
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
                 >
-                  <span className="text-lg">📡</span>
-                  <span className="text-sm font-medium" style={{ color: '#0EA5E9' }}>
+                  <span className="text-base md:text-lg">📡</span>
+                  <span className="text-xs md:text-sm font-medium" style={{ color: '#0EA5E9' }}>
                     外部ナレッジ
                   </span>
                 </motion.button>
@@ -293,7 +305,7 @@ export default function App() {
             <motion.button
               type="button"
               onClick={handleOpenVision}
-              className="relative flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="relative flex items-center gap-2 md:gap-2.5 px-3.5 md:px-5 py-2.5 md:py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: isPhase5 ? 'rgba(250, 245, 255, 0.95)' : 'rgba(255, 255, 255, 0.92)',
                 backdropFilter: 'blur(8px)',
@@ -305,9 +317,9 @@ export default function App() {
               animate={isPhase5 ? { scale: [1, 1.05, 1] } : {}}
               transition={isPhase5 ? { duration: 2, ease: 'easeInOut', repeat: Infinity } : {}}
             >
-              <span className="text-lg">🧭</span>
-              <span className="text-sm font-medium" style={{ color: '#7C3AED' }}>
-                ヒューマンビジョン
+              <span className="text-base md:text-lg">🧭</span>
+              <span className="text-xs md:text-sm font-medium" style={{ color: '#7C3AED' }}>
+                ビジョン
               </span>
               {isPhase5 && (
                 <>
@@ -331,19 +343,84 @@ export default function App() {
               )}
             </motion.button>
           </div>
+
+          {/* Mobile: StatusPanel toggle button — bottom-right */}
+          {isMobile && (
+            <button
+              type="button"
+              onClick={() => setMobilePanelOpen(true)}
+              className="absolute bottom-4 right-4 z-10 flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)',
+                border: '1.5px solid #F5E6D3',
+                boxShadow: '0 2px 16px rgba(180, 140, 100, 0.15)',
+              }}
+            >
+              <span className="text-base">📊</span>
+              <span className="text-xs font-medium text-text-primary">ステータス</span>
+            </button>
+          )}
         </div>
 
-        {/* Status Panel */}
-        <div className="flex-shrink-0 border-l border-border-warm bg-bg-primary/90 backdrop-blur-sm z-20">
-          <StatusPanel
-            currentPhase={state.currentPhase}
-            metrics={metrics}
-            feedbacks={state.feedbacks}
-            agents={state.agents}
-            qualityHistory={state.qualityHistory}
-          />
-        </div>
+        {/* Status Panel — desktop: side panel */}
+        {!isMobile && (
+          <div className="flex-shrink-0 border-l border-border-warm bg-bg-primary/90 backdrop-blur-sm z-20">
+            <StatusPanel
+              currentPhase={state.currentPhase}
+              metrics={metrics}
+              feedbacks={state.feedbacks}
+              agents={state.agents}
+              qualityHistory={state.qualityHistory}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Status Panel — mobile: bottom sheet */}
+      <AnimatePresence>
+        {isMobile && mobilePanelOpen && (
+          <motion.div
+            className="fixed inset-0 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Backdrop */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop dismiss pattern */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'rgba(93, 78, 55, 0.3)', backdropFilter: 'blur(2px)' }}
+              onClick={() => setMobilePanelOpen(false)}
+              onKeyDown={() => {}}
+              role="presentation"
+            />
+            {/* Sheet */}
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 max-h-[75vh] rounded-t-3xl bg-bg-primary shadow-[0_-4px_30px_rgba(180,140,100,0.2)] overflow-hidden flex flex-col"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+            >
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-border-warm" />
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <StatusPanel
+                  currentPhase={state.currentPhase}
+                  metrics={metrics}
+                  feedbacks={state.feedbacks}
+                  agents={state.agents}
+                  qualityHistory={state.qualityHistory}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Intro Overlay */}
       <AnimatePresence>{showIntro && <IntroOverlay onClose={() => setShowIntro(false)} />}</AnimatePresence>
