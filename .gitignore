@@ -31,8 +31,5 @@ dist-ssr
 # Test / Playwright
 test/
 
-# Generated sprites (large AI-generated PNGs)
-# src/assets/sprites/*.png
-
 # Script output
 scripts/*.png
