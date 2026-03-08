@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useRef } from 'react';
 import type { PhaseNumber, Vision } from '../types';
+import { useModalDismiss } from '../utils/hooks';
 import { backdropMotionProps, modalSlideUpProps } from '../utils/motionVariants';
 
 interface VisionModalProps {
@@ -10,24 +10,7 @@ interface VisionModalProps {
 }
 
 export default function VisionModal({ onClose, vision, currentPhase }: VisionModalProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  const { panelRef, handleBackdropClick } = useModalDismiss(onClose);
 
   return (
     <motion.div

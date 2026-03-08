@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useRef } from 'react';
 import { MOCK_FEEDBACKS } from '../data/mockData';
 import type { ImprovementProposal } from '../types';
+import { useModalDismiss } from '../utils/hooks';
 import { backdropMotionProps, fadeUpVariants, modalSlideUpProps, staggerContainer } from '../utils/motionVariants';
 
 const IMPACT_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -101,24 +101,7 @@ interface ProposalModalProps {
 }
 
 export default function ProposalModal({ onClose, proposals, decisions, onDecide }: ProposalModalProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  const { panelRef, handleBackdropClick } = useModalDismiss(onClose);
 
   const goCount = proposals.filter((p) => decisions[p.id] === 'go').length;
   const nogoCount = proposals.filter((p) => decisions[p.id] === 'nogo').length;

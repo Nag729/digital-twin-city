@@ -21,6 +21,7 @@ import {
 } from './data/mockData';
 import type { Agent, AgentSkill, AgentState, Building, Feedback, PhaseNumber, Vision } from './types';
 import { initializeAgentPosition, simulateAgent } from './utils/agentSimulation';
+import { useModalState } from './utils/hooks';
 
 // ─── State ────────────────────────────────────────────────────────────
 interface GameState {
@@ -159,9 +160,9 @@ export default function App() {
   const isMobile = useSyncExternalStore(subscribeMobile, getIsMobile, () => false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
   const [phaseTransitioning, setPhaseTransitioning] = useState(false);
-  const [visionModalOpen, setVisionModalOpen] = useState(false);
-  const [knowledgeModalOpen, setKnowledgeModalOpen] = useState(false);
-  const [proposalModalOpen, setProposalModalOpen] = useState(false);
+  const [visionModalOpen, handleOpenVision, handleCloseVision] = useModalState();
+  const [knowledgeModalOpen, handleOpenKnowledge, handleCloseKnowledge] = useModalState();
+  const [proposalModalOpen, handleOpenProposal, handleCloseProposal] = useModalState();
   const [proposalDecisions, setProposalDecisions] = useState<Record<string, 'go' | 'nogo'>>({});
   const [showIntro, setShowIntro] = useState(true);
   const rafRef = useRef<number>(0);
@@ -217,30 +218,6 @@ export default function App() {
 
   const handleCloseDetail = useCallback(() => {
     dispatch({ type: 'SELECT_AGENT', agentId: null });
-  }, []);
-
-  const handleOpenVision = useCallback(() => {
-    setVisionModalOpen(true);
-  }, []);
-
-  const handleCloseVision = useCallback(() => {
-    setVisionModalOpen(false);
-  }, []);
-
-  const handleOpenKnowledge = useCallback(() => {
-    setKnowledgeModalOpen(true);
-  }, []);
-
-  const handleCloseKnowledge = useCallback(() => {
-    setKnowledgeModalOpen(false);
-  }, []);
-
-  const handleOpenProposal = useCallback(() => {
-    setProposalModalOpen(true);
-  }, []);
-
-  const handleCloseProposal = useCallback(() => {
-    setProposalModalOpen(false);
   }, []);
 
   const handleProposalDecide = useCallback((proposalId: string, decision: 'go' | 'nogo') => {
@@ -453,13 +430,7 @@ export default function App() {
                 <div className="w-10 h-1 rounded-full bg-border-warm" />
               </div>
               <div className="flex-1 overflow-y-auto">
-                <StatusPanel
-                  currentPhase={state.currentPhase}
-                  metrics={metrics}
-                  feedbacks={state.feedbacks}
-                  agents={state.agents}
-                  qualityHistory={state.qualityHistory}
-                />
+                <StatusPanel {...statusPanelProps} />
               </div>
             </motion.div>
           </motion.div>

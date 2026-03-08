@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getAgentLogs, INITIAL_BUILDINGS, LOG_ILLUSTRATIONS } from '../data/mockData';
 import type { Agent, AgentRole, Feedback } from '../types';
+import { useModalDismiss } from '../utils/hooks';
 import { backdropMotionProps } from '../utils/motionVariants';
 
 const buildingNameMap = new Map(INITIAL_BUILDINGS.map((b) => [b.id, b.name]));
@@ -100,8 +101,8 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
   const [visibleLogLines, setVisibleLogLines] = useState<number>(0);
   const [typingText, setTypingText] = useState('');
   const [currentTypingLine, setCurrentTypingLine] = useState(-1);
-  const panelRef = useRef<HTMLDivElement>(null);
   const logContainerRef = useRef<HTMLDivElement>(null);
+  const { panelRef, handleBackdropClick } = useModalDismiss(onClose);
 
   const logs = agent ? getAgentLogs(agent.id) : [];
   const agentFeedbacks = agent ? feedbacks.filter((f) => f.agentId === agent.id) : [];
@@ -159,25 +160,6 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [visibleLogLines, typingText]);
-
-  const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (agent) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [agent, onClose]);
 
   if (!agent) return null;
 

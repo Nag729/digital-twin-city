@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
-import type { Agent, AgentRole, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
+import type { Agent, AgentRole, AgentState, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
 import { fadeUpVariants, staggerVariants } from '../utils/motionVariants';
 
 const feedbackStaggerContainer = staggerVariants(0.1);
@@ -205,26 +205,116 @@ const STATE_LABELS: Record<string, { label: string; color: string; bg: string }>
   communicating: { label: '通信中', color: '#C4B5FD', bg: '#F5F3FF' },
 };
 
-function AgentStateSummary({ agents }: { agents: Agent[] }) {
-  const stateCounts: Record<string, number> = {};
-  agents.forEach((a) => {
-    stateCounts[a.state] = (stateCounts[a.state] || 0) + 1;
+const SNAPSHOT_INTERVAL = 2000; // 2秒ごとにスナップショット
+const STATE_ORDER: AgentState[] = ['working', 'moving', 'communicating', 'reporting', 'idle'];
+
+type StateEntry = { state: AgentState; count: number; pct: number };
+
+function useThrottledStateCounts(agents: Agent[]): StateEntry[] {
+  const [snapshot, setSnapshot] = useState<StateEntry[]>([]);
+  const lastUpdateRef = useRef(0);
+
+  useEffect(() => {
+    const now = Date.now();
+    if (now - lastUpdateRef.current < SNAPSHOT_INTERVAL && snapshot.length > 0) return;
+
+    const total = agents.length;
+    if (total === 0) {
+      setSnapshot([]);
+      return;
+    }
+
+    const counts: Record<string, number> = {};
+    for (const a of agents) {
+      counts[a.state] = (counts[a.state] || 0) + 1;
+    }
+
+    const next = STATE_ORDER.filter((s) => counts[s] > 0).map((s) => ({
+      state: s,
+      count: counts[s],
+      pct: Math.round((counts[s] / total) * 100),
+    }));
+
+    lastUpdateRef.current = now;
+    setSnapshot(next);
   });
 
+  return snapshot;
+}
+
+// ─── 2秒サイクルのリングインジケータ ─────────────────────────
+function RefreshRing() {
+  const r = 5;
+  const circumference = 2 * Math.PI * r;
+
   return (
-    <div className="flex flex-wrap gap-2 mt-2.5">
-      {Object.entries(stateCounts).map(([state, count]) => {
-        const cfg = STATE_LABELS[state] || { label: state, color: '#8B7355', bg: '#F5F0EB' };
-        return (
-          <span
-            key={state}
-            className="text-xs font-medium px-3 py-1.5 rounded-full"
-            style={{ color: cfg.color, backgroundColor: cfg.bg }}
-          >
-            {cfg.label}: {count}
-          </span>
-        );
-      })}
+    <svg width="14" height="14" viewBox="0 0 14 14" className="shrink-0" style={{ transform: 'rotate(-90deg)' }}>
+      {/* 背景リング */}
+      <circle cx="7" cy="7" r={r} fill="none" stroke="#E8DDD0" strokeWidth="1.5" />
+      {/* プログレスリング */}
+      <circle
+        cx="7"
+        cy="7"
+        r={r}
+        fill="none"
+        stroke="#B8A590"
+        strokeWidth="1.5"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference}
+        strokeLinecap="round"
+        style={{ animation: `refresh-ring ${SNAPSHOT_INTERVAL}ms linear infinite` }}
+      />
+    </svg>
+  );
+}
+
+function AgentStateSummary({ agents }: { agents: Agent[] }) {
+  const entries = useThrottledStateCounts(agents);
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="mt-2.5 space-y-2">
+      {/* 横棒グラフ */}
+      <div className="flex h-5 w-full rounded-full overflow-hidden" style={{ background: '#F5F0EB' }}>
+        {STATE_ORDER.map((state) => {
+          const entry = entries.find((e) => e.state === state);
+          const pct = entry?.pct ?? 0;
+          const cfg = STATE_LABELS[state];
+          return (
+            <div
+              key={state}
+              className="h-full transition-[width] duration-[1.5s] ease-in-out"
+              style={{
+                width: `${pct}%`,
+                backgroundColor: cfg.color,
+                opacity: pct > 0 ? 0.7 : 0,
+                minWidth: pct > 0 ? '4px' : '0',
+              }}
+            />
+          );
+        })}
+      </div>
+      {/* 凡例 + 更新インジケータ */}
+      <div className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 flex-1">
+          {entries.map(({ state, count, pct }) => {
+            const cfg = STATE_LABELS[state];
+            return (
+              <span key={state} className="flex items-center gap-1 text-[11px] text-text-secondary">
+                <span
+                  className="inline-block w-2 h-2 rounded-full"
+                  style={{ backgroundColor: cfg.color, opacity: 0.7 }}
+                />
+                {cfg.label} {pct}%<span className="text-text-tertiary">({count})</span>
+              </span>
+            );
+          })}
+        </div>
+        <span className="flex items-center gap-1 text-[10px] text-text-tertiary shrink-0" title="2秒ごとに更新">
+          <RefreshRing />
+          {SNAPSHOT_INTERVAL / 1000}秒更新
+        </span>
+      </div>
     </div>
   );
 }

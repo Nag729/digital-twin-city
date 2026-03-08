@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
-import { useCallback, useEffect, useRef } from 'react';
 import type { AgentSkill } from '../types';
+import { useModalDismiss } from '../utils/hooks';
 import { backdropMotionProps, fadeUpVariants, modalSlideUpProps, staggerContainer } from '../utils/motionVariants';
 
 const SOURCE_LABELS: Record<AgentSkill['source'], { label: string; color: string; bg: string; icon: string }> = {
@@ -50,24 +50,7 @@ interface KnowledgeModalProps {
 }
 
 export default function KnowledgeModal({ onClose, skills }: KnowledgeModalProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  const { panelRef, handleBackdropClick } = useModalDismiss(onClose);
 
   return (
     <motion.div
