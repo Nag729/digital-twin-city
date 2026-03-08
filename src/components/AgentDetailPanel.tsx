@@ -129,15 +129,28 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
       setTypingText(line.slice(0, charIndex));
       if (charIndex >= line.length) {
         clearInterval(typeInterval);
-        setTimeout(() => {
+
+        const advanceLine = () => {
           setVisibleLogLines((prev) => prev + 1);
           setTypingText('');
           setCurrentTypingLine((prev) => prev + 1);
-        }, 1000);
+        };
+
+        // If this line has an illustration, wait for it to load before advancing
+        const illuFile = agentId ? LOG_ILLUSTRATIONS[agentId]?.[currentTypingLine] : undefined;
+        const illuSrc = illuFile ? illustrationMap[illuFile] : undefined;
+        if (illuSrc) {
+          const img = new Image();
+          img.onload = () => setTimeout(advanceLine, 800);
+          img.onerror = () => setTimeout(advanceLine, 800);
+          img.src = illuSrc;
+        } else {
+          setTimeout(advanceLine, 1000);
+        }
       }
     }, 20);
     return () => clearInterval(typeInterval);
-  }, [currentTypingLine, logs]);
+  }, [currentTypingLine, logs, agentId]);
 
   // Auto-scroll log container when new lines appear or typing progresses
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally triggering scroll on content changes

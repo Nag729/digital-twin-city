@@ -630,6 +630,8 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
   const clickIntentRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    // Don't start drag if pinch is active
+    if (pinchRef.current.active) return;
     clickIntentRef.current = { x: e.clientX, y: e.clientY };
     const cam = cameraRef.current;
     dragRef.current = { active: true, startX: e.clientX, startY: e.clientY, camStartX: cam.x, camStartY: cam.y };
@@ -637,6 +639,8 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    // Skip drag updates while pinching
+    if (pinchRef.current.active) return;
     if (dragRef.current.active) {
       const dx = e.clientX - dragRef.current.startX;
       const dy = e.clientY - dragRef.current.startY;

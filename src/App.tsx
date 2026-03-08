@@ -242,7 +242,7 @@ export default function App() {
   } as const;
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-bg-primary flex flex-col">
+    <div className="relative w-screen h-dvh overflow-hidden bg-bg-primary flex flex-col">
       {/* Phase transition flash — soft mint glow */}
       <AnimatePresence>
         {phaseTransitioning && (
