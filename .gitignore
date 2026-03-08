@@ -30,6 +30,3 @@ dist-ssr
 
 # Test / Playwright
 test/
-
-# Script output
-scripts/*.png
