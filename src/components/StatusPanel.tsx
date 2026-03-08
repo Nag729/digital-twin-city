@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import type { Agent, AgentRole, Feedback, FeedbackType, PhaseMetrics, PhaseNumber } from '../types';
 
@@ -316,14 +317,22 @@ export default function StatusPanel({
               </span>
             </div>
           )}
-          <div className="mt-4 space-y-3.5 max-h-48 overflow-y-auto">
-            {feedbacks.slice(0, 5).map((fb, i) => {
+          <motion.div
+            className="mt-4 space-y-3.5 max-h-48 overflow-y-auto"
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+          >
+            {feedbacks.slice(0, 5).map((fb) => {
               const cfg = FB_CONFIG[fb.type];
               return (
-                <div
+                <motion.div
                   key={fb.id}
-                  className="text-xs py-2.5 border-b border-border-warm/30 last:border-0 animate-fade-in"
-                  style={{ animationDelay: `${i * 100}ms` }}
+                  className="text-xs py-2.5 border-b border-border-warm/30 last:border-0"
+                  variants={{
+                    hidden: { opacity: 0, y: 8 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+                  }}
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: cfg.color }} />
@@ -338,10 +347,10 @@ export default function StatusPanel({
                     )}
                   </div>
                   <p className="text-text-primary mt-1.5 leading-relaxed">{fb.description}</p>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </PaperCard>
       )}
     </div>

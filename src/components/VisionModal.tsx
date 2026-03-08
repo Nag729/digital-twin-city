@@ -1,14 +1,14 @@
+import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 import type { PhaseNumber, Vision } from '../types';
 
 interface VisionModalProps {
-  open: boolean;
   onClose: () => void;
   vision: Vision;
   currentPhase: PhaseNumber;
 }
 
-export default function VisionModal({ open, onClose, vision, currentPhase }: VisionModalProps) {
+export default function VisionModal({ onClose, vision, currentPhase }: VisionModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   const handleBackdropClick = useCallback(
@@ -21,22 +21,30 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
   );
 
   useEffect(() => {
-    if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
+  }, [onClose]);
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
-    <div className="modal-backdrop justify-center" onClick={handleBackdropClick} role="presentation">
-      <div
+    <motion.div
+      className="modal-backdrop justify-center"
+      onClick={handleBackdropClick}
+      role="presentation"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
         ref={panelRef}
-        className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)] animate-[slideUp_0.3s_ease-out]"
+        className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
+        initial={{ y: 24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 24, opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
       >
         {/* Header */}
         <div className="px-7 pt-7 pb-5 border-b border-border-warm">
@@ -102,7 +110,7 @@ export default function VisionModal({ open, onClose, vision, currentPhase }: Vis
         </div>
 
         <div className="h-4" />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

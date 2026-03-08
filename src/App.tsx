@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import AgentDetailPanel from './components/AgentDetailPanel';
 import CityCanvas from './components/CityCanvas';
@@ -223,15 +224,20 @@ export default function App() {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-bg-primary flex flex-col">
       {/* Phase transition flash — soft mint glow */}
-      {phaseTransitioning && (
-        <div
-          className="fixed inset-0 z-[100] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(110,207,176,0.12) 0%, transparent 70%)',
-            animation: 'fade-in 0.3s ease-out',
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {phaseTransitioning && (
+          <motion.div
+            className="fixed inset-0 z-[100] pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(110,207,176,0.12) 0%, transparent 70%)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Header with Phase Navigation */}
       <Header
@@ -258,30 +264,36 @@ export default function App() {
           {/* Action buttons — bottom-left of map */}
           <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-3">
             {/* Knowledge button (Phase 3+) */}
-            {state.currentPhase >= 3 && (
-              <button
-                type="button"
-                onClick={handleOpenKnowledge}
-                className="flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.92)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1.5px solid #BAE6FD',
-                  boxShadow: '0 2px 16px rgba(135, 206, 235, 0.15)',
-                }}
-              >
-                <span className="text-lg">📡</span>
-                <span className="text-sm font-medium" style={{ color: '#0EA5E9' }}>
-                  外部ナレッジ
-                </span>
-              </button>
-            )}
+            <AnimatePresence>
+              {state.currentPhase >= 3 && (
+                <motion.button
+                  type="button"
+                  onClick={handleOpenKnowledge}
+                  className="flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.92)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1.5px solid #BAE6FD',
+                    boxShadow: '0 2px 16px rgba(135, 206, 235, 0.15)',
+                  }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                >
+                  <span className="text-lg">📡</span>
+                  <span className="text-sm font-medium" style={{ color: '#0EA5E9' }}>
+                    外部ナレッジ
+                  </span>
+                </motion.button>
+              )}
+            </AnimatePresence>
 
             {/* Vision button */}
-            <button
+            <motion.button
               type="button"
               onClick={handleOpenVision}
-              className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${isPhase5 ? 'animate-[bounce-soft_2s_ease-in-out_infinite]' : ''}`}
+              className="relative flex items-center gap-2.5 px-5 py-3 rounded-2xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: isPhase5 ? 'rgba(250, 245, 255, 0.95)' : 'rgba(255, 255, 255, 0.92)',
                 backdropFilter: 'blur(8px)',
@@ -290,6 +302,8 @@ export default function App() {
                   ? '0 4px 24px rgba(124, 58, 237, 0.25), 0 0 0 3px rgba(196, 181, 253, 0.15)'
                   : '0 2px 16px rgba(196, 181, 253, 0.15)',
               }}
+              animate={isPhase5 ? { scale: [1, 1.05, 1] } : {}}
+              transition={isPhase5 ? { duration: 2, ease: 'easeInOut', repeat: Infinity } : {}}
             >
               <span className="text-lg">🧭</span>
               <span className="text-sm font-medium" style={{ color: '#7C3AED' }}>
@@ -315,7 +329,7 @@ export default function App() {
                   </span>
                 </>
               )}
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -332,21 +346,26 @@ export default function App() {
       </div>
 
       {/* Intro Overlay */}
-      {showIntro && <IntroOverlay onClose={() => setShowIntro(false)} />}
+      <AnimatePresence>{showIntro && <IntroOverlay onClose={() => setShowIntro(false)} />}</AnimatePresence>
 
       {/* Agent Detail Panel */}
-      <AgentDetailPanel agent={selectedAgent} onClose={handleCloseDetail} feedbacks={state.feedbacks} />
+      <AnimatePresence>
+        {selectedAgent && (
+          <AgentDetailPanel agent={selectedAgent} onClose={handleCloseDetail} feedbacks={state.feedbacks} />
+        )}
+      </AnimatePresence>
 
       {/* Vision Modal */}
-      <VisionModal
-        open={visionModalOpen}
-        onClose={handleCloseVision}
-        vision={MOCK_VISION}
-        currentPhase={state.currentPhase}
-      />
+      <AnimatePresence>
+        {visionModalOpen && (
+          <VisionModal onClose={handleCloseVision} vision={MOCK_VISION} currentPhase={state.currentPhase} />
+        )}
+      </AnimatePresence>
 
       {/* Knowledge Modal */}
-      <KnowledgeModal open={knowledgeModalOpen} onClose={handleCloseKnowledge} skills={state.skills} />
+      <AnimatePresence>
+        {knowledgeModalOpen && <KnowledgeModal onClose={handleCloseKnowledge} skills={state.skills} />}
+      </AnimatePresence>
     </div>
   );
 }

@@ -168,7 +168,7 @@ export const INITIAL_BUILDINGS: Building[] = [
   },
   {
     id: 'b4',
-    name: '受取ステーション北',
+    name: '受取ステーションA',
     type: 'receive_station',
     position: gridToIso(14, 3),
     level: 1,
@@ -205,7 +205,7 @@ export const INITIAL_BUILDINGS: Building[] = [
   },
   {
     id: 'b8',
-    name: '受取ステーション東',
+    name: '受取ステーションB',
     type: 'receive_station',
     position: gridToIso(14, 7),
     level: 1,
@@ -233,7 +233,7 @@ export const INITIAL_BUILDINGS: Building[] = [
   },
   {
     id: 'b11',
-    name: '受取ステーション南',
+    name: '受取ステーションC',
     type: 'receive_station',
     position: gridToIso(10, 10),
     level: 1,
@@ -243,7 +243,7 @@ export const INITIAL_BUILDINGS: Building[] = [
   },
   {
     id: 'b12',
-    name: '受取ステーション西',
+    name: '受取ステーションD',
     type: 'receive_station',
     position: gridToIso(14, 11),
     level: 1,

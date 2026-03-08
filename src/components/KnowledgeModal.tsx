@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { AgentSkill } from '../types';
 
 const SOURCE_LABELS: Record<AgentSkill['source'], { label: string; color: string; bg: string; icon: string }> = {
@@ -7,20 +8,21 @@ const SOURCE_LABELS: Record<AgentSkill['source'], { label: string; color: string
   domain_expert: { label: '専門家知見', color: '#C4B5FD', bg: '#F5F3FF', icon: '🎓' },
 };
 
-function KnowledgeItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
-  const [visible, setVisible] = useState(false);
+const staggerContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.15 } },
+};
 
-  useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
+const staggerItem = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
+};
 
-  if (!visible) return null;
-
+function KnowledgeItem({ skill }: { skill: AgentSkill }) {
   const srcCfg = SOURCE_LABELS[skill.source] || SOURCE_LABELS.usage_analytics;
 
   return (
-    <div className="animate-fade-in paper-card">
+    <motion.div className="paper-card" variants={staggerItem}>
       <div className="flex items-center gap-2.5 mb-3.5">
         <span className="text-base">{srcCfg.icon}</span>
         <span
@@ -45,17 +47,16 @@ function KnowledgeItem({ skill, delay }: { skill: AgentSkill; delay: number }) {
         </div>
         <span className="text-sm font-mono font-medium text-text-secondary">{Math.round(skill.confidence * 100)}%</span>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 interface KnowledgeModalProps {
-  open: boolean;
   onClose: () => void;
   skills: AgentSkill[];
 }
 
-export default function KnowledgeModal({ open, onClose, skills }: KnowledgeModalProps) {
+export default function KnowledgeModal({ onClose, skills }: KnowledgeModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   const handleBackdropClick = useCallback(
@@ -68,22 +69,30 @@ export default function KnowledgeModal({ open, onClose, skills }: KnowledgeModal
   );
 
   useEffect(() => {
-    if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
+  }, [onClose]);
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop
-    <div className="modal-backdrop justify-center" onClick={handleBackdropClick} role="presentation">
-      <div
+    <motion.div
+      className="modal-backdrop justify-center"
+      onClick={handleBackdropClick}
+      role="presentation"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
         ref={panelRef}
-        className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)] animate-[slideUp_0.3s_ease-out]"
+        className="w-[560px] max-w-[90vw] max-h-[85vh] overflow-y-auto rounded-3xl bg-white shadow-[0_8px_40px_rgba(180,140,100,0.2)]"
+        initial={{ y: 24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 24, opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
       >
         {/* Header */}
         <div className="px-7 pt-7 pb-5 border-b border-border-warm">
@@ -120,16 +129,16 @@ export default function KnowledgeModal({ open, onClose, skills }: KnowledgeModal
           {/* Knowledge items */}
           <div>
             <p className="section-label mb-4">適用済みフィードバック</p>
-            <div className="space-y-4">
-              {skills.map((skill, i) => (
-                <KnowledgeItem key={skill.id} skill={skill} delay={i * 300} />
+            <motion.div className="space-y-4" variants={staggerContainer} initial="hidden" animate="show">
+              {skills.map((skill) => (
+                <KnowledgeItem key={skill.id} skill={skill} />
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
 
         <div className="h-4" />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

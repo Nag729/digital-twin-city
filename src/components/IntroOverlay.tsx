@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import { useCallback, useEffect } from 'react';
 
 interface IntroOverlayProps {
   onClose: () => void;
@@ -16,24 +17,21 @@ const STEPS_DATA = [
   { icon: '🔄', label: '自律的に改善を回す', desc: 'フィードバックループで品質が継続的に向上', color: '#FF8FAB' },
 ];
 
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+};
+
 export default function IntroOverlay({ onClose }: IntroOverlayProps) {
-  const [step, setStep] = useState(0);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-  }, []);
-
-  useEffect(() => {
-    if (step < 3) {
-      const timer = setTimeout(() => setStep((s) => s + 1), 400);
-      return () => clearTimeout(timer);
-    }
-  }, [step]);
-
   const handleClose = useCallback(() => {
-    setVisible(false);
-    setTimeout(onClose, 300);
+    onClose();
   }, [onClose]);
 
   useEffect(() => {
@@ -45,23 +43,24 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
   }, [handleClose]);
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-[60] flex items-center justify-center"
       style={{
         background: 'rgba(93, 78, 55, 0.45)',
         backdropFilter: 'blur(6px)',
-        opacity: visible ? 1 : 0,
-        transition: 'opacity 0.3s ease-out',
       }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
     >
-      <div
+      <motion.div
         className="w-[520px] max-w-[90vw] rounded-3xl bg-white overflow-hidden"
-        style={{
-          boxShadow: '0 12px 48px rgba(180, 140, 100, 0.25)',
-          transform: visible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.97)',
-          opacity: visible ? 1 : 0,
-          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease-out',
-        }}
+        style={{ boxShadow: '0 12px 48px rgba(180, 140, 100, 0.25)' }}
+        initial={{ y: 20, scale: 0.97, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        exit={{ y: 20, scale: 0.97, opacity: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Top accent band */}
         <div
@@ -71,45 +70,27 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
           }}
         />
 
-        <div className="px-8 pt-8 pb-3">
+        <motion.div className="px-8 pt-8 pb-3" variants={containerVariants} initial="hidden" animate="show">
           {/* Headline */}
-          <div className="text-center mb-6">
-            <p
-              className="text-xs font-medium tracking-widest uppercase mb-3"
-              style={{
-                color: '#6ECFB0',
-                opacity: step >= 0 ? 1 : 0,
-                transform: step >= 0 ? 'translateY(0)' : 'translateY(8px)',
-                transition: 'all 0.4s ease-out',
-              }}
-            >
+          <motion.div className="text-center mb-6" variants={itemVariants}>
+            <p className="text-xs font-medium tracking-widest uppercase mb-3" style={{ color: '#6ECFB0' }}>
               Concept Demo
             </p>
-            <h1
-              className="text-2xl font-bold leading-snug"
-              style={{
-                color: '#5D4E37',
-                opacity: step >= 0 ? 1 : 0,
-                transform: step >= 0 ? 'translateY(0)' : 'translateY(8px)',
-                transition: 'all 0.5s ease-out 0.1s',
-              }}
-            >
+            <h1 className="text-2xl font-bold leading-snug" style={{ color: '#5D4E37' }}>
               生成AIがコードを書く時代。
               <br />
               <span style={{ color: '#6ECFB0' }}>次に変わるのは「品質保証」です。</span>
             </h1>
-          </div>
+          </motion.div>
 
           {/* Context */}
-          <div
+          <motion.div
             className="rounded-2xl p-5 mb-6"
             style={{
               background: '#FFFAF5',
               border: '1.5px solid #F5E6D3',
-              opacity: step >= 1 ? 1 : 0,
-              transform: step >= 1 ? 'translateY(0)' : 'translateY(12px)',
-              transition: 'all 0.5s ease-out',
             }}
+            variants={itemVariants}
           >
             <p className="text-sm leading-relaxed" style={{ color: '#8B7355' }}>
               プロダクトの世界をデジタルツインとして再現し、その中で
@@ -118,31 +99,28 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
               </span>
               ——このデモでは、物流システムを題材にその未来を体験できます。
             </p>
-          </div>
+          </motion.div>
 
           {/* How it works */}
-          <div
-            style={{
-              opacity: step >= 2 ? 1 : 0,
-              transform: step >= 2 ? 'translateY(0)' : 'translateY(12px)',
-              transition: 'all 0.5s ease-out',
-            }}
-          >
+          <motion.div variants={itemVariants}>
             <p className="text-xs font-medium tracking-wide uppercase text-center mb-4" style={{ color: '#B8A590' }}>
               AIが品質を保証する仕組み
             </p>
-            <div className="grid grid-cols-2 gap-2.5">
+            <motion.div
+              className="grid grid-cols-2 gap-2.5"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+            >
               {STEPS_DATA.map((s, i) => (
-                <div
+                <motion.div
                   key={i}
                   className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5"
                   style={{
                     background: `${s.color}08`,
                     border: `1px solid ${s.color}25`,
-                    opacity: step >= 2 ? 1 : 0,
-                    transform: step >= 2 ? 'translateY(0)' : 'translateY(8px)',
-                    transition: `all 0.4s ease-out ${i * 0.08}s`,
                   }}
+                  variants={itemVariants}
                 >
                   <span className="text-base shrink-0">{s.icon}</span>
                   <div className="min-w-0">
@@ -153,14 +131,19 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
                       {s.desc}
                     </span>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* CTA */}
-        <div className="px-8 pt-4 pb-7">
+        <motion.div
+          className="px-8 pt-4 pb-7"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.8 }}
+        >
           <button
             type="button"
             onClick={handleClose}
@@ -169,15 +152,12 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
               background: 'linear-gradient(135deg, #6ECFB0, #87CEEB)',
               color: '#FFFFFF',
               boxShadow: '0 4px 16px rgba(110, 207, 176, 0.3)',
-              opacity: step >= 3 ? 1 : 0,
-              transform: step >= 3 ? 'translateY(0)' : 'translateY(8px)',
-              transition: 'opacity 0.4s ease-out, transform 0.4s ease-out, scale 0.15s',
             }}
           >
             体験を始める
           </button>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

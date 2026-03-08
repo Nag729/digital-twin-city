@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getAgentLogs, INITIAL_BUILDINGS, LOG_ILLUSTRATIONS } from '../data/mockData';
 import type { Agent, AgentRole, Feedback } from '../types';
@@ -174,11 +175,22 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
   const roleIndex = String(agentIndex).padStart(2, '0');
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop overlay
-    <div className="modal-backdrop justify-end" onClick={handleBackdropClick} role="presentation">
-      <div
+    <motion.div
+      className="modal-backdrop justify-end"
+      onClick={handleBackdropClick}
+      role="presentation"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
         ref={panelRef}
-        className="h-full w-[460px] max-w-[90vw] overflow-y-auto rounded-l-3xl bg-white shadow-[-4px_0_30px_rgba(180,140,100,0.15)] animate-[slideIn_0.3s_ease-out]"
+        className="h-full w-[460px] max-w-[90vw] overflow-y-auto rounded-l-3xl bg-white shadow-[-4px_0_30px_rgba(180,140,100,0.15)]"
+        initial={{ x: '100%', opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: '100%', opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
       >
         {/* Header */}
         <div
@@ -258,13 +270,16 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
                 </div>
               )}
               {currentTypingLine >= logs.length && (
-                <div
+                <motion.div
                   className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs"
-                  style={{ background: `${accentColor}15`, color: accentColor, animation: 'fade-in 0.4s ease-out' }}
+                  style={{ background: `${accentColor}15`, color: accentColor }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                 >
                   <span>✓</span>
                   <span className="font-medium">操作ログ完了</span>
-                </div>
+                </motion.div>
               )}
             </div>
           </Section>
@@ -309,8 +324,8 @@ export default function AgentDetailPanel({ agent, onClose, feedbacks }: AgentDet
         </div>
 
         <div className="h-10" />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -335,16 +350,18 @@ function LogLine({
         <span style={{ color: isWarning ? '#FFD93D' : '#E2DDD5' }}>{text}</span>
       </div>
       {illustrationSrc && (
-        <div
+        <motion.div
           className="ml-7 mb-1"
-          style={{ animation: 'paper-in 0.5s ease-out both' }}
+          initial={{ opacity: 0, y: 12, rotate: -1 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <img
             src={illustrationSrc}
             alt=""
             className="w-48 rounded-lg shadow-lg border border-white/10 hover:scale-105 transition-transform duration-200 cursor-pointer"
           />
-        </div>
+        </motion.div>
       )}
     </div>
   );
