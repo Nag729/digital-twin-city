@@ -73,6 +73,9 @@ function getRoleIcon(role: string): string {
   }
 }
 
+const MIN_ZOOM = 0.4;
+const MAX_ZOOM = 4;
+
 // ─── Particle & effect types ────────────────────────────────────
 interface Confetti {
   x: number;
@@ -601,19 +604,23 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     return { x: (mx - cam.x) / cam.zoom, y: (my - cam.y) / cam.zoom };
   };
 
-  // Hit test against agents and buildings
-  const hitTest = (lx: number, ly: number): 'agent' | 'building' | null => {
+  // Hit test against agents and buildings; returns the matched entity or null
+  const hitTest = (
+    lx: number,
+    ly: number,
+    agentRadius = 22,
+  ): { type: 'agent'; id: string } | { type: 'building'; id: string } | null => {
     const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
     for (const agent of currentAgents) {
       const dist = Math.sqrt((lx - agent.position.x) ** 2 + (ly - agent.position.y) ** 2);
-      if (dist < 22) return 'agent';
+      if (dist < agentRadius) return { type: 'agent', id: agent.id };
     }
     for (const b of currentBuildings) {
       const dims = BUILDING_SPRITE_SIZE[b.type] || BUILDING_SPRITE_SIZE.receive_station;
       const hw = dims.w / 2 + 10;
       const hh = dims.h + 10;
       if (lx > b.position.x - hw && lx < b.position.x + hw && ly > b.position.y - hh && ly < b.position.y + 10) {
-        return 'building';
+        return { type: 'building', id: b.id };
       }
     }
     return null;
@@ -635,16 +642,17 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
       const dy = e.clientY - dragRef.current.startY;
       cameraRef.current.x = dragRef.current.camStartX + dx;
       cameraRef.current.y = dragRef.current.camStartY + dy;
-      // If dragged far enough, cancel click intent
       if (clickIntentRef.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
         clickIntentRef.current = null;
       }
+      if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
+      return;
     }
-    // Hover cursor
+    // Hover cursor (only when not dragging)
     const coords = getLogicalCoords(e.clientX, e.clientY);
     if (!coords || !canvasRef.current) return;
     const hit = hitTest(coords.x, coords.y);
-    canvasRef.current.style.cursor = dragRef.current.active ? 'grabbing' : hit ? 'pointer' : 'grab';
+    canvasRef.current.style.cursor = hit ? 'pointer' : 'grab';
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -653,49 +661,39 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
     if (clickIntentRef.current) {
       const coords = getLogicalCoords(e.clientX, e.clientY);
       if (coords) {
-        const { x: lx, y: ly } = coords;
-        const { agents: currentAgents, buildings: currentBuildings } = propsRef.current;
-        for (const agent of currentAgents) {
-          const dist = Math.sqrt((lx - agent.position.x) ** 2 + (ly - agent.position.y) ** 2);
-          if (dist < 22 / cameraRef.current.zoom + 5) {
-            onAgentClick?.(agent.id);
-            clickIntentRef.current = null;
-            return;
-          }
-        }
-        for (const b of currentBuildings) {
-          const dims = BUILDING_SPRITE_SIZE[b.type] || BUILDING_SPRITE_SIZE.receive_station;
-          const hw = dims.w / 2 + 10;
-          const hh = dims.h + 10;
-          if (lx > b.position.x - hw && lx < b.position.x + hw && ly > b.position.y - hh && ly < b.position.y + 10) {
-            onBuildingClick?.(b.id);
-            clickIntentRef.current = null;
-            return;
-          }
+        const clickRadius = 22 / cameraRef.current.zoom + 5;
+        const hit = hitTest(coords.x, coords.y, clickRadius);
+        if (hit?.type === 'agent') {
+          onAgentClick?.(hit.id);
+        } else if (hit?.type === 'building') {
+          onBuildingClick?.(hit.id);
         }
       }
     }
     clickIntentRef.current = null;
   };
 
-  // Wheel zoom
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
+  // Zoom camera towards a point (shared by wheel and pinch)
+  const zoomToward = (pivotX: number, pivotY: number, newZoom: number) => {
     const cam = cameraRef.current;
+    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+    const s = clamped / cam.zoom;
+    cam.x = pivotX - (pivotX - cam.x) * s;
+    cam.y = pivotY - (pivotY - cam.y) * s;
+    cam.zoom = clamped;
+  };
+
+  // Wheel zoom — stored in ref so useEffect can access latest version
+  const handleWheelRef = useRef((e: WheelEvent) => {
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    // Mouse position relative to canvas element
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
     const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    const newZoom = Math.max(0.4, Math.min(4, cam.zoom * zoomFactor));
-    const scale = newZoom / cam.zoom;
-    // Zoom towards mouse position
-    cam.x = mx - (mx - cam.x) * scale;
-    cam.y = my - (my - cam.y) * scale;
-    cam.zoom = newZoom;
-  };
+    zoomToward(mx, my, cameraRef.current.zoom * zoomFactor);
+  });
 
   // Single render loop
   useEffect(() => {
@@ -711,11 +709,12 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
       spritesRef.current = sprites;
     });
 
-    // Init confetti particles
+    // Init confetti particles (use actual container size)
+    const { width: initW, height: initH } = container.getBoundingClientRect();
     for (let i = 0; i < 40; i++) {
       confettiParticles.current.push({
-        x: Math.random() * 1280,
-        y: Math.random() * 800,
+        x: Math.random() * initW,
+        y: Math.random() * initH,
         vx: (Math.random() - 0.5) * 0.4,
         vy: 0.15 + Math.random() * 0.25,
         life: Math.random() * 300,
@@ -798,9 +797,14 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
 
     animRef.current = requestAnimationFrame(render);
 
+    // Attach wheel listener with { passive: false } so preventDefault() works
+    const wheelHandler = (e: WheelEvent) => handleWheelRef.current(e);
+    canvas.addEventListener('wheel', wheelHandler, { passive: false });
+
     return () => {
       cancelAnimationFrame(animRef.current);
       ro.disconnect();
+      canvas.removeEventListener('wheel', wheelHandler);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -820,20 +824,14 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const scale = dist / pinchRef.current.startDist;
-      const newZoom = Math.max(0.4, Math.min(4, pinchRef.current.startZoom * scale));
-      const cam = cameraRef.current;
-      // Zoom towards center of two fingers
+      const newZoom = pinchRef.current.startZoom * (dist / pinchRef.current.startDist);
       const canvas = canvasRef.current;
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
         const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
         const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-        const s = newZoom / cam.zoom;
-        cam.x = cx - (cx - cam.x) * s;
-        cam.y = cy - (cy - cam.y) * s;
+        zoomToward(cx, cy, newZoom);
       }
-      cam.zoom = newZoom;
     }
   };
 
@@ -856,7 +854,6 @@ const CityCanvas: React.FC<CityCanvasProps> = ({
         onPointerCancel={() => {
           dragRef.current.active = false;
         }}
-        onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

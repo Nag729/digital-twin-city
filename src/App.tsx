@@ -233,6 +233,14 @@ export default function App() {
 
   const isPhase5 = state.currentPhase >= 5;
 
+  const statusPanelProps = {
+    currentPhase: state.currentPhase,
+    metrics,
+    feedbacks: state.feedbacks,
+    agents: state.agents,
+    qualityHistory: state.qualityHistory,
+  } as const;
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-bg-primary flex flex-col">
       {/* Phase transition flash — soft mint glow */}
@@ -366,13 +374,7 @@ export default function App() {
         {/* Status Panel — desktop: side panel */}
         {!isMobile && (
           <div className="flex-shrink-0 border-l border-border-warm bg-bg-primary/90 backdrop-blur-sm z-20">
-            <StatusPanel
-              currentPhase={state.currentPhase}
-              metrics={metrics}
-              feedbacks={state.feedbacks}
-              agents={state.agents}
-              qualityHistory={state.qualityHistory}
-            />
+            <StatusPanel {...statusPanelProps} />
           </div>
         )}
       </div>
