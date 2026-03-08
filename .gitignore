@@ -32,7 +32,7 @@ dist-ssr
 test/
 
 # Generated sprites (large AI-generated PNGs)
-src/assets/sprites/*.png
+# src/assets/sprites/*.png
 
 # Script output
 scripts/*.png
