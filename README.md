@@ -24,22 +24,6 @@ npm run dev
 
 ---
 
-## スプライト生成
-
-エージェントや建物のスプライト画像は OpenAI gpt-image-1 API で生成します。
-
-```bash
-# .env ファイルに API キーを設定
-echo "OPENAI_API_KEY=sk-..." > .env
-
-# スプライト生成スクリプトを実行
-node scripts/generate-sprites.mjs
-```
-
-生成されたスプライトは `src/assets/sprites/` に保存されます。既に存在するファイルはスキップされます。
-
----
-
 ## 技術スタック
 
 | カテゴリ | 技術 |
