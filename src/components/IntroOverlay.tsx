@@ -90,7 +90,7 @@ export default function IntroOverlay({ onClose }: IntroOverlayProps) {
               <span className="font-bold" style={{ color: '#5D4E37' }}>
                 AIエージェントが人間のように振る舞いながら品質を検証する
               </span>
-              ——このデモでは、物流システムを題材にその未来を体験できます。
+              ——このコンセプトデモでは、物流システムを題材にその未来を体験できます。
             </p>
           </motion.div>
 

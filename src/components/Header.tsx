@@ -57,7 +57,7 @@ export default function Header({ currentPhase, onPhaseChange, maxReachedPhase }:
       </div>
 
       {/* Phase Navigation — integrated in header */}
-      <nav className="flex items-center gap-1 md:gap-2">
+      <nav className="flex items-center gap-1 md:gap-2" data-onboarding="phase-nav">
         {/* Prev arrow */}
         <button
           type="button"

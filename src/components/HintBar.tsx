@@ -32,7 +32,10 @@ export default function HintBar({ currentPhase, hints }: HintBarProps) {
   const hint = hints[currentHintIndex];
 
   return (
-    <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-30 pointer-events-none">
+    <div
+      className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-30 pointer-events-none"
+      data-onboarding="hint-bar"
+    >
       <AnimatePresence mode="wait">
         <motion.div
           key={`${currentPhase}-${currentHintIndex}`}

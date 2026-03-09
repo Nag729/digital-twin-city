@@ -6,6 +6,7 @@ import Header from './components/Header';
 import HintBar from './components/HintBar';
 import IntroOverlay from './components/IntroOverlay';
 import KnowledgeModal from './components/KnowledgeModal';
+import OnboardingGuide from './components/OnboardingGuide';
 import ProposalModal from './components/ProposalModal';
 import StatusPanel from './components/StatusPanel';
 import VisionModal from './components/VisionModal';
@@ -165,10 +166,21 @@ export default function App() {
   const [proposalModalOpen, handleOpenProposal, handleCloseProposal] = useModalState();
   const [proposalDecisions, setProposalDecisions] = useState<Record<string, 'go' | 'nogo'>>({});
   const [showIntro, setShowIntro] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  // ─── Intro / Onboarding handlers ────────────────────────────────────
+  const handleIntroClose = useCallback(() => {
+    setShowIntro(false);
+    setTimeout(() => setShowOnboarding(true), 400);
+  }, []);
+
+  const handleOnboardingClose = useCallback(() => {
+    setShowOnboarding(false);
+  }, []);
 
   // ─── Phase change handler ───────────────────────────────────────────
   const handlePhaseChange = useCallback((phase: PhaseNumber) => {
@@ -262,7 +274,7 @@ export default function App() {
       {/* Main content area — fills remaining space */}
       <div className="flex flex-1 min-h-0 relative">
         {/* Map area */}
-        <div className="flex-1 relative min-w-0">
+        <div className="flex-1 relative min-w-0" data-onboarding="canvas">
           {/* Hint Bar — overlaid on map */}
           <HintBar currentPhase={state.currentPhase} hints={currentPhaseConfig.hints} />
 
@@ -438,7 +450,8 @@ export default function App() {
       </AnimatePresence>
 
       {/* Intro Overlay */}
-      <AnimatePresence>{showIntro && <IntroOverlay onClose={() => setShowIntro(false)} />}</AnimatePresence>
+      <AnimatePresence>{showIntro && <IntroOverlay onClose={handleIntroClose} />}</AnimatePresence>
+      <AnimatePresence>{showOnboarding && <OnboardingGuide onClose={handleOnboardingClose} />}</AnimatePresence>
 
       {/* Agent Detail Panel */}
       <AnimatePresence>
